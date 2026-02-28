@@ -2,6 +2,7 @@
 const express = require('express');
 const app = express();
 const port = 3000;
+const path = require('path');
 
 // 1. นำเข้าไฟล์เชื่อมต่อ Database (เพื่อให้มันแสดง log ว่าเชื่อมสำเร็จตอนรันเซิร์ฟเวอร์)
 require('./config/database');
@@ -23,7 +24,7 @@ app.use('/api/v1/auth', authRoutes);
 // --- ส่วนของการ Render หน้าเว็บ (EJS) ---
 // ถ้าผู้ใช้พิมพ์ localhost:3000/login ให้โชว์ไฟล์ views/login.ejs
 app.get('/', (req, res) => {
-    res.render('login'); 
+    res.sendFile(path.join(__dirname, "/public/login.html"));
 });
 
 // Route สำหรับเปิดหน้ารายการสินค้า
