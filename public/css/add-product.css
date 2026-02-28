@@ -1,0 +1,333 @@
+/* Reset & Base */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Sarabun', sans-serif;
+}
+
+body {
+    background-color: #f8f9fc;
+    color: #333;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.form-container {
+    background-color: #e2e8f0; /* สีเทาอ่อน */
+    border-radius: 20px;
+    padding: 40px 50px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.form-layout {
+    display: flex;
+    gap: 60px;
+    flex-wrap: wrap; 
+}
+
+/* --- ฝั่งซ้าย --- */
+.form-left {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.orange-box {
+    background-color: #f97316; /* สีส้ม */
+    color: white;
+    height: 250px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+}
+
+.orange-box h2 {
+    font-size: 1.5rem;
+    font-weight: 500;
+}
+
+.btn-upload {
+    background-color: #ea580c; /* สีส้มเข้มกว่านิดนึง */
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 100%;
+}
+
+.tag-group {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 10px;
+}
+
+.tag {
+    padding: 5px 15px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    border: none;
+}
+
+.tag-blue {
+    background-color: #3b82f6;
+    color: white;
+}
+
+.tag-orange {
+    background-color: #f59e0b;
+    color: white;
+    cursor: pointer;
+}
+
+.btn-close {
+    background: transparent;
+    border: none;
+    color: white;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+}
+
+/* --- ฝั่งขวา --- */
+.form-right {
+    flex: 1.5; 
+    min-width: 300px;
+}
+
+.form-title {
+    margin-bottom: 20px;
+    color: #1e293b;
+    font-size: 1.3rem;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+}
+
+.input-group.align-top {
+    align-items: flex-start; /* ดันป้ายชื่อขึ้นไปข้างบน (สำหรับ Textarea) */
+}
+
+.input-group label {
+    width: 100px; 
+    font-weight: 500;
+    color: #475569;
+    font-size: 0.95rem;
+}
+
+.input-light-blue {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    font-size: 0.95rem;
+    color: #3b82f6; /* ตัวหนังสือสีฟ้า */
+    background-color: white;
+    font-family: 'Sarabun', sans-serif;
+}
+
+.input-light-blue[readonly] {
+    background-color: #f1f5f9; /* ช่องที่แก้ไม่ได้จะสีเทาๆ นิดนึง */
+}
+
+textarea.input-light-blue {
+    resize: vertical;
+}
+
+.input-wrapper-unit {
+    flex: 1; /* ขยายเต็มพื้นที่ที่เหลือ */
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* บังคับให้ input กว้างเต็มกล่อง และเว้นที่ว่างฝั่งขวาไว้ 50px */
+.input-wrapper-unit .input-light-blue {
+    width: 100%;
+    padding-right: 50px; 
+}
+
+/* ตัวหนังสือ "บาท" หรือ "ชิ้น" ที่ลอยอยู่ฝั่งขวา */
+.input-wrapper-unit .unit-text {
+    position: absolute;
+    right: 15px;
+    color: #64748b; /* สีเทาๆ */
+    font-weight: 500;
+    pointer-events: none; /* ทริคเด็ด: ทำให้เมาส์คลิกทะลุคำว่า บาท ไปโดนกล่อง input ได้ */
+}
+
+/* ซ่อนลูกศรขึ้น-ลง (Spinners) ของกล่องกรอกตัวเลข ให้ดูคลีนๆ */
+input[type="number"]::-webkit-inner-spin-button,
+
+input[type="number"]::-webkit-outer-spin-button {
+    -webkit-appearance: none;
+    margin: 0;
+}
+
+/* สภาพสินค้า (Pills) */
+.condition-group {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+}
+
+/* สีพื้นฐาน (สีเทา) ตอนที่ไม่ได้โดนเลือก */
+.btn-condition {
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    background-color: #64748b; /* สีเทาเข้ม */
+    color: white;
+    transition: background-color 0.2s;
+}
+
+/* สีน้ำเงิน สำหรับปุ่มสภาพสมบูรณ์ (ตอนกด Active) */
+.btn-perfect.active {
+    background-color: #1d4ed8; /* สีน้ำเงิน */
+}
+
+/* สีส้ม สำหรับปุ่มชำรุด/เสียหาย (ตอนกด Active) */
+.btn-damaged.active {
+    background-color: #ea580c; /* สีส้ม */
+}
+
+/* --- ปุ่ม Save / Cancel --- */
+.form-actions {
+    display: flex;
+    justify-content: flex-end; 
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-cancel {
+    background-color: #ea580c;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-save {
+    background-color: #1d4ed8; 
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-orange-small {
+    background-color: #f97316;
+    color: white;
+    border: none;
+    padding: 0 15px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: bold;
+    font-family: 'Sarabun', sans-serif;
+    transition: background-color 0.2s;
+}
+
+.btn-orange-small:hover {
+    background-color: #ea580c;
+}
+
+/* เอา cursor pointer ไปใส่ในปุ่ม tag-close ด้วย จะได้รู้ว่ากดได้ */
+.tag-blue .btn-close {
+    cursor: pointer;
+}
+
+@media (max-width: 768px) {
+    
+    /* 1. ลดระยะขอบของกล่องเทา ให้เหลือพื้นที่บนจอมือถือเยอะๆ */
+    .form-container {
+        padding: 25px 20px; 
+    }
+
+    /* 2. ลดช่องว่างระหว่างกล่องบน-ล่าง */
+    .form-layout {
+        gap: 30px; 
+    }
+
+    /* 3. ปรับฟอร์มให้ Label (ชื่อช่อง) ไปอยู่ด้านบนของ Input */
+    .input-group {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+
+    .input-group label {
+        width: auto; /* ยกเลิกการล็อคความกว้าง 100px */
+        margin-bottom: 8px; /* เว้นระยะห่างจากกล่อง input */
+        font-size: 1rem;
+    }
+
+    /* 4. ให้กล่องกรอกข้อมูลกว้างเต็มจอ */
+    .input-light-blue, 
+    textarea.input-light-blue {
+        width: 100%; 
+    }
+
+    /* 5. ปรับปุ่มสภาพสินค้าให้ขยายเต็มพื้นที่และแบ่งกันคนละครึ่ง */
+    .condition-group {
+        width: 100%;
+        display: flex;
+    }
+
+    .btn-condition {
+        flex: 1; /* แบ่งพื้นที่ 50/50 */
+        text-align: center;
+        padding: 10px;
+    }
+
+    /* 6. ปรับปุ่ม Save / Cancel ให้เรียงบน-ล่าง และกว้างเต็มจอ (กดง่าย) */
+    .form-actions {
+        flex-direction: column-reverse; /* เอายกเลิกไว้ล่างสุด เซฟไว้บน */
+        gap: 12px;
+        margin-top: 25px;
+    }
+
+    .btn-save, .btn-cancel {
+        width: 100%; /* ปุ่มกว้างเต็มจอ */
+        padding: 12px;
+        font-size: 1rem;
+    }
+
+    /* 7. ปรับ Navbar บนมือถือให้ซ้อนกันสวยๆ (แถมให้เผื่อหน้าจอแคบมาก) */
+    .navbar {
+        flex-wrap: wrap;
+        padding: 15px 20px;
+        gap: 15px;
+    }
+    
+    .nav-links {
+        order: 3; /* ดันเมนูลิงก์ลงไปอยู่บรรทัดล่าง */
+        width: 100%;
+        justify-content: space-between;
+        gap: 10px;
+    }
+}
