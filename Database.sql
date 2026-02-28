@@ -63,10 +63,10 @@ CREATE TABLE IF NOT EXISTS "Inventory_Transactions" (
 
 CREATE TABLE IF NOT EXISTS "System_Logs" (
 	"log_id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
-	"user_id" INTEGER NOT NULL,
+	"username" VARCHAR NOT NULL,
 	"action" VARCHAR NOT NULL,
 	"description" TEXT NOT NULL,
 	"created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
-	FOREIGN KEY ("user_id") REFERENCES "Users"("user_id")
+	FOREIGN KEY ("username") REFERENCES "Users"("username")
 	ON UPDATE NO ACTION ON DELETE NO ACTION
 );
