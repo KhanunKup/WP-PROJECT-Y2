@@ -33,8 +33,7 @@ loginForm.addEventListener('submit', async function(event) {
             window.location.href = '/dashboard'; 
         } else {
             // ถ้ามี Error (เช่น 400, 401)
-            errorMessage.textContent = result.message; // เอากล่อง Error มาโชว์
-            errorMessage.style.display = 'block';
+            alert(result.message); // เอากล่อง Error มาโชว์
         }
 
     } catch (error) {
