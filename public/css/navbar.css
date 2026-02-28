@@ -1,0 +1,116 @@
+@font-face {
+    font-family: 'Outfit';
+    src: url('fonts/Outfit-VariableFont_wght.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    font-family: 'Outfit', sans-serif;
+    margin: 0;
+}
+
+navbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background-color: #ffffff;
+    padding: 10px 40px;
+    box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
+    height: 70px;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.logo-img {
+    height: 45px;
+}
+
+.logo-text-group {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.1;
+}
+
+.logo-text-group h1 {
+    margin: 0;
+    font-size: 25px;
+    font-weight: 800;
+    letter-spacing: 0.5px;
+}
+
+.logo-text-group h5 {
+    margin: 0;
+    font-size: 10px;
+    font-weight: 600;
+    letter-spacing: 0.2px;
+}
+
+.nav-text {
+    display: flex;
+    gap: 35px;
+}
+
+.nav-text p {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: #333;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.nav-text p:hover {
+    color: #E67E22;
+}
+
+.user-info {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    border-left: 1px solid #ddd;
+    /* border between Profile */
+    padding-left: 25px;
+}
+
+.user-img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.user-details {
+    display: flex;
+    flex-direction: column;
+    line-height: 1.2;
+    align-items: flex-start;
+}
+
+.user-details .user-name {
+    margin: 0;
+    font-size: 14px;
+    font-weight: 700;
+}
+
+.user-details p {
+    margin: 0;
+    line-height: 1.2;
+}
+
+.user-details .logout-btn {
+    margin: 0;
+    font-size: 12px;
+    color: #888;
+    cursor: pointer;
+}
+
+.right-menu {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+}
