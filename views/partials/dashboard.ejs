@@ -35,7 +35,21 @@
         <div class="profile">
             <img src="images/navbar-profile-pic.svg" alt="Profile">
             <p>Admin</p>
-            <p>1:26</p>
+            <p id="datetime-display"></p>
         </div>
     </navbar>
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const timeString = now.toLocaleDateString('th-TH', options);
+            document.getElementById('datetime-display').innerText = timeString;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
 </body>

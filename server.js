@@ -27,6 +27,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "/public/login.html"));
 });
 
+app.get('/dashboard', (req, res) => {
+    // สั่ง render ไฟล์ views/add-product.ejs
+    res.render('dashboard'); 
+});
+
 // Route สำหรับเปิดหน้ารายการสินค้า
 app.get('/add-product', (req, res) => {
     // สั่ง render ไฟล์ views/add-product.ejs
