@@ -40,7 +40,7 @@ function renderProducts(products) {
             <div class="product-card">
                 <img src="${product.image_url || '/images/default-product.png'}" alt="${product.name}">
                 <h4 class="product-name">${product.name}</h4>
-                <button>รายละเอียด</button>
+                <a href="/product-details"><button>รายละเอียด</button></a>
             </div>
         `;
         // ยัด HTML ใหม่ลงไปใน Container
