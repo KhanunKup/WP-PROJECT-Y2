@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายการสินค้า</title>
+</head>
+<body>
+    <%- include("partials/navbar.ejs") %>
+
+    <h1>รายการสินค้า</h1>
+    <div class="filter">
+        <select id="categoryFilter">
+            <option value="all">ทั้งหมด</option>
+            <option value="food">อาหาร</option>
+            <option value="drink">เครื่องดื่ม</option>
+        </select>
+        <select id="statusFilter">
+            <option value="all">ทั้งหมด</option>
+            <option value="instock">มีสินค้า</option>
+            <option value="outstock">สินค้าหมด</option>
+        </select>
+        <input type="text" id="searchInput" placeholder="ค้นหาชื่อสินค้า...">
+        <a href="/add-product">เพิ่มสินค้า</a>
+    </div>
+    
+    <div id="productContainer">
+        
+    </div>
+
+    <script src="/js/product-filter.js"></script>
+</body>
+</html>
