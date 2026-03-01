@@ -40,6 +40,11 @@ app.get('/', (req, res) => {
 app.get('/product-list',(req,res)=>{
     res.render('product-list');
 });
+
+app.get('/dashboard', (req, res) => {
+    // สั่ง render ไฟล์ views/dashboard.ejs
+    res.render('dashboard');
+});
 // Route สำหรับเปิดหน้ารายการสินค้า
 app.get('/add-product', (req, res) => {
     // สั่ง render ไฟล์ views/add-product.ejs

@@ -1,0 +1,55 @@
+<body>
+    <navbar>
+        <div class="logo">
+            <img src="images/logo-pic.svg" alt="Logo">
+            <p style="font-family: Outfit;">EASYMANAGE</p>
+        </div>
+
+        <div class="nav-links">
+            <div class="nav-item active">
+                <img src="images/dashboard-frame-pic.svg" alt="Home">
+                <p>หน้าหลัก</p>
+            </div>
+            <div class="nav-item">
+                <img src="images/dashboard-box-pic.svg" alt="Inventory">
+                <p>คลังสินค้า</p>
+            </div>
+            <div class="nav-item">
+                <img src="images/dashboard-cart-pic.svg" alt="Order">
+                <p>คำสั่ง</p>
+            </div>
+            <div class="nav-item">
+                <img src="images/dashboard-chart-pic.svg" alt="Report">
+                <p>รายงานผล</p>
+            </div>
+            <div class="nav-item">
+                <img src="images/dashboard-user-pic.svg" alt="User">
+                <p>จัดการผู้ใช้</p>
+            </div>
+            <div class="nav-item">
+                <img src="images/dashboard-setting-pic.svg" alt="Setting">
+                <p>การตั้งค่า</p>
+            </div>
+        </div>
+
+        <div class="profile">
+            <img src="images/navbar-profile-pic.svg" alt="Profile">
+            <p>Admin</p>
+            <p id="datetime-display"></p>
+        </div>
+    </navbar>
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const timeString = now.toLocaleDateString('th-TH', options);
+            document.getElementById('datetime-display').innerText = timeString;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+</body>
