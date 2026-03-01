@@ -33,6 +33,7 @@ app.get('/add-product', (req, res) => {
     res.render('add-product'); 
 });
 
+
 // 5. สั่งให้เซิร์ฟเวอร์เริ่มทำงาน
 app.listen(port, () => {
     console.log(`🚀 Server is running on http://localhost:${port}`);

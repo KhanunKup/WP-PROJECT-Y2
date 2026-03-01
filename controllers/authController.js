@@ -21,11 +21,11 @@ exports.login = (req, res) => {
         if (err) {
             return res.status(500).json({ status: "error", message: "Server Error", data: null });
         }
-        
+
         // (สมมติว่าเช็ครหัสผ่านผ่านแล้ว)
         if (row) {
             //เก็บเข้า system_logs database
-            db.run (insert, [username,'Login','Login Success'],(err) => {if (err) {console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);}})
+            db.run(insert, [username, 'Login', 'Login Success'], (err) => { if (err) { console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message); } })
             // ตอบ JSON Success กลับไป
             return res.status(200).json({
                 status: "success",
@@ -37,8 +37,19 @@ exports.login = (req, res) => {
                 }
             });
         } else {
-            db.run (insert, [username,'Login','Login Rejected'],(err) => {if (err) {console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);}})
+            db.run(insert, [username, 'Login', 'Login Rejected'], (err) => { if (err) { console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message); } })
             return res.status(401).json({ status: "error", message: "ไม่พบผู้ใช้", data: null });
         }
+    });
+};
+
+exports.selectwh = (req, res) => {
+    const query = 'SELECT * FROM Warehouses'; 
+    db.all(query, (err, rows) => {
+        if (err) {
+            console.log(err.message);
+        }
+        console.log(rows);
+        res.render('warehouseSelect', { data: rows });
     });
 };
