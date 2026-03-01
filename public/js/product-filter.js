@@ -30,7 +30,7 @@ function renderProducts(products) {
     productContainer.innerHTML = ''; // ล้างการ์ดเก่าออกให้หมดก่อน
 
     if (products.length === 0) {
-        productContainer.innerHTML = '<p style="text-align:center; width: 100%;">ไม่พบสินค้าที่คุณค้นหา</p>';
+        productContainer.innerHTML = '<p style="text-align: center; grid-column: 1 / -1; padding: 50px 0; font-size: 18px; color: #666;">ไม่พบสินค้าที่คุณค้นหา</p>';
         return;
     }
 
