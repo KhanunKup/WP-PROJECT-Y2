@@ -41,13 +41,20 @@
                     
                     <div class="input-group">
                         <label>ชื่อสินค้า:</label>
-                        <input type="text" placeholder="กรุณากรอกชื่อสินค้า..." class="input-light-blue">
+                        <input type="text" placeholder="กรุณากรอกชื่อสินค้า..." class="input-area">
                     </div>
                     
                     <div class="input-group">
                         <label>หมวดหมู่:</label>
                         <div style="display: flex; gap: 10px; flex: 1;">
-                            <input type="text" id="categoryInput" class="input-light-blue" placeholder="พิมพ์หมวดหมู่...">
+                            <select id="categoryInput" class="input-light-blue" style="cursor: pointer; width: 100%; height: 45px; padding: 0 15px;">
+                                <option value="" disabled selected>เลือกหมวดหมู่สินค้า...</option>
+                                <option value="01">สมมุติว่าออกัส</option>
+                                <option value="02">สมมุติว่าขนุน</option>
+                                <option value="03">สมมุติว่าอะตอม</option>
+                                <option value="04">สมมุติว่าโบนัส</option>
+                                <option value="05">สมมุติว่าใบเตย</option>
+                            </select>
                             <button type="button" id="btnAddCategory" class="btn-orange-small">เพิ่ม</button>
                         </div>
                     </div>
@@ -55,7 +62,7 @@
                     <div class="input-group">
                         <label>ต้นทุน:</label>
                         <div class="input-wrapper-unit">
-                            <input type="number" id="inputCost" placeholder="0" min="0" class="input-light-blue">
+                            <input type="number" id="inputCost" placeholder="0" min="0" class="input-area">
                             <span class="unit-text">บาท</span>
                         </div>
                     </div>
@@ -63,7 +70,7 @@
                     <div class="input-group">
                         <label>ราคาขาย:</label>
                         <div class="input-wrapper-unit">
-                            <input type="number" id="inputPrice" placeholder="0" min="0" class="input-light-blue">
+                            <input type="number" id="inputPrice" placeholder="0" min="0" class="input-area">
                             <span class="unit-text">บาท</span>
                         </div>
                     </div>
@@ -78,7 +85,7 @@
 
                     <div class="input-group align-top">
                         <label>ที่จัดเก็บ:</label>
-                        <textarea rows="3" class="input-light-blue" placeholder="กรุณากรอกที่จัดเก็บ..."></textarea>
+                        <textarea rows="3" class="input-area" placeholder="กรุณากรอกที่จัดเก็บ..."></textarea>
                     </div>
                 </div>
             </div>

@@ -135,7 +135,45 @@ app.get('/api/v1/products',(req, res) => {
         });
     });
 });
-// 5. สั่งให้เซิร์ฟเวอร์เริ่มทำงาน
+
+app.post('/api/v1/products', (req, res) => {
+    const { name, category, cost, price, condition, location, user_id = 1 } = req.body;
+
+    const productCode = 'P-' + Date.now();
+    const sqlProduct = `INSERT INTO Products (product_code, name, category, cost_price, selling_price) VALUES (?, ?, ?, ?, ?)`;
+
+    db.run(sqlProduct, [productCode, name, category, cost, price], function(err) {
+        if (err) {
+            console.error("Error Products:", err.message);
+            return res.status(500).json({ status: "error", message: "บันทึกสินค้าไม่สำเร็จ" });
+        }
+
+        const newProductId = this.lastID; 
+
+        const sqlTransaction = `
+            INSERT INTO Inventory_Transactions 
+            (product_id, product_status, quantity, transaction_type, location_id, user_id) 
+            VALUES (?, ?, ?, 'Stock In', ?, ?)
+        `;
+
+        db.run(sqlTransaction, [newProductId, condition, 0, location, user_id], function(err2) {
+            if (err2) {
+                console.error("Error Transactions:", err2.message);
+                return res.status(500).json({ status: "error", message: "บันทึกประวัติการรับเข้าไม่สำเร็จ: " + err2.message });
+            }
+
+            const sqlLog = `INSERT INTO System_Logs (username, action, description) VALUES (?, ?, ?)`;
+            const logDescription = `เพิ่มสินค้าใหม่: ${name} (รหัส: ${productCode})`;
+
+            db.run(sqlLog, ['Admin', 'Add Product', logDescription], function(err3) {
+                if (err3) console.error("Log Error:", err3.message);
+                
+                res.status(201).json({ status: "success", message: "เพิ่มสินค้าและบันทึกประวัติเรียบร้อย!" });
+            });
+        });
+    });
+});
+
 app.listen(port, () => {
     console.log(`🚀 Server is running on http://localhost:${port}`);
 });
