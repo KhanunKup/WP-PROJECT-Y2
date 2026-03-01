@@ -51,6 +51,10 @@ app.get('/add-product', (req, res) => {
     res.render('add-product'); 
 });
 
+app.get('/product-details', (req, res) => {
+    // สั่ง render ไฟล์ views/product-details.ejs
+    res.render('product-details'); 
+});
 //api login
 app.post('/api/v1/auth/login',(req, res) => {
     // 1. รับค่าที่ Frontend ส่งมา
@@ -66,9 +70,9 @@ app.post('/api/v1/auth/login',(req, res) => {
     }
 
     // 3. ไปค้นหาใน Database
-    const sql = `SELECT * FROM Users WHERE username = ?`;
+    const sql = `SELECT * FROM Users WHERE username = ? and password = ?`;
     const insert = `insert into System_logs (username, action, description) values (?, ?, ?)`;
-    db.get(sql, [username], (err, row) => {
+    db.get(sql, [username,password], (err, row) => {
         if (err) {
             return res.status(500).json({ status: "error", message: "Server Error", data: null });
         }
@@ -89,7 +93,7 @@ app.post('/api/v1/auth/login',(req, res) => {
             });
         } else {
             db.run (insert, [username,'Login','Login Rejected'],(err) => {if (err) {console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);}})
-            return res.status(401).json({ status: "error", message: "ไม่พบผู้ใช้", data: null });
+            return res.status(401).json({ status: "error", message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", data: null });
         }
     });
 });
