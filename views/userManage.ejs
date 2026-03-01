@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/usermanage.css">
+    <link rel="stylesheet" href="css/navbar-dashboard.css">
+    <title>Document</title>
+</head>
+
+<body>
+    <div class="container">
+        <%- include('partials/dashboard.ejs') %>
+
+            <div class="manage-con">
+                <h1 style="text-align: left; margin-left: 10%;">จัดการข้อมูลผู้ใช้</h1>
+
+                <div class="user-detail">
+                    <div class="total-user">
+                        <div>
+                            <h2 style="margin: 0; font-size: 28px;">จำนวนผู้ใช้</h2>
+                            <h1 style="margin: 0;"><%= total %></h1>
+                        </div>
+                        <img src="images/manageuser-user-pic.svg">
+                    </div>
+
+                    <div class="total-manager">
+                        <div>
+                            <h2 style="margin: 0; font-size: 28px;">จำนวนผู้จัดการ</h2>
+                            <h1 style="margin: 0;"><%= total %></h1>
+                        </div>
+                        <img src="images/manageuser-manager-pic.svg">
+                    </div>
+
+                </div>
+                
+                <div class="function">
+                    <input type="text" placeholder="ค้นหาชื่อผู้ใช้">
+                    <button>+ เพิ่มผู้ใช้</button>
+                </div>
+
+                <table>
+                    <tr>
+                        <th>ลำดับ</th>
+                        <th>ผู้ใช้</th>
+                        <th>ชื่อของพนักงาน</th>
+                        <th>Email</th>
+                        <th>Role</th>
+                    </tr>
+                    <% data.forEach(item => { %>
+                        <tr>
+                            <td><%=item.user_id%></td>
+                            <td><%=item.username%></td>
+                            <td><%=item.firstname%> <%=item.lastname%></td>
+                            <td><%=item.email%></td>
+                            <td><%=item.role%></td>
+                        </tr>
+                    <% }) %>
+                </table>
+            </div>
+
+
+    </div>
+</body>
+
+</html>

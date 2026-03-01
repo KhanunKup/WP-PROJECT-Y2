@@ -1,0 +1,68 @@
+@font-face {
+    font-family: 'Kanit';
+    src: url('/fonts/Kanit-Semibold.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+* {
+    font-family: 'Kanit';
+}
+
+.container {
+    display: flex;
+    width: 100%;
+}
+
+.manage-con {
+    width: 100%;
+}
+
+.user-detail {
+    display: flex;
+    gap: 2%;
+    margin-left: 10%;
+}
+
+.total-user , .total-manager {
+    display: flex;
+    justify-content: space-between;
+    box-shadow: 0 0 8px rgb(0,0,0,0.2);
+    border-radius: 15px;
+    padding: 30px;
+    width: 40%;
+}
+
+input {
+    padding: 12px;
+    font-size: 18px;
+    margin-left: 11%;
+    border: none;
+    box-shadow: 0 0 8px rgb(0,0,0,0.2);
+    border-radius: 50px;
+    width: 42%;
+}
+
+button {
+    background-color: #1750AC;
+    padding: 15px 25px 15px 25px;
+    font-size: 18px;
+    border: none;
+    box-shadow: 0 0 8px rgb(0,0,0,0.2);
+    border-radius: 15px;
+    color: white;
+    cursor: pointer;
+}
+
+.function {
+    display: flex;
+    justify-content: space-between;
+    width: 91%;
+    margin-top: 2%;
+}
+
+button:hover {
+    background-color: #002a6e;
+    color: white;
+}
