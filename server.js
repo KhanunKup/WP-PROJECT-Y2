@@ -127,7 +127,7 @@ app.get('/api/v1/products',(req, res) => {
     });
 });
 
-app.post('/api/v1/products/add', (req, res) => {
+app.post('/api/v1/products', (req, res) => {
     const { name, category, cost, price, condition, location, user_id = 1 } = req.body;
 
     const productCode = 'P-' + Date.now();
