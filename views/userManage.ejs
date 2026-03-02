@@ -20,7 +20,9 @@
                     <div class="total-user">
                         <div>
                             <h2 style="margin: 0; font-size: 28px;">จำนวนผู้ใช้</h2>
-                            <h1 style="margin: 0;"><%= total %></h1>
+                            <h1 style="margin: 0;">
+                                <%= total %>
+                            </h1>
                         </div>
                         <img src="images/manageuser-user-pic.svg">
                     </div>
@@ -28,40 +30,86 @@
                     <div class="total-manager">
                         <div>
                             <h2 style="margin: 0; font-size: 28px;">จำนวนผู้จัดการ</h2>
-                            <h1 style="margin: 0;"><%= total %></h1>
+                            <h1 style="margin: 0;">
+                                <%= totaladmin %>
+                            </h1>
                         </div>
                         <img src="images/manageuser-manager-pic.svg">
                     </div>
 
                 </div>
-                
+
                 <div class="function">
                     <input type="text" placeholder="ค้นหาชื่อผู้ใช้">
-                    <button>+ เพิ่มผู้ใช้</button>
+                    <button class="add">+ เพิ่มผู้ใช้</button>
                 </div>
 
-                <table>
+                <table style="width: 80%; margin-left: 10%;">
                     <tr>
                         <th>ลำดับ</th>
                         <th>ผู้ใช้</th>
                         <th>ชื่อของพนักงาน</th>
                         <th>Email</th>
                         <th>Role</th>
+                        <th></th>
                     </tr>
-                    <% data.forEach(item => { %>
+                    <% data.forEach(item=> { %>
                         <tr>
-                            <td><%=item.user_id%></td>
-                            <td><%=item.username%></td>
-                            <td><%=item.firstname%> <%=item.lastname%></td>
-                            <td><%=item.email%></td>
-                            <td><%=item.role%></td>
+                            <td>
+                                <%=item.user_id%>
+                            </td>
+                            <td>
+                                <%=item.username%>
+                            </td>
+                            <td>
+                                <%=item.firstname%>
+                                    <%=item.lastname%>
+                            </td>
+                            <td>
+                                <%=item.email%>
+                            </td>
+                            <td>
+                                <%=item.role%>
+                            </td>
+                            <td style="display: flex; padding: 22px; justify-content: right; gap: 20px;">
+                                <form action="/deleteUser/<%=item.user_id%>" method="post" class="delete-form">
+                                    <button type="submit"
+                                        style="border: none; background-color: rgb(255, 255, 255,0.0); font-size: 22px; color: red; cursor: pointer;">Delete</button>
+                                </form>
+                                <a href=""><img src="images/manageuser-edit.svg"></a>
+                            </td>
                         </tr>
-                    <% }) %>
+                        <% }) %>
                 </table>
             </div>
 
-
     </div>
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script> 
+
+    <script>
+        const forms = document.querySelectorAll('.delete-form');
+
+        forms.forEach(form => {
+            form.addEventListener('submit', function (e) {
+                e.preventDefault();
+
+                Swal.fire({
+                    title: 'ยืนยันการลบ?',
+                    text: "ข้อมูลผู้ใช้จะถูกลบถาวร!",
+                    icon: 'warning',
+                    showCancelButton: true,
+                    confirmButtonColor: '#d33',
+                    cancelButtonColor: '#3085d6',
+                    confirmButtonText: 'ลบผู้ใช้',
+                    cancelButtonText: 'ยกเลิก'
+                }).then((result) => {
+                    if (result.isConfirmed) {
+                        form.submit();
+                    }
+                });
+            });
+        });
+    </script>
 </body>
 
 </html>

@@ -134,19 +134,20 @@ app.get('/api/v1/products', (req, res) => {
 });
 
 app.get('/select-warehouse', function (req, res) {
-  const query = 'SELECT * FROM Warehouses ';
-  db.all(query, (err, rows) => {
-    if (err) {
-      console.log(err.message);
-    }
-    console.log(rows);
-    res.render('warehouseSelect', { data : rows });
-  });
+    const query = 'SELECT * FROM Warehouses ';
+    db.all(query, (err, rows) => {
+        if (err) {
+            console.log(err.message);
+        }
+        console.log(rows);
+        res.render('warehouseSelect', { data: rows });
+    });
 });
 
 app.get('/user', function (req, res) {
     const queryTotal = 'SELECT COUNT(*) AS total FROM Users';
     const queryUser = 'SELECT * FROM Users';
+    const queryAdmin = `SELECT COUNT(*) AS adminTotal FROM Users WHERE role = 'admin'`;
 
     db.get(queryTotal, (err, count) => {
         if (err) {
@@ -157,10 +158,28 @@ app.get('/user', function (req, res) {
             if (err) {
                 console.error(err.message);
             }
-            
-            res.render('userManage', { data: rows, total: count.total });
+
+            db.get(queryAdmin, (err, countad) => {
+                if (err) {
+                    console.error(err.message);
+                }
+
+                res.render('userManage', { data: rows, total: count.total, totaladmin: countad.adminTotal });
+            });
         });
+
     });
+});
+
+app.post('/deleteUser/:id', function (req,res) {
+    const sql = `DELETE FROM Users WHERE user_id = ?`;
+    db.run(sql,[req.params.id], (err, rows) => {
+        if (err) {
+            console.error(err.message);
+        }
+
+        res.redirect('/user');
+    })
 });
 
 // 5. สั่งให้เซิร์ฟเวอร์เริ่มทำงาน
