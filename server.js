@@ -51,9 +51,29 @@ app.get('/add-product', (req, res) => {
     res.render('add-product'); 
 });
 
-app.get('/product-details', (req, res) => {
+app.get('/product-details/:id', (req, res) => {
     // สั่ง render ไฟล์ views/product-details.ejs
-    res.render('product-details'); 
+    const sql = `SELECT 
+            p.*, 
+            IFNULL(SUM(sb.quantity), 0) AS total_stock
+        FROM Products p
+        LEFT JOIN Stock_Balances sb ON p.product_id = sb.product_id
+        WHERE p.product_id = ?
+        GROUP BY p.product_id;`;
+    const id = req.params.id;
+    db.get(sql, [id], (err, row) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).send("Server Error");
+        }
+
+        if (row) {
+            console.log(JSON.stringify(row, null, 2));
+            res.render('product-details', { product: row });
+        } else {
+            res.status(404).send("ไม่พบสินค้า");
+        }
+    });
 });
 //api login
 app.post('/api/v1/auth/login',(req, res) => {

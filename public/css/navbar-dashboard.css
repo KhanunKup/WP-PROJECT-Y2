@@ -69,6 +69,11 @@ navbar {
     width: 30px;
 }
 
+.nav-item a {
+    text-decoration: none;
+    color: #d1d5db;
+}
+
 .nav-item p {
     margin: 0;
     font-size: 17px;
