@@ -9,33 +9,52 @@
 <body>
     <%- include("partials/navbar.ejs") %>
 
-    <h1>รายการสินค้า</h1>
-    <div class="filter">
-    <div style="display: flex; flex-direction: column; gap: 5px;">
-        <label style="font-weight: bold; font-size: 14px;">คัดกรองหมวดหมู่</label>
-        <select id="categoryFilter">
-            <option value="all">ทั้งหมด</option>
-            <option value="food">อาหาร</option>
-            <option value="drink">เครื่องดื่ม</option>
-        </select>
-    </div>
-
-    <div style="display: flex; flex-direction: column; gap: 5px;">
-        <label style="font-weight: bold; font-size: 14px;">สถานะ</label>
-        <select id="statusFilter">
-            <option value="all">ทั้งหมด</option>
-            <option value="instock">มีสินค้า</option>
-            <option value="outstock">สินค้าหมด</option>
-        </select>
-    </div>
-
-    <input type="text" id="searchInput" placeholder="ค้นหาชื่อสินค้า...">
-    <a href="/add-product">เพิ่มสินค้า</a>
-</div>
-    
-    <div id="productContainer">
+        <main class="container">
         
-    </div>
+        <div class="form-container">
+            <div class="form-layout">
+                <div class="form-left">
+                    <div class="image-box">
+                        <img src="<%= product.image_url %>">
+                    </div>
+                </div>
+                <div class="form-right">
+                    <h1><%= product.name %></h1>
+                    <h2 class="form-title">รายละเอียดสินค้า:</h2>
+
+                    <div class="input-group">
+                        <label>ต้นทุน:</label>
+                        <div class="input-wrapper-unit">
+                            <input type="number" id="inputCost" class="input-light-blue" value="<%= product.cost_price %>" min="0" readonly>
+                            <span class="unit-text">บาท</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>ราคาขาย:</label>
+                        <div class="input-wrapper-unit">
+                            <input type="number" id="inputPrice" class="input-light-blue" value="<%= product.selling_price %>" min="0" readonly>
+                            <span class="unit-text">บาท</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>จำนวน:</label>
+                        <div class="input-wrapper-unit">
+                            <input type="number" id="inputPrice" class="input-light-blue" value="<%= product.total_stock %>" min="0" readonly>
+                            <span class="unit-text">ชิ้น</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-save">✎ แก้ไขสินค้า</button>
+            </div>
+
+        </div>
+    </main>
 
     <script src="/js/product-filter.js"></script>
 </body>
