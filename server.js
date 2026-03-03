@@ -17,6 +17,7 @@ app.use(session({
 
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
+app.use('/sweetalert', express.static(__dirname + '/node_modules/sweetalert2/dist'));
 app.use(express.json()); // ให้ระบบอ่าน JSON ที่ Frontend ส่งมาได้
 app.use(express.urlencoded({ extended: true }));
 
@@ -147,7 +148,7 @@ app.get('/select-warehouse', function (req, res) {
 app.get('/user', function (req, res) {
     const queryTotal = 'SELECT COUNT(*) AS total FROM Users';
     const queryUser = 'SELECT * FROM Users';
-    const queryAdmin = `SELECT COUNT(*) AS adminTotal FROM Users WHERE role = 'admin'`;
+    const queryAdmin = `SELECT COUNT(*) AS adminTotal FROM Users WHERE role = 'manager'`;
 
     db.get(queryTotal, (err, count) => {
         if (err) {
