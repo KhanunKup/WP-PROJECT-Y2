@@ -1,0 +1,141 @@
+/* public/css/product-list.css */
+
+/* ตั้งค่าฟอนต์และพื้นหลังของหน้าเว็บ (ใช้ฟอนต์ที่คุณใช้อยู่ หรือ sans-serif พื้นฐาน) */
+@font-face {
+    font-family: 'Kanit';
+    src: url('/fonts/Kanit-Semibold.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    font-family: 'Kanit', sans-serif;
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+}
+
+/* ส่วนหัวข้อ */
+h1 {
+    font-size: 40px;
+    color: #111;
+    margin: 30px 40px 10px 40px;
+}
+
+/* --- ส่วนของ Filter (ตัวกรองและค้นหา) --- */
+.filter {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 0 40px 30px 40px;
+}
+
+/* ตกแต่ง Select และ Input */
+.filter select, 
+.filter input {
+    padding: 10px 15px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    background-color: #fff;
+    min-width: 150px;
+}
+
+.filter input:focus,
+.filter select:focus {
+    border-color: #1750AC;
+}
+
+/* ดันช่องค้นหาและปุ่มเพิ่มสินค้าไปชิดขวา */
+#searchInput {
+    margin-left: auto; 
+    min-width: 250px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+    background-repeat: no-repeat;
+    background-position: 95% center;
+}
+
+/* ปุ่มเพิ่มสินค้า */
+.filter a {
+    background-color: #1750AC;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.filter a::before {
+    content: "+";
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+.filter a:hover {
+    background-color: #123e85;
+}
+
+
+/* --- ส่วนของ Product Grid (การ์ดสินค้า) --- */
+#productContainer {
+    display: grid;
+    /* จัดการ์ดให้พอดีจออัตโนมัติ ขนาดขั้นต่ำ 220px */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 0 40px 50px 40px;
+}
+
+/* หน้าตาของการ์ดแต่ละใบ */
+.product-card {
+    background-color: #E2E2E2; /* สีเทาอ่อนแบบในรูป */
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
+}
+
+.product-card:hover {
+    transform: translateY(-3px); /* เวลานำเมาส์ชี้ให้การ์ดเด้งขึ้นนิดนึง */
+}
+
+/* รูปภาพในการ์ด */
+.product-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover; /* ให้รูปเต็มกรอบแบบสวยๆ */
+    background-color: #fff;
+    border-radius: 8px;
+    margin-bottom: 15px;
+}
+
+/* ชื่อสินค้า */
+.product-name {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #000;
+}
+
+/* ปุ่มรายละเอียดสีส้ม */
+.product-card button {
+    background-color: #E67E22;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    align-self: flex-start; /* ให้ปุ่มหดขนาดพอดีกับข้อความและชิดซ้าย */
+    transition: 0.2s;
+}
+
+.product-card button:hover {
+    background-color: #d67118;
+}
