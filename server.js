@@ -53,6 +53,10 @@ app.get('/add-product', (req, res) => {
     res.render('add-product');
 });
 
+app.get('/product-details', (req, res) => {
+    // สั่ง render ไฟล์ views/product-details.ejs
+    res.render('product-details'); 
+});
 //api login
 app.post('/api/v1/auth/login', (req, res) => {
     // 1. รับค่าที่ Frontend ส่งมา
@@ -68,9 +72,9 @@ app.post('/api/v1/auth/login', (req, res) => {
     }
 
     // 3. ไปค้นหาใน Database
-    const sql = `SELECT * FROM Users WHERE username = ?`;
+    const sql = `SELECT * FROM Users WHERE username = ? and password = ?`;
     const insert = `insert into System_logs (username, action, description) values (?, ?, ?)`;
-    db.get(sql, [username], (err, row) => {
+    db.get(sql, [username,password], (err, row) => {
         if (err) {
             return res.status(500).json({ status: "error", message: "Server Error", data: null });
         }
@@ -90,8 +94,8 @@ app.post('/api/v1/auth/login', (req, res) => {
                 }
             });
         } else {
-            db.run(insert, [username, 'Login', 'Login Rejected'], (err) => { if (err) { console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message); } })
-            return res.status(401).json({ status: "error", message: "ไม่พบผู้ใช้", data: null });
+            db.run (insert, [username,'Login','Login Rejected'],(err) => {if (err) {console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);}})
+            return res.status(401).json({ status: "error", message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", data: null });
         }
     });
 });
@@ -134,7 +138,7 @@ app.get('/api/v1/products', (req, res) => {
     });
 });
 
-app.get('/select-warehouse', function (req, res) {
+app.get('/api/v1/select-warehouse', function (req, res) {
     const query = 'SELECT * FROM Warehouses ';
     db.all(query, (err, rows) => {
         if (err) {
@@ -145,7 +149,7 @@ app.get('/select-warehouse', function (req, res) {
     });
 });
 
-app.get('/user', function (req, res) {
+app.get('/api/v1/user', function (req, res) {
     const queryTotal = 'SELECT COUNT(*) AS total FROM Users';
     const queryUser = 'SELECT * FROM Users';
     const queryAdmin = `SELECT COUNT(*) AS adminTotal FROM Users WHERE role = 'manager'`;
@@ -172,7 +176,7 @@ app.get('/user', function (req, res) {
     });
 });
 
-app.post('/deleteUser/:id', function (req,res) {
+app.post('/api/v1/deleteUser/:id', function (req,res) {
     const sql = `DELETE FROM Users WHERE user_id = ?`;
     db.run(sql,[req.params.id], (err, rows) => {
         if (err) {
@@ -184,6 +188,44 @@ app.post('/deleteUser/:id', function (req,res) {
 });
 
 // 5. สั่งให้เซิร์ฟเวอร์เริ่มทำงาน
+app.post('/api/v1/products', (req, res) => {
+    const { name, category, cost, price, condition, location, user_id = 1 } = req.body;
+
+    const productCode = 'P-' + Date.now();
+    const sqlProduct = `INSERT INTO Products (product_code, name, category, cost_price, selling_price) VALUES (?, ?, ?, ?, ?)`;
+
+    db.run(sqlProduct, [productCode, name, category, cost, price], function(err) {
+        if (err) {
+            console.error("Error Products:", err.message);
+            return res.status(500).json({ status: "error", message: "บันทึกสินค้าไม่สำเร็จ" });
+        }
+
+        const newProductId = this.lastID; 
+
+        const sqlTransaction = `
+            INSERT INTO Inventory_Transactions 
+            (product_id, product_status, quantity, transaction_type, location_id, user_id) 
+            VALUES (?, ?, ?, 'Stock In', ?, ?)
+        `;
+
+        db.run(sqlTransaction, [newProductId, condition, 0, location, user_id], function(err2) {
+            if (err2) {
+                console.error("Error Transactions:", err2.message);
+                return res.status(500).json({ status: "error", message: "บันทึกประวัติการรับเข้าไม่สำเร็จ: " + err2.message });
+            }
+
+            const sqlLog = `INSERT INTO System_Logs (username, action, description) VALUES (?, ?, ?)`;
+            const logDescription = `เพิ่มสินค้าใหม่: ${name} (รหัส: ${productCode})`;
+
+            db.run(sqlLog, ['Admin', 'Add Product', logDescription], function(err3) {
+                if (err3) console.error("Log Error:", err3.message);
+                
+                res.status(201).json({ status: "success", message: "เพิ่มสินค้าและบันทึกประวัติเรียบร้อย!" });
+            });
+        });
+    });
+});
+
 app.listen(port, () => {
     console.log(`🚀 Server is running on http://localhost:${port}`);
 });
