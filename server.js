@@ -57,6 +57,17 @@ app.get('/product-details', (req, res) => {
     // สั่ง render ไฟล์ views/product-details.ejs
     res.render('product-details'); 
 });
+
+app.get('/warehouses', (req,res) => {
+    // สั่ง render ไฟล์ views/warehouseSelect.ejs
+    res.render('warehouseSelect');
+});
+
+app.get('/users', (req,res) => {
+    // สั่ง render ไฟล์ views/userManage.ejs
+    res.render('userManage');
+});
+
 //api login
 app.post('/api/v1/auth/login', (req, res) => {
     // 1. รับค่าที่ Frontend ส่งมา
@@ -138,52 +149,74 @@ app.get('/api/v1/products', (req, res) => {
     });
 });
 
-app.get('/api/v1/select-warehouse', function (req, res) {
+app.get('/api/v1/warehouses', function (req, res) {
     const query = 'SELECT * FROM Warehouses ';
     db.all(query, (err, rows) => {
         if (err) {
-            console.log(err.message);
+            return res.status(500).json({
+                "status" : "error",
+                "message": "ไม่สามารถดึงข้อมูลคลังสินค้าได้",
+                "data": null
+            })
         }
-        console.log(rows);
-        res.render('warehouseSelect', { data: rows });
+        return res.status(200).json({
+                "status" : "success",
+                "message": "ดึงข้อมูลคลังสินค้าสำเร็จ",
+                "data": rows
+            })
     });
 });
 
-app.get('/api/v1/user', function (req, res) {
+app.get('/api/v1/users', function (req, res) {
     const queryTotal = 'SELECT COUNT(*) AS total FROM Users';
     const queryUser = 'SELECT * FROM Users';
-    const queryAdmin = `SELECT COUNT(*) AS adminTotal FROM Users WHERE role = 'manager'`;
+    const queryAdmin = "SELECT COUNT(*) AS adminTotal FROM Users WHERE role = 'manager'";
 
-    db.get(queryTotal, (err, count) => {
+    db.get(queryTotal, (err, countRow) => {
         if (err) {
-            console.error(err.message);
+            return res.status(500).json({ status: "error", message: "Error counting users", data: null });
         }
 
-        db.all(queryUser, (err, rows) => {
+        db.all(queryUser, (err, userRows) => {
             if (err) {
-                console.error(err.message);
+                return res.status(500).json({ status: "error", message: "Error fetching users", data: null });
             }
 
-            db.get(queryAdmin, (err, countad) => {
+            db.get(queryAdmin, (err, adminRow) => {
                 if (err) {
-                    console.error(err.message);
+                    return res.status(500).json({ status: "error", message: "Error counting admins", data: null });
                 }
 
-                res.render('userManage', { data: rows, total: count.total, totaladmin: countad.adminTotal });
+                // --- ส่ง Response กลับไปหา Fetch ---
+                res.status(200).json({
+                    status: "success",
+                    message: "ดึงข้อมูลผู้ใช้สำเร็จ",
+                    data: {
+                        users: userRows,
+                        total: countRow.total,
+                        totalAdmin: adminRow.adminTotal
+                    }
+                });
             });
         });
-
     });
 });
 
-app.post('/api/v1/deleteUser/:id', function (req,res) {
+app.delete('/api/v1/users/:id', function (req,res) {
     const sql = `DELETE FROM Users WHERE user_id = ?`;
     db.run(sql,[req.params.id], (err, rows) => {
         if (err) {
-            console.error(err.message);
+            return res.status(400).json({
+                "status" : "error",
+                "message": "ไม่สามารถลบได้",
+                "data": null
+            })
         }
-
-        res.redirect('/user');
+        return res.status(200).json({
+                "status" : "success",
+                "message": "ลบข้อมูลพนักงานสำเร็จ",
+                "data": rows
+            })
     })
 });
 

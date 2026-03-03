@@ -30,16 +30,8 @@
         </div>
     </nav>
 
-    <div class="container">
-        <% data.forEach(item => { %>
-            <div class="card">
-                <img src="/images/select-warehouse-pic.svg">
-                <h1><%=item.warehouse_name%></h1>
-                <input type="hidden" value="<%=item.warehouse_id%>">
-                <a href="/" style="text-decoration: none; width: 100%;"><button style="padding-left: 20%; padding-right: 20%">เลือก</button></a>
-            </div>
-        <% }) %>
-    </div>
+    <div class="container" id="warehouse-container"></div>
+    <script src="/js/warehouse.js"></script>
 </body>
 
 </html>
