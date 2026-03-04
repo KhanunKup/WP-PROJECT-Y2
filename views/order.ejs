@@ -1,0 +1,136 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order</title>
+    <link rel="stylesheet" href="css/navbar.css">
+    <style>
+        * {
+
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Kanit'; /* แนะนำให้ใช้ฟอนต์อย่าง Prompt หรือ Sarabun ถ้ามีครับ */
+        }
+        body {
+            background-color: #f4f6f9; /* สีพื้นหลังโทนเทาอมฟ้าอ่อนๆ แบบในภาพ */
+            color: #333;
+        }
+        .container {
+            max-width: 1200px;
+            margin: 20px auto;
+            padding: 0 20px;
+        }
+        /* ปุ่มกลับหน้าหลัก */
+        .back-link {
+            display: inline-block;
+            text-decoration: none;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 20px;
+        }
+        .back-link:hover {
+            color: #555;
+        }
+        /* ส่วนของ Tabs */
+        .tabs-container {
+            display: flex;
+            gap: 10px;
+            margin-bottom: -1px; /* ดึงลงมาให้ติดกับกล่องตาราง */
+        }
+        .tab-link {
+            padding: 12px 24px;
+            text-decoration: none;
+            color: #333;
+            background-color: #d1d5db; /* สีเทาสำหรับ tab ที่ไม่ได้เลือก */
+            border-radius: 8px 8px 0 0;
+            font-weight: bold;
+            font-size: 14px;
+            transition: background-color 0.2s;
+        }
+        .tab-link:hover {
+            background-color: #e5e7eb;
+        }
+        /* Tab ที่กำลังใช้งานอยู่ (หน้าปัจจุบัน) */
+        .tab-link.active {
+            background-color: #ffffff;
+            color: #000;
+            box-shadow: 0 -2px 5px rgba(0,0,0,0.05);
+            position: relative;
+            z-index: 2; /* ให้อยู่เหนือเส้นขอบของกล่องตาราง */
+        }
+        /* กล่องคอนเทนเนอร์หลักของตาราง */
+        .table-card {
+            background-color: #ffffff;
+            border-radius: 0 8px 8px 8px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.05);
+            padding: 20px;
+            position: relative;
+            z-index: 1;
+        }
+        .data-table th {
+            background-color: #f3f4f6; /* สีเทาอ่อนสำหรับหัวตาราง */
+            color: #111;
+            font-weight: bold;
+        }
+        .data-table th, .data-table td {
+            padding: 15px 10px;
+            font-size: 14px;
+        }
+        .data-table th {
+            background-color: #f3f4f6; /* สีเทาอ่อนสำหรับหัวตาราง */
+            color: #111;
+            font-weight: bold;
+        }
+        .email-link {
+            color: #4b5563;
+        }
+        .role-badge {
+            display: inline-block;
+            background-color: #9ca3af;
+            color: white;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: bold;
+        }
+    </style>
+</head>
+<body>
+    <%- include('partials/navbar.ejs') %>
+    <div class="container">
+        <a href="/" class="back-link">&larr; กลับไปหน้าหลัก</a>
+        <div class="tabs-container">
+            <a href="/history" class="tab-link">ประวัติทำรายการย้อนหลัง</a>
+            <a href="/receive-log" class="tab-link">บันทึกการรับสินค้า</a>
+            <a href="/issue-log" class="tab-link">บันทึกการเบิกจ่าย</a>
+        </div>
+        <div class="table-card">
+            <div class="table">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>วันที่-เวลา</th>
+                            <th>ผู้ใช้</th>
+                            <th>ชื่อของพนักงาน</th>
+                            <th>Action</th>
+                            <th>Email</th>
+                            <th>บทบาท</th>
+                        </tr>
+                    </thead>
+                    <% //wait for implement %>
+                        <tr class="row-add">
+                            <td>10-ก.พ.-2569 00:01 AM</td>
+                            <td>Krittapat Bonus</td>
+                            <td>Krittapat Bonus</td>
+                            <td>เพิ่มสินค้าใหม่ 20 รายการ</td>
+                            <td><a href="mailto:67070106@kmitl.ac.th" class="email-link">67070106@kmitl.ac.th</a></td>
+                            <td><span class="role-badge">Admin</span></td>
+                        </tr>
+                </table>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
