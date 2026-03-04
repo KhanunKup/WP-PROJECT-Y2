@@ -114,6 +114,39 @@ app.get('/add-product', (req, res) => {
     });
 });
 
+app.get('/api/v1/all-order', (req, res) => {
+    // send data to
+    const sql = `select date, u.username as username, concat(u.firstname ,' ', u.lastname) as name,
+                concat('Product name: ',p.name,' | Qty: ',quantity,' | Status: ',product_status) as detail,
+                concat('Stock ',transaction_type) as action,u.email as email, u.role as role
+
+                from Inventory_Transactions as it
+                left join Users as u
+                on it.user_id = u.user_id
+                left join Products as p
+                on it.product_id = p.product_id
+
+                union all
+                select created_at as date, username, '-' as name,  description as detail, action, '-' as email, '-' as role
+                from System_Logs
+                order by created_at desc;`
+    // (db.all) pull every column and [] is blank waiting for param (in this case is no parameter)
+    db.all(sql,[], (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ status: "error", message: "Server Error", data: null });
+        }
+        // status 200 is OK and .json({}) is trasnform data into json format
+        res.status(200).json({
+            status: "success",
+            message: "ดึงข้อมูลสำเร็จ",
+            data: rows // Send Array back (JSON)
+            // row would look like this
+            // {"status":"success","message":"ดึงข้อมูลสำเร็จ",data:[{"date":"2026-03-04 17:00:00","username":"admin","name":"-","detail":"Admin somchai logged out","action":"LOGOUT","email":"-","role":"-"}, {}, {} ]
+        });
+    });
+});
+
 app.get('/product-details/:id', (req, res) => {
     // สั่ง render ไฟล์ views/product-details
     res.render('product-details', {
