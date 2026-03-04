@@ -6,6 +6,31 @@ const path = require('path');
 const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const sqlite3 = require('sqlite3').verbose();
+
+// สำหรับรับไฟล์รูปภาพจากฟอร์ม
+const multer = require('multer');
+const fs = require('fs');
+
+//ตั้งค่าการเก็บไฟล์แบบละเอียด
+const storage = multer.diskStorage({
+    destination: function (req, file, cb) {
+        const dir = 'public/images/product'; // ระบุเส้นทาง
+        
+        // ถ้าไม่มีโฟลเดอร์ ให้สร้างขึ้นมาทันที
+        if (!fs.existsSync(dir)){
+            fs.mkdirSync(dir, { recursive: true });
+        }
+        
+        cb(null, dir);
+    },
+    filename: function (req, file, cb) {
+        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
+        cb(null, uniqueSuffix + path.extname(file.originalname)); 
+    }
+});
+
+const upload = multer({ storage: storage });
+
 // Middleware setup
 app.use(cookieParser());
 app.use(session({
@@ -86,10 +111,43 @@ app.get('/api/v1/all-order', (req, res) => {
     });
 });
 
-app.get('/product-details', (req, res) => {
+app.get('/product-details/:id', (req, res) => {
     // สั่ง render ไฟล์ views/product-details.ejs
-    res.render('product-details'); 
+    const sql = `SELECT 
+            p.*, 
+            IFNULL(SUM(sb.quantity), 0) AS total_stock,
+            IFNULL(GROUP_CONCAT(DISTINCT l.area), 'ยังไม่ได้กำหนด') AS area
+        FROM Products p
+        LEFT JOIN Stock_Balances sb ON p.product_id = sb.product_id
+        LEFT JOIN Locations l ON sb.location_id = l.location_id
+        WHERE p.product_id = ?
+        GROUP BY p.product_id;`;
+    const id = req.params.id;
+    db.get(sql, [id], (err, row) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).send("Server Error");
+        }
+
+        if (row) {
+            console.log(JSON.stringify(row, null, 2));
+            res.render('product-details', { product: row });
+        } else {
+            res.status(404).send("ไม่พบสินค้า");
+        }
+    });
 });
+
+app.get('/warehouses', (req,res) => {
+    // สั่ง render ไฟล์ views/warehouseSelect.ejs
+    res.render('warehouseSelect');
+});
+
+app.get('/users', (req,res) => {
+    // สั่ง render ไฟล์ views/userManage.ejs
+    res.render('userManage');
+});
+
 //api login
 app.post('/api/v1/auth/login', (req, res) => {
     // 1. รับค่าที่ Frontend ส่งมา
@@ -171,94 +229,148 @@ app.get('/api/v1/products', (req, res) => {
     });
 });
 
-app.get('/api/v1/select-warehouse', function (req, res) {
+
+app.get('/api/v1/warehouses', function (req, res) {
     const query = 'SELECT * FROM Warehouses ';
     db.all(query, (err, rows) => {
         if (err) {
-            console.log(err.message);
+            return res.status(500).json({
+                "status" : "error",
+                "message": "ไม่สามารถดึงข้อมูลคลังสินค้าได้",
+                "data": null
+            })
         }
-        console.log(rows);
-        res.render('warehouseSelect', { data: rows });
+        return res.status(200).json({
+                "status" : "success",
+                "message": "ดึงข้อมูลคลังสินค้าสำเร็จ",
+                "data": rows
+            })
     });
 });
 
-app.get('/api/v1/user', function (req, res) {
+app.get('/api/v1/users', function (req, res) {
     const queryTotal = 'SELECT COUNT(*) AS total FROM Users';
     const queryUser = 'SELECT * FROM Users';
-    const queryAdmin = `SELECT COUNT(*) AS adminTotal FROM Users WHERE role = 'manager'`;
+    const queryAdmin = "SELECT COUNT(*) AS adminTotal FROM Users WHERE role = 'manager'";
 
-    db.get(queryTotal, (err, count) => {
+    db.get(queryTotal, (err, countRow) => {
         if (err) {
-            console.error(err.message);
+            return res.status(500).json({ status: "error", message: "Error counting users", data: null });
         }
 
-        db.all(queryUser, (err, rows) => {
+        db.all(queryUser, (err, userRows) => {
             if (err) {
-                console.error(err.message);
+                return res.status(500).json({ status: "error", message: "Error fetching users", data: null });
             }
 
-            db.get(queryAdmin, (err, countad) => {
+            db.get(queryAdmin, (err, adminRow) => {
                 if (err) {
-                    console.error(err.message);
+                    return res.status(500).json({ status: "error", message: "Error counting admins", data: null });
                 }
 
-                res.render('userManage', { data: rows, total: count.total, totaladmin: countad.adminTotal });
+                // --- ส่ง Response กลับไปหา Fetch ---
+                res.status(200).json({
+                    status: "success",
+                    message: "ดึงข้อมูลผู้ใช้สำเร็จ",
+                    data: {
+                        users: userRows,
+                        total: countRow.total,
+                        totalAdmin: adminRow.adminTotal
+                    }
+                });
             });
         });
-
     });
 });
 
-app.post('/api/v1/deleteUser/:id', function (req,res) {
+app.delete('/api/v1/users/:id', function (req,res) {
     const sql = `DELETE FROM Users WHERE user_id = ?`;
     db.run(sql,[req.params.id], (err, rows) => {
         if (err) {
-            console.error(err.message);
+            return res.status(400).json({
+                "status" : "error",
+                "message": "ไม่สามารถลบได้",
+                "data": null
+            })
         }
-
-        res.redirect('/user');
+        return res.status(200).json({
+                "status" : "success",
+                "message": "ลบข้อมูลพนักงานสำเร็จ",
+                "data": rows
+            })
     })
 });
 
 // 5. สั่งให้เซิร์ฟเวอร์เริ่มทำงาน
-app.post('/api/v1/products', (req, res) => {
-    const { name, category, cost, price, condition, location, user_id = 1 } = req.body;
+app.post('/api/v1/products', upload.single('image'), async (req, res) => {    
+    const { mode, name, category, cost, price, condition, location } = req.body;
+    const user_id = 1; 
+    const warehouse_id = 1; // อิงตามโครงสร้าง Warehouses
 
-    const productCode = 'P-' + Date.now();
-    const sqlProduct = `INSERT INTO Products (product_code, name, category, cost_price, selling_price) VALUES (?, ?, ?, ?, ?)`;
-
-    db.run(sqlProduct, [productCode, name, category, cost, price], function(err) {
-        if (err) {
-            console.error("Error Products:", err.message);
-            return res.status(500).json({ status: "error", message: "บันทึกสินค้าไม่สำเร็จ" });
-        }
-
-        const newProductId = this.lastID; 
-
-        const sqlTransaction = `
-            INSERT INTO Inventory_Transactions 
-            (product_id, product_status, quantity, transaction_type, location_id, user_id) 
-            VALUES (?, ?, ?, 'Stock In', ?, ?)
-        `;
-
-        db.run(sqlTransaction, [newProductId, condition, 0, location, user_id], function(err2) {
-            if (err2) {
-                console.error("Error Transactions:", err2.message);
-                return res.status(500).json({ status: "error", message: "บันทึกประวัติการรับเข้าไม่สำเร็จ: " + err2.message });
-            }
-
-            const sqlLog = `INSERT INTO System_Logs (username, action, description) VALUES (?, ?, ?)`;
-            const logDescription = `เพิ่มสินค้าใหม่: ${name} (รหัส: ${productCode})`;
-
-            db.run(sqlLog, ['Admin', 'Add Product', logDescription], function(err3) {
-                if (err3) console.error("Log Error:", err3.message);
-                
-                res.status(201).json({ status: "success", message: "เพิ่มสินค้าและบันทึกประวัติเรียบร้อย!" });
+    try {
+        //จัดการ Location ID 
+        const locationId = await new Promise((resolve, reject) => {
+            db.get(`SELECT location_id FROM Locations WHERE area = ?`, [location], (err, row) => {
+                if (row) return resolve(row.location_id);
+                db.run(`INSERT INTO Locations (warehouse_id, area) VALUES (?, ?)`, [warehouse_id, location], function(err) {
+                    if (err) return reject(err);
+                    resolve(this.lastID);
+                });
             });
         });
-    });
+
+        //จัดการ Product ID 
+        let finalProductId;
+        if (mode === 'new') {
+            finalProductId = await new Promise((resolve, reject) => {
+                const productCode = 'P-' + Date.now();
+                const sqlProduct = `INSERT INTO Products (product_code, name, category, cost_price, selling_price) VALUES (?, ?, ?, ?, ?)`;
+                db.run(sqlProduct, [productCode, name, category, cost, price], function(err) {
+                    if (err) return reject(err);
+                    const newId = this.lastID;
+                    if (req.file) {
+                        const imageUrl = `/images/product/${req.file.filename}`;
+                        db.run(`UPDATE Products SET image_url = ? WHERE product_id = ?`, [imageUrl, newId]);
+                    }
+                    resolve(newId);
+                });
+            });
+        } else {
+            finalProductId = mode;
+        }
+
+        //บันทึก Transaction 
+        await new Promise((resolve, reject) => {
+            const sqlTrans = `INSERT INTO Inventory_Transactions (product_id, product_status, quantity, transaction_type, location_id, user_id, date) VALUES (?, ?, 1, 'Stock In', ?, ?, DATETIME('now'))`;
+            db.run(sqlTrans, [finalProductId, condition, locationId, user_id], (err) => {
+                if (err) return reject(err);
+                resolve();
+            });
+        });
+
+        // อัปเดตตาราง Stock_Balances
+        // เช็กก่อนว่ามี "สินค้านี้ ในที่เก็บนี้" หรือยัง
+        db.get(`SELECT quantity FROM Stock_Balances WHERE product_id = ? AND location_id = ?`, [finalProductId, locationId], (err, row) => {
+            if (row) {
+                // กรณีมีอยู่แล้ว -> อัปเดตบวกเพิ่ม
+                db.run(`UPDATE Stock_Balances SET quantity = quantity + 1 WHERE product_id = ? AND location_id = ?`, [finalProductId, locationId]);
+            } else {
+                // กรณีเป็นของใหม่ในโซนนี้ -> สร้างแถวใหม่
+                db.run(`INSERT INTO Stock_Balances (product_id, location_id, quantity) VALUES (?, ?, 1)`, [finalProductId, locationId]);
+            }
+            
+            // บันทึก Log และส่งคำตอบกลับ
+            db.run(`INSERT INTO System_Logs (username, action, description) VALUES (?, ?, ?)`, ['Admin', 'Add Stock', `เพิ่มสินค้า ID: ${finalProductId} เข้าคลังสำเร็จ`]);
+            res.status(201).json({ status: "success", message: "บันทึกสินค้าและอัปเดตยอดสต็อกเรียบร้อย!" });
+        });
+
+    } catch (error) {
+        console.error("❌ SQL Error:", error.message);
+        res.status(500).json({ status: "error", message: "เกิดข้อผิดพลาด: " + error.message });
+    }
 });
 
+// 5. สั่งให้เซิร์ฟเวอร์เริ่มทำงาน
 app.listen(port, () => {
     console.log(`🚀 Server is running on http://localhost:${port}`);
 });
