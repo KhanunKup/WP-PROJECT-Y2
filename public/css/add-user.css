@@ -1,0 +1,121 @@
+@font-face {
+    font-family: 'Kanit';
+    src: url('/fonts/Kanit-Semibold.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Kanit';
+}
+
+.container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    margin-top: 2%;
+}
+
+form {
+    display: grid;
+    grid-template-columns: repeat(2,1fr);
+    row-gap: 15%;
+    column-gap: 10%;
+    width: 100%;
+}
+
+p {
+    font-size: 26px;
+}
+
+.main {
+    width: 60%;
+}
+
+input {
+    border: none;
+    width: 100%;
+    border-bottom: 1px solid black;
+    font-size: 18px;
+    padding: 10px 0 10px 0;
+}
+
+input:focus {
+    outline: none;
+}
+
+#btn {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    gap: 10px;
+    border: none;
+    cursor: pointer;
+    color: #969696;
+}
+
+.btn-con {
+    display: flex;
+    justify-content: right;
+    align-items: end;
+    gap: 10px;
+}
+
+.addbtn {
+    padding: 10px 30px;
+    height: 50%;
+    border: 1px solid #ffffff;
+    border-radius: 8px;
+    background-color: white; 
+    color: #333; 
+    font-size: 20px;
+    cursor: pointer;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 8px rgb(0,0,0,0.2);
+}
+
+.role-selector {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 15px;
+}
+
+.role-selector input[type="radio"] {
+    display: none;
+}
+
+.role-btn {
+    padding: 10px 30px;
+    border: 1px solid #1a5bb8;
+    border-radius: 8px;
+    background-color: white; 
+    color: #333; 
+    font-size: 20px;
+    cursor: pointer;
+    text-align: center;
+    min-width: 100px;
+    transition: all 0.2s ease-in-out;
+    box-shadow: 0 0 8px rgb(0,0,0,0.2);
+}
+
+.role-selector input[type="radio"]:checked + .role-btn {
+    background-color: #1a5bb8;
+    color: white;
+    border-color: #1a5bb8;
+}
+
+a {
+    text-decoration: none;
+}
+
+.role-btn:hover,.addbtn:hover {
+    background-color: #1a5bb8;
+    color: white;
+}
