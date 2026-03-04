@@ -4,25 +4,34 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>รายการสินค้า</title>
+    <link rel="stylesheet" href="/css/product-list.css">
 </head>
 <body>
     <%- include("partials/navbar.ejs") %>
 
     <h1>รายการสินค้า</h1>
     <div class="filter">
+    <div style="display: flex; flex-direction: column; gap: 5px;">
+        <label style="font-weight: bold; font-size: 14px;">คัดกรองหมวดหมู่</label>
         <select id="categoryFilter">
             <option value="all">ทั้งหมด</option>
             <option value="food">อาหาร</option>
             <option value="drink">เครื่องดื่ม</option>
         </select>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 5px;">
+        <label style="font-weight: bold; font-size: 14px;">สถานะ</label>
         <select id="statusFilter">
             <option value="all">ทั้งหมด</option>
             <option value="instock">มีสินค้า</option>
             <option value="outstock">สินค้าหมด</option>
         </select>
-        <input type="text" id="searchInput" placeholder="ค้นหาชื่อสินค้า...">
-        <a href="/add-product">เพิ่มสินค้า</a>
     </div>
+
+    <input type="text" id="searchInput" placeholder="ค้นหาชื่อสินค้า...">
+    <a href="/add-product">เพิ่มสินค้า</a>
+</div>
     
     <div id="productContainer">
         

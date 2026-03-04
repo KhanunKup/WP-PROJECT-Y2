@@ -15,11 +15,11 @@
 }
 
 body {
-    font-family: 'Outfit', sans-serif;
     margin: 0;
 }
 
 navbar {
+    font-family: 'Outfit', sans-serif;
     display: flex;
     align-items: center;
     justify-content: space-between;

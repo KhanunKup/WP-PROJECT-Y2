@@ -29,12 +29,24 @@ window.removeTag = function(index) {
 // ฟังก์ชันเพิ่ม Tag (เมื่อกดปุ่มเพิ่ม หรือกด Enter)
 function addTag() {
     if (!categoryInput) return;
-    const newTag = categoryInput.value.trim();
+    
+    const newTag = categoryInput.value;
+
+    // 1. เช็กว่าเลือกตัวเลือกหรือยัง (ต้องไม่ใช่ค่าว่าง)
     if (newTag !== "") {
-        tagsArray.push(newTag); // ใส่เข้า Array
-        categoryInput.value = ''; // เคลียร์ช่องพิมพ์
-        renderTags(); // วาดใหม่
+        // 2. เช็กว่าหมวดหมู่นี้ถูกเลือกไปแล้วหรือยัง (กันซ้ำ)
+        if (!tagsArray.includes(newTag)) {
+            tagsArray.push(newTag); // ใส่เข้า Array
+            renderTags(); // วาด Tag ใหม่
+        } else {
+            alert('คุณเลือกหมวดหมู่นี้ไปแล้วครับ!');
+        }
+    } else {
+        alert('กรุณาเลือกหมวดหมู่จากเมนูก่อนกดเพิ่มครับ');
     }
+
+    // 3. รีเซ็ต Dropdown กลับไปที่ตัวเลือกแรก ("-- เลือกหมวดหมู่ไอที --")
+    categoryInput.value = "";
 }
 
 // ผูก Event ให้ปุ่ม "เพิ่ม"
@@ -72,17 +84,76 @@ const btnSave = document.querySelector('.btn-save');
 if (btnCancel) {
     btnCancel.addEventListener('click', () => {
         if(confirm('คุณต้องการยกเลิกการเปลี่ยนแปลง และกลับไปหน้ารายการสินค้าใช่หรือไม่?')) {
-            // เด้งกลับไปหน้า Inventory (เปลี่ยน URL ตรงนี้ให้ตรงกับ Route ของเพื่อนนะ)
-            window.location.href = '/inventory'; 
+            window.location.href = '/product-list'; // กลับไปหน้ารายการสินค้า
         }
     });
 }
 
 // กดบันทึก
 if (btnSave) {
-    btnSave.addEventListener('click', () => {
-        // อนาคตเพื่อนจะเอา Ajax/Fetch มาต่อตรงนี้เพื่อส่งเข้า Database
-        alert('เพิ่มสินค้าสำเร็จ!');
+    btnSave.addEventListener('click', async () => {
+        const nameInput = document.querySelector('.input-area[placeholder="กรุณากรอกชื่อสินค้า..."]');
+        const costInput = document.getElementById('inputCost');
+        const priceInput = document.getElementById('inputPrice');
+        const locationInput = document.querySelector('textarea.input-area');
+
+        const name = nameInput ? nameInput.value.trim() : '';
+        const cost = parseFloat(costInput.value);
+        const price = parseFloat(priceInput.value);
+        const location = locationInput ? locationInput.value.trim() : '';
+        const categories = tagsArray.join(', '); 
+        
+        const activeConditionBtn = document.querySelector('.btn-condition.active');
+        const condition = activeConditionBtn ? activeConditionBtn.innerText : 'สภาพสมบูรณ์';
+
+        //Validation
+        if (!name) {
+            alert('กรุณากรอกชื่อสินค้า');
+            nameInput.focus();
+            return;
+        }
+        if (tagsArray.length === 0) {
+            alert('กรุณาเพิ่มหมวดหมู่อย่างน้อย 1 หมวดหมู่');
+            document.getElementById('categoryInput').focus();
+            return;
+        }
+        if (isNaN(cost) || cost < 0) {
+            alert('กรุณากรอกต้นทุนให้ถูกต้อง');
+            costInput.focus();
+            return;
+        }
+        if (isNaN(price) || price < 0) {
+            alert('กรุณากรอกราคาขายให้ถูกต้อง');
+            priceInput.focus();
+            return;
+        }
+        if (!location) {
+            alert('กรุณากรอกที่จัดเก็บสินค้า');
+            locationInput.focus();
+            return;
+        }
+
+        const productData = { name, category: categories, cost, price, condition, location };
+
+        try {
+            const response = await fetch('/api/v1/products', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(productData)
+            });
+
+            const result = await response.json();
+
+            if (response.ok) {
+                alert(result.message);
+                window.location.href = '/add-product'; // รีเฟรชหน้าใหม่
+            } else {
+                alert(result.message);
+            }
+        } catch (error) {
+            console.error('Error:', error);
+            alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+        }
     });
 }
 
