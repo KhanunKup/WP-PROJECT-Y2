@@ -30,7 +30,7 @@ loginForm.addEventListener('submit', async function(event) {
             alert(result.message); // แจ้งเตือน: "เข้าสู่ระบบสำเร็จ"
             
             // เปลี่ยนหน้าเว็บไปที่หน้า Dashboard (ตารางสินค้า)
-            window.location.href = '/dashboard'; 
+            window.location.href = '/warehouses'; 
         } else {
             // ถ้ามี Error (เช่น 400, 401)
             alert(result.message); // เอากล่อง Error มาโชว์

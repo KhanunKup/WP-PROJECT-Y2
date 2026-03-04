@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Add Users</title>
+</head>
+<body>
+    <%- include("partials/navbar.ejs") %>
+    <form id="add-users-form">
+        <p>Username:</p>
+        <input type="text" id="username">
+        <p>Password:</p>
+        <input type="password" id="password">
+        <p>Firstname:</p>
+        <input type="text" id="firstname">
+        <p>Lastname:</p>
+        <input type="text" id="lastname">
+        <p>Email:</p>
+        <input type="text" id="email">
+        <p>Phone Number:</p>
+        <input type="text" id="phone_number">
+        <p>Role:</p>
+        <select id="role">
+            <option disabled selected value>-- select a role --</option>
+            <option value="manager">manager</option>
+            <option value="staff">staff</option>
+            <option value="admin">admin</option>
+        </select>
+        <br>
+        <button type="submit">Add User</button>
+    </form>
+    <script src="/js/add-users.js"></script>
+</body>
+</html>

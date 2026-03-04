@@ -7,6 +7,10 @@ const session = require("express-session");
 const cookieParser = require("cookie-parser");
 const sqlite3 = require('sqlite3').verbose();
 
+// สำหรับ hash password
+const bcrypt = require('bcrypt');
+const saltRounds = 10;
+
 // สำหรับรับไฟล์รูปภาพจากฟอร์ม
 const multer = require('multer');
 const fs = require('fs');
@@ -40,6 +44,22 @@ app.use(session({
     cookie: { maxAge: 10 * 60000 }
 }));
 
+const isAuth = (req,res,next) => {
+    if(req.session.userId){
+        next();
+    }else{
+        res.redirect('/');
+    }
+}
+
+const isAdmin = (req,res,next) => {
+    if(req.session.userId && req.session.role == 'admin' || req.session.role == 'manager'){
+        next();
+    }else{
+        return res.redirect('/dashboard');
+    }
+}
+
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/sweetalert', express.static(__dirname + '/node_modules/sweetalert2/dist'));
@@ -55,21 +75,20 @@ let db = new sqlite3.Database('Database.db', (err) => {
     console.log('Connected to the SQlite database.');
 });
 
-// 2. ตั้งค่า Middleware ต่างๆ
-
 // --- ส่วนของการ Render หน้าเว็บ (EJS) ---
 // ถ้าผู้ใช้พิมพ์ localhost:3000/login ให้โชว์ไฟล์ views/login.ejs
 app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "/public/login.html"));
 });
 
-app.get('/product-list', (req, res) => {
-    res.render('product-list');
-});
-
 app.get('/dashboard', (req, res) => {
     // สั่ง render ไฟล์ views/dashboard.ejs
     res.render('dashboard');
+});
+
+app.get('/product-list', (req, res) => {
+    // สั่ง render ไฟล์ views/product-list
+    res.render('product-list');
 });
 
 // Route สำหรับเปิดหน้ารายการสินค้า
@@ -79,30 +98,8 @@ app.get('/add-product', (req, res) => {
 });
 
 app.get('/product-details/:id', (req, res) => {
-    // สั่ง render ไฟล์ views/product-details.ejs
-    const sql = `SELECT 
-            p.*, 
-            IFNULL(SUM(sb.quantity), 0) AS total_stock,
-            IFNULL(GROUP_CONCAT(DISTINCT l.area), 'ยังไม่ได้กำหนด') AS area
-        FROM Products p
-        LEFT JOIN Stock_Balances sb ON p.product_id = sb.product_id
-        LEFT JOIN Locations l ON sb.location_id = l.location_id
-        WHERE p.product_id = ?
-        GROUP BY p.product_id;`;
-    const id = req.params.id;
-    db.get(sql, [id], (err, row) => {
-        if (err) {
-            console.error(err.message);
-            return res.status(500).send("Server Error");
-        }
-
-        if (row) {
-            console.log(JSON.stringify(row, null, 2));
-            res.render('product-details', { product: row });
-        } else {
-            res.status(404).send("ไม่พบสินค้า");
-        }
-    });
+    // สั่ง render ไฟล์ views/product-details
+    res.render('product-details'); 
 });
 
 app.get('/warehouses', (req,res) => {
@@ -113,6 +110,11 @@ app.get('/warehouses', (req,res) => {
 app.get('/users', (req,res) => {
     // สั่ง render ไฟล์ views/userManage.ejs
     res.render('userManage');
+});
+
+app.get('/add-users', (req,res) => {
+    // สั่ง render ไฟล์ views/userManage.ejs
+    res.render('add-users');
 });
 
 //api login
@@ -130,31 +132,68 @@ app.post('/api/v1/auth/login', (req, res) => {
     }
 
     // 3. ไปค้นหาใน Database
-    const sql = `SELECT * FROM Users WHERE username = ? and password = ?`;
+    const sql = `SELECT * FROM Users WHERE username = ?`;
     const insert = `insert into System_logs (username, action, description) values (?, ?, ?)`;
-    db.get(sql, [username,password], (err, row) => {
+    db.get(sql, [username], async (err, row) => {
         if (err) {
-            return res.status(500).json({ status: "error", message: "Server Error", data: null });
+            return res.status(500).json({ 
+                status: "error", 
+                message: "Server Error", 
+                data: null 
+            });
         }
 
         // (สมมติว่าเช็ครหัสผ่านผ่านแล้ว)
         if (row) {
-            //เก็บเข้า system_logs database
-            db.run(insert, [username, 'Login', 'Login Success'], (err) => { if (err) { console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message); } })
-            // ตอบ JSON Success กลับไป
-            return res.status(200).json({
-                status: "success",
-                message: "เข้าสู่ระบบสำเร็จ",
-                data: {
-                    user_id: row.user_id,
-                    username: row.username,
-                    firstname: row.firstname
+            const isMatch = await bcrypt.compare(password, row.password);
+            if(isMatch){
+                req.session.userId = row.user_id;
+                req.session.username = row.username;
+                req.session.role = row.role;
+
+                //เก็บเข้า system_logs database
+                db.run(insert, [username, 'Login', 'Login Success'], (err) => { 
+                    if (err) { 
+                        console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message); 
+                    } 
+                });
+                // ตอบ JSON Success กลับไป
+                return res.status(200).json({
+                    status: "success",
+                    message: "เข้าสู่ระบบสำเร็จ",
+                    data: {
+                        user_id: row.user_id,
+                        username: row.username,
+                        firstname: row.firstname
+                    }
+                });
+            }
+        } else {
+            db.run (insert, [username,'Login','Login Rejected'],(err) => {
+                if (err) {
+                    console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);
                 }
             });
-        } else {
-            db.run (insert, [username,'Login','Login Rejected'],(err) => {if (err) {console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);}})
-            return res.status(401).json({ status: "error", message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", data: null });
+            return res.status(401).json({ 
+                status: "error", 
+                message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", 
+                data: null 
+            });
         }
+    });
+});
+
+app.post('/api/v1/auth/logout', (req, res) => {
+    req.session.destroy((err) => {
+        if (err) {
+            return res.status(500).send('Error destroying session.');
+        }
+        res.clearCookie('connect.sid');
+        
+        res.status(200).json({
+            status: "success", 
+            message: "Logout successful"
+        });
     });
 });
 
@@ -196,6 +235,40 @@ app.get('/api/v1/products', (req, res) => {
     });
 });
 
+app.get('/api/v1/product-details/:id', (req, res) => {
+    const sql = `SELECT 
+            p.*, 
+            IFNULL(SUM(sb.quantity), 0) AS total_stock,
+            IFNULL(GROUP_CONCAT(DISTINCT l.area), 'ยังไม่ได้กำหนด') AS area
+        FROM Products p
+        LEFT JOIN Stock_Balances sb ON p.product_id = sb.product_id
+        LEFT JOIN Locations l ON sb.location_id = l.location_id
+        WHERE p.product_id = ?
+        GROUP BY p.product_id;`;
+    const id = req.params.id;
+    db.get(sql, [id], (err, row) => {
+        if (err) {
+            return res.status(500).json({
+                status: "error",
+                message: "เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า",
+                data: null
+            });
+        }
+        if (row) {
+            res.status(200).json({
+                status: "success",
+                message: "ดึงข้อมูลสินค้าสำเร็จ",
+                data: row
+            });
+        } else {
+            res.status(404).json({
+                status: "error",
+                message: "ไม่พบสินค้าที่ระบุ",
+                data: null
+            });
+        }
+    });
+});
 
 app.get('/api/v1/warehouses', function (req, res) {
     const query = 'SELECT * FROM Warehouses ';
@@ -250,6 +323,42 @@ app.get('/api/v1/users', function (req, res) {
     });
 });
 
+app.post('/api/v1/users', async function(req,res){
+    const { username, password, firstname, lastname, email, phone_number, role } = req.body;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const sql = `INSERT INTO Users(username, password, firstname, lastname, email, phone_number, role) VALUES(?, ?, ?, ?, ?, ?, ?)`
+    db.run(sql,[username, hashedPassword, firstname, lastname, email, phone_number, role], function(err){
+        if(err){
+            if(err.message.includes("UNIQUE")){
+                return res.status(409).json({
+                    "status" : "error",
+                    "message" : "ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว",
+                    "data" : null
+                })
+            }else if(err.message.includes("NOT NULL")){
+                return res.status(400).json({
+                    "status" : "error",
+                    "message" : "กรุณากรอกข้อมูลให้ครบ",
+                    "data" : null
+                })
+            }
+        }
+        return res.status(201).json({
+                "status" : "success",
+                "message": "เพิ่มข้อมูลพนักงานใหม่สำเร็จ",
+                "data": {
+                    "user_id" : this.lastID,
+                    "username": username,
+                    "firstname": firstname,
+                    "lastname": lastname,
+                    "email": email,
+                    "phone_number": phone_number,
+                    "role": role 
+                }
+            })
+    });
+});
+
 app.delete('/api/v1/users/:id', function (req,res) {
     const sql = `DELETE FROM Users WHERE user_id = ?`;
     db.run(sql,[req.params.id], (err, rows) => {
@@ -268,7 +377,7 @@ app.delete('/api/v1/users/:id', function (req,res) {
     })
 });
 
-// 5. สั่งให้เซิร์ฟเวอร์เริ่มทำงาน
+
 app.post('/api/v1/products', upload.single('image'), async (req, res) => {    
     const { mode, name, category, cost, price, condition, location } = req.body;
     const user_id = 1; 
