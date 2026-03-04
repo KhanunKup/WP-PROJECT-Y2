@@ -383,7 +383,7 @@ app.post('/api/v1/select-warehouse', function(req, res){
 app.get('/api/v1/users', function (req, res) {
     const queryTotal = 'SELECT COUNT(*) AS total FROM Users';
     const queryUser = 'SELECT * FROM Users';
-    const queryAdmin = "SELECT COUNT(*) AS adminTotal FROM Users WHERE role = 'manager'";
+    const queryAdmin = "SELECT COUNT(*) AS adminTotal FROM Users WHERE role_id = '1'";
 
     db.get(queryTotal, (err, countRow) => {
         if (err) {
@@ -418,7 +418,7 @@ app.get('/api/v1/users', function (req, res) {
 app.post('/api/v1/users', async function(req,res){
     const { username, password, firstname, lastname, email, phone_number, role } = req.body;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const sql = `INSERT INTO Users(username, password, firstname, lastname, email, phone_number, role) VALUES(?, ?, ?, ?, ?, ?, ?)`
+    const sql = `INSERT INTO Users(username, password, firstname, lastname, email, phone_number, role_id) VALUES(?, ?, ?, ?, ?, ?, ?)`
     db.run(sql,[username, hashedPassword, firstname, lastname, email, phone_number, role], function(err){
         if(err){
             if(err.message.includes("UNIQUE")){

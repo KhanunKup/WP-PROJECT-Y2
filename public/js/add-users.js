@@ -9,7 +9,8 @@ userForm.addEventListener('submit', async function(event) {
     const lastname = document.getElementById('lastname').value;
     const email = document.getElementById('email').value;
     const phone_number = document.getElementById('phone_number').value;
-    const role = document.getElementById('role').value;
+    //const role = document.getElementById('role').value;
+    const role = document.querySelector('input[name="role"]:checked').value;
     try {
         const response = await fetch('/api/v1/users',{
             method: 'POST',
