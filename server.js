@@ -83,23 +83,42 @@ app.get('/', (req, res) => {
 
 app.get('/dashboard', (req, res) => {
     // สั่ง render ไฟล์ views/dashboard.ejs
-    res.render('dashboard');
+    // if (!req.session.username) {
+    //     // ถ้ายังไม่ได้ login ให้กลับไปหน้า login ก่อน
+    //     return res.redirect('/');
+    // }
+
+    // if (!req.session.warehouseId) {
+    //     // ถ้ายังไม่ได้เลือก ให้กลับไปหน้าเลือกคลังสินค้าก่อน
+    //     return res.redirect('/warehouses');
+    // }
+    res.render('dashboard', {
+        username: req.session.username,
+        warehouseName: req.session.warehouseName 
+    });
 });
 
 app.get('/product-list', (req, res) => {
     // สั่ง render ไฟล์ views/product-list
-    res.render('product-list');
+    res.render('product-list', {
+        username: req.session.username,
+        warehouseName: req.session.warehouseName 
+    });
 });
 
 // Route สำหรับเปิดหน้ารายการสินค้า
 app.get('/add-product', (req, res) => {
     // สั่ง render ไฟล์ views/add-product.ejs
-    res.render('add-product');
+    res.render('add-product', {
+        username: req.session.username,
+    });
 });
 
 app.get('/product-details/:id', (req, res) => {
     // สั่ง render ไฟล์ views/product-details
-    res.render('product-details'); 
+    res.render('product-details', {
+        username: req.session.username,
+    });
 });
 
 app.get('/warehouses', (req,res) => {
@@ -109,12 +128,16 @@ app.get('/warehouses', (req,res) => {
 
 app.get('/users', (req,res) => {
     // สั่ง render ไฟล์ views/userManage.ejs
-    res.render('userManage');
+    res.render('userManage', {
+        username: req.session.username,
+    });
 });
 
 app.get('/add-users', (req,res) => {
     // สั่ง render ไฟล์ views/userManage.ejs
-    res.render('add-users');
+    res.render('add-users', {
+        username: req.session.username,
+    });
 });
 
 //api login
@@ -166,6 +189,17 @@ app.post('/api/v1/auth/login', (req, res) => {
                         username: row.username,
                         firstname: row.firstname
                     }
+                });
+            }else{
+                db.run (insert, [username,'Login','Login Rejected'],(err) => {
+                    if (err) {
+                        console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);
+                    }
+                });
+                return res.status(401).json({ 
+                    status: "error", 
+                    message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", 
+                    data: null 
                 });
             }
         } else {
@@ -285,6 +319,31 @@ app.get('/api/v1/warehouses', function (req, res) {
                 "message": "ดึงข้อมูลคลังสินค้าสำเร็จ",
                 "data": rows
             })
+    });
+});
+
+app.post('/api/v1/select-warehouse', function(req, res){
+    const { warehouse_id } = req.body;
+
+    if (!warehouse_id) {
+        return res.status(400).json({
+            status: "error",
+            message: "ไม่พบไอดีคลังสินค้า"
+        });
+    }
+
+    const sql = `SELECT warehouse_name FROM Warehouses WHERE warehouse_id = ?`;
+    db.get(sql, [warehouse_id], (err, row) => {
+        if (row) {
+            req.session.warehouseId = warehouse_id;
+            req.session.warehouseName = row.warehouse_name;
+        }
+        
+        return res.status(200).json({
+            status: "success",
+            message: "เลือกคลังสินค้าสำเร็จ",
+            data: { warehouse_id: warehouse_id }
+        });
     });
 });
 

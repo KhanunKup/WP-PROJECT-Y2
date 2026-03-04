@@ -35,7 +35,7 @@
 
         <div class="profile">
             <img src="/images/navbar-profile-pic.svg" alt="Profile">
-            <p>Admin</p>
+            <p><%= username %></p>
             <p id="datetime-display"></p>
         </div>
     </navbar>
@@ -47,7 +47,7 @@
                 minute: '2-digit',
                 second: '2-digit'
             };
-            const timeString = now.toLocaleDateString('th-TH', options);
+            const timeString = now.toLocaleTimeString('th-TH', options);
             document.getElementById('datetime-display').innerText = timeString;
         }
         updateTime();
