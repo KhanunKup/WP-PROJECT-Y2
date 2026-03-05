@@ -25,23 +25,23 @@ async function fetchLogsAndOrders(){
 
             dataArray.forEach((item, index) => {
                 // ternary Operator (condition ? if true : if false) if system will be grey text
-                const displayName = item.fullname !== '-' ? item.fullname : '<span style="color: gray;">System</span>';
+                const displayName = `<span style="color: gray;">${item.fullname}</span>`;
 
-                const displayEmail = item.email !== '-'
-                    ? `<a href="mailto:${item.email}" style="color: #2563eb; text-decoration: none;">${item.email}</a>` 
-                    : '<span style="color: #9ca3af;">-</span>';
+                const displayEmail = `<a href="mailto:${item.email}" style="color: #2563eb; text-decoration: none;">${item.email}</a>`;
                 
                 // style action base from text
                 let actionClass = 'action-system'; // system will be blue
                 const actionText = (item.action || '').toUpperCase(); // prevent LOGIN <-> Login
-                if (actionText === 'นำเข้าสินค้า' || actionText === 'เข้าสู่ระบบ') {
+                if (actionText === 'นำเข้าสินค้า') {
                     actionClass = 'action-in';
-                } else if (actionText === 'เบิกจ่ายสินค้า' || actionText === 'ออกจากระบบ') {
+                } else if (actionText === 'เบิกจ่ายสินค้า') {
                     actionClass = 'action-out';
+                } else if (actionText === 'เข้าสู่ระบบ' || actionText === 'ออกจากระบบ' || actionText === 'เข้าสู่ระบบไม่สำเร็จ') {
+                    actionClass = 'action-login-logout'
                 }
 
                 let roleClass = 'role-none'; // base role style is grey
-                const roleText = (item.role || '').toUpperCase();
+                const roleText = (item.role || '');
                 if (roleText === 'ผู้ดูแลระบบ') {
                     roleClass = 'role-admin';
                 } else if (roleText === 'ผู้จัดการ') {

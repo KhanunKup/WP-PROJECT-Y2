@@ -620,19 +620,25 @@ app.delete('/api/v1/users/:id', function (req,res) {
 
 app.get('/api/v1/all-order', (req, res) => {
     // send data to
-    const sql = `select date, u.user_name as username, concat(u.firstname ,' ', u.lastname) as fullname,
+    const sql = `select date, u.username as username, concat(u.firstname ,' ', u.lastname) as fullname,
                 concat('ชื่อสินค้า: ',p.name,' ,จำนวน: ',quantity,' ,สถานะ: ',product_status) as detail,
-                concat('STOCK ',transaction_type) as action,u.email as email, u.role as role
-
+                transaction_type as action,u.email as email, r.role_name as role
+                
                 from Inventory_Transactions as it
                 left join Users as u
                 on it.user_id = u.user_id
                 left join Products as p
                 on it.product_id = p.product_id
-
+                left join Roles as r
+                on u.role_id = r.role_id
+                
                 union all
-                select created_at as date, username, '-' as fullname,  description as detail, action, '-' as email, '-' as role
-                from System_Logs
+                select created_at as date, us.username, concat(us.firstname,' ',us.lastname) as fullname,  description as detail, action, us.email as email, ro.role_name as role
+                from System_Logs as sl
+                left join Users as us
+                on sl.user_id = us.user_id
+                left join Roles as ro
+                on us.role_id = ro.role_id
                 order by created_at desc;`
     // (db.all) pull every column and [] is blank waiting for param (in this case is no parameter)
     db.all(sql,[], (err, rows) => {
