@@ -12,8 +12,10 @@
 }
 
 body {
-    height: 100vh;
+    min-height: 100vh;
     background-image: linear-gradient(to right top, #002087, #004098, #00599c, #006e98, #288194);
+    background-repeat: no-repeat;
+    background-attachment: fixed;
 }
 
 nav {
