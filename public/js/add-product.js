@@ -33,6 +33,29 @@ async function loadProductsDropdown() {
 
 loadProductsDropdown();
 
+// โหลดข้อมูล category ทั้งหมดมาแสดงใน Dropdown
+async function loadCategories() {
+    try {
+        const response = await fetch('/api/v1/categories');
+        const result = await response.json();
+        
+        if (result.status === 'success') {
+            const categorySelect = document.getElementById('categoryInput');
+            // ใส่ข้อมูลลงใน Dropdown
+            result.data.forEach(cat => {
+                const option = document.createElement('option');
+                option.value = cat.category_id;
+                option.textContent = cat.category_name;
+                categorySelect.appendChild(option);
+            });
+        }
+    } catch (error) {
+        console.error("โหลด category ไม่ได้:", error);
+    }
+}
+
+loadCategories();
+
 productSelect.addEventListener('change', function(e) {
     const selectedValue = e.target.value;
 
@@ -150,8 +173,6 @@ if (btnSave) {
         }
     });
 }
-
-
 
 //เลือกสภาพสินค้า
 document.querySelectorAll('.btn-condition').forEach(btn => {

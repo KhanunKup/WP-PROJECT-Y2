@@ -22,3 +22,11 @@ document.addEventListener('DOMContentLoaded', async () => {
         console.error('Fetch error:', error);
     }
 });
+
+const editBtn = document.querySelector('.btn-save');
+
+editBtn.addEventListener('click', () => {
+    // productId ได้จากการดึงค่าจาก URL ในปัจจุบัน
+    const productId = window.location.pathname.split('/').pop(); 
+    window.location.href = `/edit-product/${productId}`;
+});

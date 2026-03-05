@@ -41,9 +41,6 @@
                         <label>หมวดหมู่:</label>
                         <select id="categoryInput" class="input-light-blue" style="cursor: pointer;">
                             <option value="" disabled selected>เลือกหมวดหมู่สินค้า...</option>
-                            <% categories.forEach(function(cat) { %>
-                                <option value="<%= cat.category_id %>"><%= cat.category_name %></option>
-                            <% }); %>
                         </select>
                     </div>
 

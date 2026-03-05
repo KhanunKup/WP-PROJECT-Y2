@@ -103,51 +103,19 @@ app.get('/product-list', (req, res) => {
     });
 });
 
-//เพิ่มสินค้าใหม่ หรือ รับสินค้าเข้าคลัง
 app.get('/add-product', (req, res) => {
     // สั่ง render ไฟล์ views/add-product.ejs
-    const sql = `SELECT * FROM Categories ORDER BY category_name ASC`; //
-    db.all(sql, [], (err, rows) => {
-        res.render('add-product', { categories: rows || [] }); 
+    res.render('add-product', {
+        username: req.session.username,
+        warehouseName: req.session.warehouseName 
     });
 });
 
-app.get('/api/v1/all-order', (req, res) => {
-    // send data to
-    const sql = `select date, u.username as username, concat(u.firstname ,' ', u.lastname) as name,
-                concat('Product name: ',p.name,' | Qty: ',quantity,' | Status: ',product_status) as detail,
-                concat('Stock ',transaction_type) as action,u.email as email, u.role as role
-
-                from Inventory_Transactions as it
-                left join Users as u
-                on it.user_id = u.user_id
-                left join Products as p
-                on it.product_id = p.product_id
-
-                union all
-                select created_at as date, username, '-' as name,  description as detail, action, '-' as email, '-' as role
-                from System_Logs
-                order by created_at desc;`
-    // (db.all) pull every column and [] is blank waiting for param (in this case is no parameter)
-    db.all(sql,[], (err, rows) => {
-        if (err) {
-            console.error(err.message);
-            return res.status(500).json({ status: "error", message: "Server Error", data: null });
-        }
-        // status 200 is OK and .json({}) is trasnform data into json format
-        res.status(200).json({
-            status: "success",
-            message: "ดึงข้อมูลสำเร็จ",
-            data: rows // Send Array back (JSON)
-            // row would look like this
-            // {"status":"success","message":"ดึงข้อมูลสำเร็จ",data:[{"date":"2026-03-04 17:00:00","username":"admin","name":"-","detail":"Admin somchai logged out","action":"LOGOUT","email":"-","role":"-"}, {}, {} ]
-        });
-
 app.get('/edit-product/:id', (req, res) => {
-    // ดึงหมวดหมู่ไปเตรียมไว้ให้หน้าเว็บเหมือนตอนเพิ่มสินค้า
-    const sql = `SELECT * FROM Categories ORDER BY category_name ASC`; 
-    db.all(sql, [], (err, rows) => {
-        res.render('edit-product', { categories: rows || [] }); 
+    // สั่ง render ไฟล์ views/edit-product.ejs
+    res.render('edit-product', {
+        username: req.session.username,
+        warehouseName: req.session.warehouseName 
     });
 });
 
@@ -341,139 +309,6 @@ app.get('/api/v1/product-details/:id', (req, res) => {
     });
 });
 
-app.get('/api/v1/warehouses', function (req, res) {
-    const query = 'SELECT * FROM Warehouses ';
-    db.all(query, (err, rows) => {
-        if (err) {
-            return res.status(500).json({
-                "status" : "error",
-                "message": "ไม่สามารถดึงข้อมูลคลังสินค้าได้",
-                "data": null
-            })
-        }
-        return res.status(200).json({
-                "status" : "success",
-                "message": "ดึงข้อมูลคลังสินค้าสำเร็จ",
-                "data": rows
-            })
-    });
-});
-
-app.post('/api/v1/select-warehouse', function(req, res){
-    const { warehouse_id } = req.body;
-
-    if (!warehouse_id) {
-        return res.status(400).json({
-            status: "error",
-            message: "ไม่พบไอดีคลังสินค้า"
-        });
-    }
-
-    const sql = `SELECT warehouse_name FROM Warehouses WHERE warehouse_id = ?`;
-    db.get(sql, [warehouse_id], (err, row) => {
-        if (row) {
-            req.session.warehouseId = warehouse_id;
-            req.session.warehouseName = row.warehouse_name;
-        }
-        
-        return res.status(200).json({
-            status: "success",
-            message: "เลือกคลังสินค้าสำเร็จ",
-            data: { warehouse_id: warehouse_id }
-        });
-    });
-});
-
-app.get('/api/v1/users', function (req, res) {
-    const queryTotal = 'SELECT COUNT(*) AS total FROM Users';
-    const queryUser = 'SELECT * FROM Users';
-    const queryAdmin = "SELECT COUNT(*) AS adminTotal FROM Users WHERE role_id = '1'";
-
-    db.get(queryTotal, (err, countRow) => {
-        if (err) {
-            return res.status(500).json({ status: "error", message: "Error counting users", data: null });
-        }
-
-        db.all(queryUser, (err, userRows) => {
-            if (err) {
-                return res.status(500).json({ status: "error", message: "Error fetching users", data: null });
-            }
-
-            db.get(queryAdmin, (err, adminRow) => {
-                if (err) {
-                    return res.status(500).json({ status: "error", message: "Error counting admins", data: null });
-                }
-
-                // --- ส่ง Response กลับไปหา Fetch ---
-                res.status(200).json({
-                    status: "success",
-                    message: "ดึงข้อมูลผู้ใช้สำเร็จ",
-                    data: {
-                        users: userRows,
-                        total: countRow.total,
-                        totalAdmin: adminRow.adminTotal
-                    }
-                });
-            });
-        });
-    });
-});
-
-app.post('/api/v1/users', async function(req,res){
-    const { username, password, firstname, lastname, email, phone_number, role } = req.body;
-    const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const sql = `INSERT INTO Users(username, password, firstname, lastname, email, phone_number, role_id) VALUES(?, ?, ?, ?, ?, ?, ?)`
-    db.run(sql,[username, hashedPassword, firstname, lastname, email, phone_number, role], function(err){
-        if(err){
-            if(err.message.includes("UNIQUE")){
-                return res.status(409).json({
-                    "status" : "error",
-                    "message" : "ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว",
-                    "data" : null
-                })
-            }else if(err.message.includes("NOT NULL")){
-                return res.status(400).json({
-                    "status" : "error",
-                    "message" : "กรุณากรอกข้อมูลให้ครบ",
-                    "data" : null
-                })
-            }
-        }
-        return res.status(201).json({
-                "status" : "success",
-                "message": "เพิ่มข้อมูลพนักงานใหม่สำเร็จ",
-                "data": {
-                    "user_id" : this.lastID,
-                    "username": username,
-                    "firstname": firstname,
-                    "lastname": lastname,
-                    "email": email,
-                    "phone_number": phone_number,
-                    "role": role 
-                }
-            })
-    });
-});
-
-app.delete('/api/v1/users/:id', function (req,res) {
-    const sql = `DELETE FROM Users WHERE user_id = ?`;
-    db.run(sql,[req.params.id], (err, rows) => {
-        if (err) {
-            return res.status(400).json({
-                "status" : "error",
-                "message": "ไม่สามารถลบได้",
-                "data": null
-            })
-        }
-        return res.status(200).json({
-                "status" : "success",
-                "message": "ลบข้อมูลพนักงานสำเร็จ",
-                "data": rows
-            })
-    })
-});
-
-
 //เพิ่มสินค้าใหม่ หรือ รับสินค้าเข้าคลัง
 app.post('/api/v1/products', upload.single('image'), async (req, res) => {
     let sql = `
@@ -610,6 +445,189 @@ app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
         console.error("Update Error:", error);
         res.status(500).json({ status: "error", message: error.message });
     }
+});
+
+app.get('/api/v1/categories', (req, res) => {
+    const sql = `SELECT * FROM Categories ORDER BY category_name ASC`;
+    db.all(sql, [], (err, rows) => {
+        if (err){
+            return res.status(500).json({
+                status: "error",
+                message: err.message,
+                data: null
+            });
+        }
+        res.status(200).json({
+            status: "success",
+            message: "ดึงข้อมูล category สำเร็จ",
+            data: rows
+        });
+    });
+});
+
+app.get('/api/v1/warehouses', function (req, res) {
+    const query = 'SELECT * FROM Warehouses ';
+    db.all(query, (err, rows) => {
+        if (err) {
+            return res.status(500).json({
+                "status" : "error",
+                "message": "ไม่สามารถดึงข้อมูลคลังสินค้าได้",
+                "data": null
+            })
+        }
+        return res.status(200).json({
+                "status" : "success",
+                "message": "ดึงข้อมูลคลังสินค้าสำเร็จ",
+                "data": rows
+            })
+    });
+});
+
+app.post('/api/v1/select-warehouse', function(req, res){
+    const { warehouse_id } = req.body;
+
+    if (!warehouse_id) {
+        return res.status(400).json({
+            status: "error",
+            message: "ไม่พบไอดีคลังสินค้า"
+        });
+    }
+
+    const sql = `SELECT warehouse_name FROM Warehouses WHERE warehouse_id = ?`;
+    db.get(sql, [warehouse_id], (err, row) => {
+        if (row) {
+            req.session.warehouseId = warehouse_id;
+            req.session.warehouseName = row.warehouse_name;
+        }
+        
+        return res.status(200).json({
+            status: "success",
+            message: "เลือกคลังสินค้าสำเร็จ",
+            data: { warehouse_id: warehouse_id }
+        });
+    });
+});
+
+app.get('/api/v1/users', function (req, res) {
+    const queryTotal = 'SELECT COUNT(*) AS total FROM Users';
+    const queryUser = 'SELECT * FROM Users';
+    const queryAdmin = "SELECT COUNT(*) AS adminTotal FROM Users WHERE role_id = '1'";
+
+    db.get(queryTotal, (err, countRow) => {
+        if (err) {
+            return res.status(500).json({ status: "error", message: "Error counting users", data: null });
+        }
+
+        db.all(queryUser, (err, userRows) => {
+            if (err) {
+                return res.status(500).json({ status: "error", message: "Error fetching users", data: null });
+            }
+
+            db.get(queryAdmin, (err, adminRow) => {
+                if (err) {
+                    return res.status(500).json({ status: "error", message: "Error counting admins", data: null });
+                }
+
+                // --- ส่ง Response กลับไปหา Fetch ---
+                res.status(200).json({
+                    status: "success",
+                    message: "ดึงข้อมูลผู้ใช้สำเร็จ",
+                    data: {
+                        users: userRows,
+                        total: countRow.total,
+                        totalAdmin: adminRow.adminTotal
+                    }
+                });
+            });
+        });
+    });
+});
+
+app.post('/api/v1/users', async function(req,res){
+    const { username, password, firstname, lastname, email, phone_number, role } = req.body;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const sql = `INSERT INTO Users(username, password, firstname, lastname, email, phone_number, role_id) VALUES(?, ?, ?, ?, ?, ?, ?)`
+    db.run(sql,[username, hashedPassword, firstname, lastname, email, phone_number, role], function(err){
+        if(err){
+            if(err.message.includes("UNIQUE")){
+                return res.status(409).json({
+                    "status" : "error",
+                    "message" : "ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว",
+                    "data" : null
+                })
+            }else if(err.message.includes("NOT NULL")){
+                return res.status(400).json({
+                    "status" : "error",
+                    "message" : "กรุณากรอกข้อมูลให้ครบ",
+                    "data" : null
+                })
+            }
+        }
+        return res.status(201).json({
+                "status" : "success",
+                "message": "เพิ่มข้อมูลพนักงานใหม่สำเร็จ",
+                "data": {
+                    "user_id" : this.lastID,
+                    "username": username,
+                    "firstname": firstname,
+                    "lastname": lastname,
+                    "email": email,
+                    "phone_number": phone_number,
+                    "role": role 
+                }
+            })
+    });
+});
+
+app.delete('/api/v1/users/:id', function (req,res) {
+    const sql = `DELETE FROM Users WHERE user_id = ?`;
+    db.run(sql,[req.params.id], (err, rows) => {
+        if (err) {
+            return res.status(400).json({
+                "status" : "error",
+                "message": "ไม่สามารถลบได้",
+                "data": null
+            })
+        }
+        return res.status(200).json({
+                "status" : "success",
+                "message": "ลบข้อมูลพนักงานสำเร็จ",
+                "data": rows
+            })
+    })
+});
+
+app.get('/api/v1/all-order', (req, res) => {
+    // send data to
+    const sql = `select date, u.username as username, concat(u.firstname ,' ', u.lastname) as name,
+                concat('Product name: ',p.name,' | Qty: ',quantity,' | Status: ',product_status) as detail,
+                concat('Stock ',transaction_type) as action,u.email as email, u.role as role
+
+                from Inventory_Transactions as it
+                left join Users as u
+                on it.user_id = u.user_id
+                left join Products as p
+                on it.product_id = p.product_id
+
+                union all
+                select created_at as date, username, '-' as name,  description as detail, action, '-' as email, '-' as role
+                from System_Logs
+                order by created_at desc;`
+    // (db.all) pull every column and [] is blank waiting for param (in this case is no parameter)
+    db.all(sql,[], (err, rows) => {
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ status: "error", message: "Server Error", data: null });
+        }
+        // status 200 is OK and .json({}) is trasnform data into json format
+        res.status(200).json({
+            status: "success",
+            message: "ดึงข้อมูลสำเร็จ",
+            data: rows // Send Array back (JSON)
+            // row would look like this
+            // {"status":"success","message":"ดึงข้อมูลสำเร็จ",data:[{"date":"2026-03-04 17:00:00","username":"admin","name":"-","detail":"Admin somchai logged out","action":"LOGOUT","email":"-","role":"-"}, {}, {} ]
+        });
+    });
 });
 
 // Start the server
