@@ -78,6 +78,11 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "/public/login.html"));
 });
 
+app.get('/warehouses', (req,res) => {
+    // สั่ง render ไฟล์ views/warehouseSelect.ejs
+    res.render('warehouseSelect');
+});
+
 app.get('/dashboard', (req, res) => {
     // สั่ง render ไฟล์ views/dashboard.ejs
     // if (!req.session.username) {
@@ -145,11 +150,6 @@ app.get('/product-details/:id', (req, res) => {
     res.render('product-details', {
         username: req.session.username,
     });
-});
-
-app.get('/warehouses', (req,res) => {
-    // สั่ง render ไฟล์ views/warehouseSelect.ejs
-    res.render('warehouseSelect');
 });
 
 app.get('/users', (req,res) => {
