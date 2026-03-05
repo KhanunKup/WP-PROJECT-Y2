@@ -15,17 +15,17 @@
             <div class="form-layout">
                 <div class="form-left">
                     <div class="image-box">
-                        <img src="<%= product.image_url %>">
+                        <img id="productImage" src="">
                     </div>
                 </div>
                 <div class="form-right">
-                    <h1><%= product.name %></h1>
+                    <h1 id="productName"></h1>
                     <h2 class="form-title">รายละเอียดสินค้า:</h2>
 
                     <div class="input-group">
                         <label>ต้นทุน:</label>
                         <div class="input-wrapper-unit">
-                            <input type="number" id="inputCost" class="input-light-blue" value="<%= product.cost_price %>" min="0" readonly>
+                            <input type="number" id="inputCost" class="input-light-blue" min="0" readonly>
                             <span class="unit-text">บาท</span>
                         </div>
                     </div>
@@ -33,7 +33,7 @@
                     <div class="input-group">
                         <label>ราคาขาย:</label>
                         <div class="input-wrapper-unit">
-                            <input type="number" id="inputPrice" class="input-light-blue" value="<%= product.selling_price %>" min="0" readonly>
+                            <input type="number" id="inputPrice" class="input-light-blue" min="0" readonly>
                             <span class="unit-text">บาท</span>
                         </div>
                     </div>
@@ -41,7 +41,7 @@
                     <div class="input-group">
                         <label>จำนวน:</label>
                         <div class="input-wrapper-unit">
-                            <input type="number" id="inputPrice" class="input-light-blue" value="<%= product.total_stock %>" min="0" readonly>
+                            <input type="number" id="inputStock" class="input-light-blue" min="0" readonly>
                             <span class="unit-text">ชิ้น</span>
                         </div>
                     </div>
@@ -56,6 +56,6 @@
         </div>
     </main>
 
-    <script src="/js/product-filter.js"></script>
+    <script src="/js/product-detail.js"></script>
 </body>
 </html>

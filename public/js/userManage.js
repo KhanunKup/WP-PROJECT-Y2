@@ -43,8 +43,8 @@ async function fetchUsers() {
                         <td>${item.username}</td>
                         <td>${item.firstname} ${item.lastname}</td>
                         <td>${item.email}</td>
-                        <td>${item.role}</td>
-                        <td style="display: flex; padding: 22px; justify-content: right; gap: 20px;">
+                        <td>${item.role_id}</td>
+                        <td style="display: flex; padding: 23px; justify-content: right; gap: 20px;">
                             <button class="delete-btn" 
                                     data-id="${item.user_id}" 
                                     data-username="${item.username}"
