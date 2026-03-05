@@ -124,6 +124,14 @@ app.get('/edit-product/:id', (req, res) => {
     });
 });
 
+app.get('/edit-item/:productId/:locationId', (req, res) => {
+    // สั่ง render ไฟล์ views/edit-item.ejs
+    res.render('edit-item', {
+        username: req.session.username,
+        warehouseName: req.session.warehouseName
+    });
+});
+
 app.get('/history', (req, res) => {
     res.render('order-history', {
         username: req.session.username,
@@ -347,8 +355,7 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
     let params = [];
 
     const { mode, name, category_id, cost, price, condition, location } = req.body;
-    const currentUserName = req.session.username || 'admin';
-    const currentUserId = req.session.userId || 1;
+    const currentUserId = req.session.userId || 1; //รับค่าจาก session หรือ default เป็น 1 ถ้ายังไม่มีระบบ login
 
     try {
         //หา location_id จากชื่อพื้นที่จัดเก็บ ถ้าไม่มีให้สร้างใหม่
@@ -433,10 +440,10 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
 app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
     const productId = req.params.id;
     const { name, category_id, cost, price } = req.body; 
-    const currentUserId = req.session.userId || 1; // สมมติว่าได้จาก session มาแล้ว หรือใช้ 1 เป็นค่าเริ่มต้นสำหรับ admin
+    const currentUserId = req.session.userId || 1; //รับค่าจาก session หรือ default เป็น 1 ถ้ายังไม่มีระบบ login
 
     try {
-        // 1. อัปเดตข้อมูลหลักในตาราง Products
+        // อัปเดตข้อมูลหลักของสินค้า (Products)
         const sqlUpdate = `UPDATE Products SET name = ?, category_id = ?, cost_price = ?, selling_price = ? WHERE product_id = ?`;
         
         await new Promise((resolve, reject) => {
@@ -446,7 +453,7 @@ app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
             });
         });
 
-        // 2. ถ้ามีการเลือกรูปใหม่มา ค่อยอัปเดตรูป
+        // ถ้ามีการอัปโหลดไฟล์รูปภาพมา ให้ทำการเปลี่ยนชื่อและย้ายไฟล์
         if (req.file) {
             const ext = path.extname(req.file.originalname);
             const paddedId = String(productId).padStart(3, '0');
@@ -461,15 +468,81 @@ app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
             db.run(`UPDATE Products SET image_url = ? WHERE product_id = ?`, [`/images/product/${newFileName}`, productId]);
         }
 
-        // 3. บันทึก Log ว่าใครเป็นคนแก้
+        //บันทึกการกระทำลง System_Logs
         db.run(`INSERT INTO System_Logs (user_id, action, description) VALUES (?, ?, ?)`, 
             [currentUserId, 'แก้ไขข้อมูลสินค้า', `แก้ไขข้อมูลหลักของสินค้า ID:${productId} ${name}`]);
 
-        // ส่งสัญญาณบอกหน้าบ้านว่าเสร็จแล้ว
         res.status(200).json({ status: "success", message: "อัปเดตข้อมูลสำเร็จ" });
 
     } catch (error) {
         console.error("Update Error:", error);
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
+
+app.get('/api/v1/stocks/:productId/:locationId', (req, res) => {
+    const { productId, locationId } = req.params;
+    
+    const sql = `
+        SELECT 
+            p.product_id, p.product_code, p.name, p.selling_price, p.image_url, 
+            c.category_name,
+            l.area AS location_name,
+            (SELECT SUM(quantity) FROM Inventory_Transactions 
+             WHERE product_id = p.product_id AND location_id = l.location_id 
+             AND product_status IN ('สภาพสมบูรณ์', 'ของใหม่/สภาพดี')) AS good_qty,
+            (SELECT SUM(quantity) FROM Inventory_Transactions 
+             WHERE product_id = p.product_id AND location_id = l.location_id 
+             AND product_status IN ('ชำรุด/เสียหาย', 'ของชำรุด/เสียหาย')) AS damaged_qty
+        FROM Products p
+        LEFT JOIN Categories c ON p.category_id = c.category_id
+        LEFT JOIN Locations l ON l.location_id = ?
+        WHERE p.product_id = ?;
+    `;
+    
+    db.get(sql, [locationId, productId], (err, row) => {
+        if (err) return res.status(500).json({ status: "error", message: err.message });
+        if (!row) return res.status(404).json({ status: "error", message: "ไม่พบข้อมูล" });
+        
+        // เติม 0 ป้องกันค่า null
+        row.good_qty = row.good_qty || 0;
+        row.damaged_qty = row.damaged_qty || 0;
+        
+        res.status(200).json({ status: "success", data: row });
+    });
+});
+
+app.post('/api/v1/transactions', async (req, res) => {
+const { product_id, product_status, quantity, transaction_type, location_name } = req.body;
+    const user_id = req.session.userId || 1;
+
+    try {
+        //หา location_id จากชื่อที่พิมพ์มา (ถ้าไม่มีให้สร้างใหม่เหมือนหน้า add-product)
+        const locationId = await new Promise((resolve, reject) => {
+            db.get(`SELECT location_id FROM Locations WHERE area = ?`, [location_name], (err, row) => {
+                if (row) return resolve(row.location_id);
+                // ถ้าไม่เจอชื่อ ให้สร้างใหม่ในคลังที่ 1
+                db.run(`INSERT INTO Locations (warehouse_id, area) VALUES (?, ?)`, [1, location_name], function(err) {
+                    if (err) return reject(err);
+                    resolve(this.lastID);
+                });
+            });
+        });
+
+        //บันทึก Transaction และ Update Stock ด้วย locationId ที่หามาได้
+        const sqlInsertTrans = `INSERT INTO Inventory_Transactions (product_id, location_id, quantity, product_status, transaction_type, user_id) VALUES (?, ?, ?, ?, ?, ?)`;
+        db.run(sqlInsertTrans, [product_id, locationId, quantity, product_status, transaction_type, user_id], function(err) {
+            if (err) throw err;
+
+            const sqlUpdateStock = `UPDATE Stock_Balances SET quantity = quantity + ? WHERE product_id = ? AND location_id = ?`;
+            db.run(sqlUpdateStock, [quantity, product_id, locationId], function(err2) {
+                if (this.changes === 0) {
+                    db.run(`INSERT INTO Stock_Balances (product_id, location_id, quantity) VALUES (?, ?, ?)`, [product_id, locationId, quantity]);
+                }
+                res.status(201).json({ status: "success", message: "บันทึกสำเร็จ" });
+            });
+        });
+    } catch (error) {
         res.status(500).json({ status: "error", message: error.message });
     }
 });
