@@ -11,14 +11,13 @@
         <div class="nav-text">
             <a href="/dashboard"><p id="dashboard">หน้าหลัก</p></a>
             <a href="/product-list"><p id="inventory">คลังสินค้า</p></a>
-            <a href="#"><p id="order">คำสั่งซื้อ</p></a>
-            <a href="#"><p id="report">รายงานผล</p></a>
-            <a href="#"><p id="setting">การตั้งค่า</p></a>
+            <a href="/history"><p id="report">รายงานผล</p></a>
+            <a href="/users"><p id="users">จัดการผู้ใช้</p></a>
         </div>
         <div class="user-info">
             <img class="user-img" src="/images/navbar-profile-pic.svg">
             <div class="user-details">
-                <p class="user-name">Admin User</p>
+                <p class="user-name"><%= username %></p>
                 <p class="logout-btn"><a id="logout">ออกจากระบบ</a></p>
             </div>
         </div>
