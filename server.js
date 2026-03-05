@@ -657,6 +657,72 @@ app.get('/api/v1/all-order', (req, res) => {
     });
 });
 
+// 
+app.get('/api/v1/dashboard-summary', (req, res) => {
+    // pull status to add at top of dashboard (4 card) totalStock, lowStock,addThisMonth, exportThisMonth
+    const cardTop = `select (select sum(quantity) from Stock_Balances) as TotalStock, 
+                    (select count(*) from Stock_Balances where quantity <= 20) as LowStock,
+                    (select sum(quantity) from Inventory_Transactions where transaction_type = 'นำเข้าสินค้า' 
+                        and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')) as stockInMonth,
+                    (select sum(quantity) from Inventory_Transactions where transaction_type = 'เบิกจ่ายสินค้า'  
+                        and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')) as stockOutMonth`;
+    // get only 1 row
+    db.get(cardTop,[],(err,stats)=>{
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ status: "error", message: "Server Error", data: null });
+        }
+        // map quantity to category (use in chart histogram) -> (อุปกรณ์เสริม, 290)
+        const chartBar = `select c.category_name, ifnull(sum(quantity),0) as quantity 
+                            from Categories c
+                            left join Products p 
+                            on c.category_id = p.category_id
+                            left join Stock_Balances sb 
+                            on p.product_id = sb.product_id
+                            group by c.category_id, c.category_name`
+        db.all(chartBar,[],(err,quantityByCategory)=>{
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ status: "error", message: "Server Error", data: null });
+            }
+            // show low stock list (will equal to lowStock at the top of card)
+            const lowStockProduct= `select p.product_code, name, c.category_name, sb.quantity 
+                                    from Products p
+                                    left join Stock_Balances sb 
+                                    on p.product_id = sb.product_id
+                                    left join Categories c 
+                                    on p.category_id = c.category_id
+                                    where sb.quantity <= 20;`
+            db.all(lowStockProduct,[],(err,products)=>{
+                if (err) {
+                    console.error(err.message);
+                    return res.status(500).json({ status: "error", message: "Server Error", data: null });
+                }
+                // pull lastest activity in sys_log data (limit 10 rows) exclude login-logout activity
+                const activity = `select created_at as date, description
+                                    from System_Logs
+                                    where description != '-'
+                                    order by created_at desc limit 10;`
+                    db.all(activity,[],(err,log)=>{
+                        res.status(200).json({
+                        status: "success",
+                        message: "ดึงข้อมูลได้สำเร็จ",
+                        // send data
+                        data: {
+                            stats: stats,
+                            chart: quantityByCategory,
+                            lowStock: products,
+                            activity: log
+                        }
+                    });
+                });
+            });
+            
+        });
+            
+    });
+});
+
 // Start the server
 app.listen(port, () => {
     console.log(`🚀 Server is running on http://localhost:${port}`);

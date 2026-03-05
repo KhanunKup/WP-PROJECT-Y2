@@ -23,7 +23,8 @@ async function fetchLogsAndOrders(){
             const tableBody = document.getElementById('table-body');
             tableBody.innerHTML = '';
 
-            dataArray.forEach((item, index) => {
+            let index =  1;
+            dataArray.forEach((item) => {
                 // ternary Operator (condition ? if true : if false) if system will be grey text
                 const displayName = `<span style="color: gray;">${item.fullname}</span>`;
 
@@ -51,7 +52,7 @@ async function fetchLogsAndOrders(){
 
                 const row = `
                     <tr>
-                        <td style="color: #6b7280; text-align: center;">${index + 1}</td>
+                        <td style="color: #6b7280; text-align: center;">${index}</td>
                         <td style="font-size: 13px; color: #4b5563;">${item.date}</td>
                         <td><b>${item.username}</b></td>
                         <td>${displayName}</td>
@@ -63,6 +64,7 @@ async function fetchLogsAndOrders(){
                 `;
                 // insert row to <tbody> 'beforeend' is where to add rows, in this case is before </tbody> close
                 tableBody.insertAdjacentHTML('beforeend', row);
+                index += 1;
             });
         }
     } catch (error) {
