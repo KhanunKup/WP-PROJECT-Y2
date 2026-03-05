@@ -67,12 +67,12 @@ async function fetchUsers() {
 function confirmDelete(userId, username) {
     Swal.fire({
         title: 'ยืนยันการลบ?',
-        text: `คุณกำลังจะลบผู้ใช้: ${username} ข้อมูลนี้จะหายไปถาวร!`,
+        text: `คุณกำลังจะลบผู้ใช้: ${username} ข้อมูลนี้จะหายไปถาวร`,
         icon: 'warning',
         showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'ใช่, ลบเลย!',
+        confirmButtonColor: '#09a00e',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'ยืนยัน',
         cancelButtonText: 'ยกเลิก'
     }).then(async (swalResult) => {
         if (swalResult.isConfirmed) {
