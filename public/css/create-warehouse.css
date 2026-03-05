@@ -1,0 +1,135 @@
+@font-face {
+    font-family: 'Kanit';
+    src: url('/fonts/Kanit-Semibold.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+* {
+    font-family: 'Kanit';
+    margin: 0;
+}
+
+body {
+    height: 100vh;
+    background-image: linear-gradient(to right top, #002087, #004098, #00599c, #006e98, #288194);
+}
+
+nav {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: white;
+    width: 100%;
+    height: 20%;
+    position: fixed;
+    gap: 25px;
+}
+
+.easymanage {
+    font-size: 50px;
+}
+
+
+h4 {
+    margin: 20px;
+    text-align: center;
+}
+
+.inside-header {
+    display: flex;
+    justify-content: space-between;
+    margin: 0;
+    border-bottom: 1px solid rgb(0, 0, 0,0.2);
+    box-shadow: 0 2px 12px rgb(0, 0, 0,0.2);
+    padding-bottom: 20px;
+    padding-top: 20px;
+}
+
+.text-head {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-left: 5%;
+}
+
+.box {
+    margin-right: 5%;
+}
+
+.body-element {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    height: 100vh;
+}
+
+.main-form {
+    width: 50%;
+    background-color: rgb(255, 255, 255, 0.5);
+    border: 1px solid rgb(255, 255, 255);
+    border-radius: 20px;
+    box-shadow: 0 0 10px rgb(0, 0, 0,0.3);
+    padding-bottom: 30px;
+    margin-top:10%;
+}
+
+.container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    padding-right: 5%;
+}
+
+form {
+    display: flex;
+    flex-direction: column;
+    row-gap: 20px;
+    width: 100%;
+    margin-top: 5%;
+}
+
+.warehouse-name, .warehouse-add {
+    display: flex;
+    align-items: center;
+    flex-direction: row;
+    width: 100%;
+}
+
+.imgUser,.imgPwd {
+    padding: 5px 7px 5px 7px;
+    margin-right: 10px;
+    border-radius: 10px;
+    background-color: white;
+}
+
+
+input, textarea {
+    padding: 15px;
+    border-radius: 10px;
+    border: none;
+    font-size: 15px;
+    box-shadow: 0 0 5px rgb(0, 0, 0,0.2);
+    width: 80%;
+}
+
+#btn {
+    margin-top: 0;
+    font-size: 22px;
+    padding: 15px 40px 15px 40px;
+    background-color: #0046FF;
+    color: white;
+    box-shadow: 0 0 15px rgb(0, 0, 0,0.2);
+    transition: transform .2s;
+    cursor: pointer;
+    border-radius: 10px;
+    border: none;
+}
+
+#btn:hover {
+    transform: scale(1.1);
+    background-color: #E67E22;
+}
