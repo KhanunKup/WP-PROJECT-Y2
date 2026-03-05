@@ -130,30 +130,38 @@ app.post('/api/v1/auth/login', (req, res) => {
     }
 
     // 3. ไปค้นหาใน Database
-    const sql = `SELECT * FROM Users WHERE username = ? and password = ?`;
-    const insert = `insert into System_logs (username, action, description) values (?, ?, ?)`;
-    db.get(sql, [username,password], (err, row) => {
+    const sql = `SELECT * FROM Users WHERE username = ? AND password = ?`;
+    const insertLog = `INSERT INTO System_Logs (user_id, action, description) VALUES (?, ?, ?)`;
+
+    db.get(sql, [username, password], (err, row) => {
         if (err) {
-            return res.status(500).json({ status: "error", message: "Server Error", data: null });
+            return res.status(500).json({ status: "error", message: "Server Error" });
         }
 
-        // (สมมติว่าเช็ครหัสผ่านผ่านแล้ว)
         if (row) {
-            //เก็บเข้า system_logs database
-            db.run(insert, [username, 'Login', 'Login Success'], (err) => { if (err) { console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message); } })
-            // ตอบ JSON Success กลับไป
+            // ✅ 1. ล็อคอินสำเร็จ: มี row.user_id ให้ใช้เลย ไม่ต้องหาใหม่
+            db.run(insertLog, [row.user_id, 'Login', 'Login Success']);
+            
             return res.status(200).json({
                 status: "success",
                 message: "เข้าสู่ระบบสำเร็จ",
-                data: {
-                    user_id: row.user_id,
-                    username: row.username,
-                    firstname: row.firstname
-                }
+                data: { user_id: row.user_id, username: row.username, firstname: row.firstname }
             });
+
         } else {
-            db.run (insert, [username,'Login','Login Rejected'],(err) => {if (err) {console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);}})
-            return res.status(401).json({ status: "error", message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", data: null });
+            // ❌ 2. ล็อคอินไม่สำเร็จ: หา user_id จาก username ตามที่คุณคิดไว้เลย
+            const findUserSql = `SELECT user_id FROM Users WHERE username = ?`;
+            
+            db.get(findUserSql, [username], (err, userRow) => {
+                // ถ้ากรอก username ถูกแต่รหัสผิด -> จะได้ user_id มาบันทึก
+                // ถ้ากรอก username มั่วๆ มาเลย -> ให้เป็น null (ต้องไปตั้งค่าตาราง System_Logs ให้รับค่า NULL ได้ด้วยนะ)
+                const logUserId = userRow ? userRow.user_id : null; 
+                const logDesc = userRow ? 'Login Rejected (Wrong Password)' : `Login Rejected (Unknown User: ${username})`;
+
+                db.run(insertLog, [logUserId, 'Login', logDesc]);
+                
+                return res.status(401).json({ status: "error", message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง" });
+            });
         }
     });
 });
