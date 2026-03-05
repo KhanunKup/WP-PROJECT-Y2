@@ -104,3 +104,8 @@ navbar {
     font-size: 16px;
     font-weight: bold;
 }
+navbar a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}

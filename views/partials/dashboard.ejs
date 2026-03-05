@@ -7,35 +7,47 @@
         </div>
 
         <div class="nav-links">
-            <div class="nav-item active">
-                <img src="/images/dashboard-frame-pic.svg" alt="Home">
-                <a href="/dashboard"><p>หน้าหลัก</p></a>
-            </div>
-            <div class="nav-item">
-                <img src="images/dashboard-box-pic.svg" alt="Inventory">
-                <a href="/product-list"><p>คลังสินค้า</p></a>
-            </div>
-            <div class="nav-item">
-                <img src="/images/dashboard-cart-pic.svg" alt="Order">
-                <a href="#"><p>คำสั่ง</p></a>
-            </div>
-            <div class="nav-item">
-                <img src="/images/dashboard-chart-pic.svg" alt="Report">
-                <a href="#"><p>รายงานผล</p></a>
-            </div>
-            <div class="nav-item">
-                <img src="/images/dashboard-user-pic.svg" alt="User">
-                <a href="/users"><p>จัดการผู้ใช้</p></a>
-            </div>
-            <div class="nav-item">
-                <img src="/images/dashboard-setting-pic.svg" alt="Setting">
-                <a href="#"><p>การตั้งค่า</p></a>
-            </div>
+            <a href="/dashboard">
+                <div class="nav-item active">
+                    <img src="/images/dashboard-frame-pic.svg" alt="Home">
+                    <p>หน้าหลัก</p>
+                </div>
+            </a>
+            <a href="/product-list">
+                <div class="nav-item">
+                    <img src="images/dashboard-box-pic.svg" alt="Inventory">
+                    <p>คลังสินค้า</p>
+                </div>
+            </a>
+            <a href="/history">
+                <div class="nav-item">
+                    <img src="/images/dashboard-cart-pic.svg" alt="Order">
+                    <p>คำสั่ง</p>
+                </div>
+            </a>
+            <a href="#">
+                <div class="nav-item">
+                    <img src="/images/dashboard-chart-pic.svg" alt="Report">
+                    <p>รายงานผล</p>
+                </div>
+            </a>
+            <a href="/users">
+                <div class="nav-item">
+                    <img src="/images/dashboard-user-pic.svg" alt="User">
+                    <p>จัดการผู้ใช้</p>
+                </div>
+            </a>
+            <a href="#">
+                <div class="nav-item">
+                    <img src="/images/dashboard-setting-pic.svg" alt="Setting">
+                    <p>การตั้งค่า</p>
+                </div>
+            </a>
         </div>
 
         <div class="profile">
             <img src="/images/navbar-profile-pic.svg" alt="Profile">
-            <p>Admin</p>
+            <p><%= username %></p>
             <p id="datetime-display"></p>
         </div>
     </navbar>
@@ -47,8 +59,9 @@
                 minute: '2-digit',
                 second: '2-digit'
             };
-            const timeString = now.toLocaleDateString('th-TH', options);
+            const timeString = now.toLocaleTimeString('th-TH', options);
             document.getElementById('datetime-display').innerText = timeString;
+            // /api/v1/auth/logout
         }
         updateTime();
         setInterval(updateTime, 1000);

@@ -108,8 +108,8 @@ body {
 .input-wrapper-unit .input-area,
 .input-wrapper-unit .input-light-blue {
     width: 100%;
-    padding-right: 50px;
-    flex: 1;
+    padding-right: 50px; /* เว้นที่ให้คำว่า บาท/ชิ้น */
+    flex: 1; /* ขยายให้สุดขอบ */
 }
 
 .input-group label {

@@ -1,3 +1,26 @@
+async function selectWarehouse(warehouseId) {
+    try {
+        const response = await fetch('/api/v1/select-warehouse', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ warehouse_id: warehouseId })
+        });
+
+        const result = await response.json();
+
+        if (result.status === 'success') {
+            // เมื่อเก็บ Session สำเร็จ ให้ส่งผู้ใช้ไปหน้า Dashboard
+            window.location.href = '/dashboard';
+        } else {
+            alert('เกิดข้อผิดพลาด: ' + result.message);
+        }
+    } catch (error) {
+        console.error('Error selecting warehouse:', error);
+    }
+}
+
 document.addEventListener('DOMContentLoaded', async () => {
     const container = document.getElementById('warehouse-container');
 
