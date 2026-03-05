@@ -120,15 +120,24 @@ app.get('/edit-product/:id', (req, res) => {
 });
 
 app.get('/history', (req, res) => {
-    res.render('order-history');
+    res.render('order-history', {
+        username: req.session.username,
+        warehouseName: req.session.warehouseName 
+    });;
 });
 
 app.get('/receive-log', (req, res) => {
-    res.render('order-receive-log');
+    res.render('order-receive-log', {
+        username: req.session.username,
+        warehouseName: req.session.warehouseName 
+    });;
 });
 
 app.get('/export-log', (req, res) => {
-    res.render('order-export-log');
+    res.render('order-export-log', {
+        username: req.session.username,
+        warehouseName: req.session.warehouseName 
+    });;
 });
 
 app.get('/product-details/:id', (req, res) => {
