@@ -48,6 +48,36 @@ async function fetchLogsAndOrders(){
                 activityUl.insertAdjacentHTML('beforeend', li);
             });
             // ----- lastest activity ------
+
+            // ----- chart.js -----
+            const labels = dataArray.chart.map(item => item.category_name);
+            const dataValues = dataArray.chart.map(item => item.quantity);
+
+            // draw a graph
+            const ctx = document.getElementById('categoryChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'doughnut', // select type of chart (bar,doughnut,pie)
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'จำนวนสินค้า (ชิ้น)',
+                        data: dataValues,
+                        // color of each chart
+                        backgroundColor: ['#4e73df', '#1cc88a', '#36b9cc', '#f6c23e', '#e74a3b'], 
+                        borderRadius: 4   // border-radius of chart
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: false
+                        }
+                    }
+                }
+            });
+            // -----------
         }
     } catch (error) {
         console.log('Fetch error:', error);

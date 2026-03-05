@@ -6,14 +6,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
     <%- include("partials/dashboard.ejs") %>
         <div class="info-zone">
             <h1>EASYMANAGE <span style="font-family: Kanit;">ระบบจัดการสินค้า</span></h1>
-            <h1>ตอนนี้คุณอยู่ที่คลังสินค้า : <%= warehouseName %></h1>
-
+            <span>ตอนนี้คุณอยู่ที่คลังสินค้า : <%= warehouseName %></span>
             <div class="dashboard-grid">
                 <div class="card">
                     <div class="card-header">
@@ -71,17 +71,24 @@
                 </div>
 
                 <!-- wait for implement -->
-                <div class="right-column">
-                    <div class="panel">
-                        <h2 class="panel-title">จำนวนสินค้าแบ่งตามประเภท</h2>
-                        <div class="chart-placeholder"></div>
+               <div class="panel">
+                    <h2 class="panel-title">จำนวนสินค้าแบ่งตามประเภท</h2>
+                    <div style="height: 300px;">
+                        <canvas id="categoryChart"></canvas>
                     </div>
+                </div>
 
-                    <div class="panel">
-                        <h2 class="panel-title">กิจกรรมล่าสุด</h2>
-                        <ul class="activity-list" id="activity-list">
-                            <!-- implemented in dashboard.js -->
-                        </ul>
+                <div class="panel">
+                    <h2 class="panel-title">กิจกรรมล่าสุด</h2>
+                    <ul class="activity-list" id="activity-list">
+                        <!-- implemented in dashboard.js -->
+                    </ul>
+                </div>
+
+                <div class="panel">
+                    <h2 class="panel-title">จำนวนสินค้าแบ่งตามประเภท</h2>
+                    <div style="height: 300px;">
+                        <canvas id="categoryChart"></canvas>
                     </div>
                 </div>
             </div>
