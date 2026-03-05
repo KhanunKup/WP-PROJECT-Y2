@@ -119,6 +119,10 @@ body {
     background-color: #e0f2fe;
     color: #075985;
 }
+.action-login-logout {
+    background-color: #fef3c7;
+    color: #92400e;
+}
 /* TRANSACTION */
 /* --- for role badge --- */
 .role-badge {
