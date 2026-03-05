@@ -9,18 +9,19 @@
     </div>
     <div class="right-menu">
         <div class="nav-text">
-            <p id="dashboard">หน้าหลัก</p>
-            <p id="inventory">คลังสินค้า</p>
-            <p id="order">คำสั่งซื้อ</p>
-            <p id="report">รายงานผล</p>
-            <p id="setting">การตั้งค่า</p>
+            <a href="/dashboard"><p id="dashboard">หน้าหลัก</p></a>
+            <a href="/product-list"><p id="inventory">คลังสินค้า</p></a>
+            <a href="#"><p id="order">คำสั่งซื้อ</p></a>
+            <a href="#"><p id="report">รายงานผล</p></a>
+            <a href="#"><p id="setting">การตั้งค่า</p></a>
         </div>
         <div class="user-info">
             <img class="user-img" src="/images/navbar-profile-pic.svg">
             <div class="user-details">
-                <p class="user-name">Admin User</p>
-                <p class="logout-btn"><a href="/api/v1/auth/logout">ออกจากระบบ</a></p>
+                <p class="user-name"><%= username %></p>
+                <p class="logout-btn"><a id="logout">ออกจากระบบ</a></p>
             </div>
         </div>
     </div>
 </navbar>
+<script src="/js/logout.js"></script>

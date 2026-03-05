@@ -88,6 +88,10 @@ form,a {
     cursor: pointer;
 }
 
+#add-users{
+    text-decoration: none;
+}
+
 .function {
     display: flex;
     justify-content: space-between;
