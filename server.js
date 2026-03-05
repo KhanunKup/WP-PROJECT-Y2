@@ -17,19 +17,16 @@ const fs = require('fs');
 
 //ตั้งค่าการเก็บไฟล์แบบละเอียด
 const storage = multer.diskStorage({
-    destination: function (req, file, cb) {
-        const dir = 'public/images/product'; // ระบุเส้นทาง
-        
-        // ถ้าไม่มีโฟลเดอร์ ให้สร้างขึ้นมาทันที
-        if (!fs.existsSync(dir)){
-            fs.mkdirSync(dir, { recursive: true });
-        }
-        
+    destination: (req, file, cb) => {
+        const dir = 'public/images/product';
+        if (!fs.existsSync(dir)) fs.mkdirSync(dir, { recursive: true });
         cb(null, dir);
     },
-    filename: function (req, file, cb) {
-        const uniqueSuffix = Date.now() + '-' + Math.round(Math.random() * 1E9);
-        cb(null, uniqueSuffix + path.extname(file.originalname)); 
+    filename: (req, file, cb) => {
+        const productName = req.body.name || 'product';
+        const safeName = productName.replace(/\s+/g, '-').replace(/[^\w\u0E00-\u0E7F-]/g, '');
+        const uniqueSuffix = Date.now().toString().slice(-4); 
+        cb(null, `${safeName}-${uniqueSuffix}${path.extname(file.originalname)}`);
     }
 });
 
@@ -106,11 +103,12 @@ app.get('/product-list', (req, res) => {
     });
 });
 
-// Route สำหรับเปิดหน้ารายการสินค้า
+//เพิ่มสินค้าใหม่ หรือ รับสินค้าเข้าคลัง
 app.get('/add-product', (req, res) => {
     // สั่ง render ไฟล์ views/add-product.ejs
-    res.render('add-product', {
-        username: req.session.username,
+    const sql = `SELECT * FROM Categories ORDER BY category_name ASC`; //
+    db.all(sql, [], (err, rows) => {
+        res.render('add-product', { categories: rows || [] }); 
     });
 });
 
@@ -144,6 +142,12 @@ app.get('/api/v1/all-order', (req, res) => {
             // row would look like this
             // {"status":"success","message":"ดึงข้อมูลสำเร็จ",data:[{"date":"2026-03-04 17:00:00","username":"admin","name":"-","detail":"Admin somchai logged out","action":"LOGOUT","email":"-","role":"-"}, {}, {} ]
         });
+
+app.get('/edit-product/:id', (req, res) => {
+    // ดึงหมวดหมู่ไปเตรียมไว้ให้หน้าเว็บเหมือนตอนเพิ่มสินค้า
+    const sql = `SELECT * FROM Categories ORDER BY category_name ASC`; 
+    db.all(sql, [], (err, rows) => {
+        res.render('edit-product', { categories: rows || [] }); 
     });
 });
 
@@ -470,75 +474,145 @@ app.delete('/api/v1/users/:id', function (req,res) {
 });
 
 
-app.post('/api/v1/products', upload.single('image'), async (req, res) => {    
-    const { mode, name, category, cost, price, condition, location } = req.body;
-    const user_id = 1; 
-    const warehouse_id = 1; // อิงตามโครงสร้าง Warehouses
+//เพิ่มสินค้าใหม่ หรือ รับสินค้าเข้าคลัง
+app.post('/api/v1/products', upload.single('image'), async (req, res) => {
+    let sql = `
+        SELECT p.*, c.category_name 
+        FROM Products p
+        LEFT JOIN Categories c ON p.category_id = c.category_id
+        WHERE 1=1`;
+    
+    let params = [];
+
+    const { mode, name, category_id, cost, price, condition, location } = req.body;
+    const currentUserName = req.session.username || 'admin';
+    const currentUserId = req.session.userId || 1;
 
     try {
-        //จัดการ Location ID 
+        //หา location_id จากชื่อพื้นที่จัดเก็บ ถ้าไม่มีให้สร้างใหม่
         const locationId = await new Promise((resolve, reject) => {
             db.get(`SELECT location_id FROM Locations WHERE area = ?`, [location], (err, row) => {
                 if (row) return resolve(row.location_id);
-                db.run(`INSERT INTO Locations (warehouse_id, area) VALUES (?, ?)`, [warehouse_id, location], function(err) {
+                db.run(`INSERT INTO Locations (warehouse_id, area) VALUES (?, ?)`, [1, location], function(err) {
                     if (err) return reject(err);
                     resolve(this.lastID);
                 });
             });
         });
 
-        //จัดการ Product ID 
-        let finalProductId;
+        let productId;
+
         if (mode === 'new') {
-            finalProductId = await new Promise((resolve, reject) => {
-                const productCode = 'P-' + Date.now();
-                const sqlProduct = `INSERT INTO Products (product_code, name, category, cost_price, selling_price) VALUES (?, ?, ?, ?, ?)`;
-                db.run(sqlProduct, [productCode, name, category, cost, price], function(err) {
-                    if (err) return reject(err);
-                    const newId = this.lastID;
-                    if (req.file) {
-                        const imageUrl = `/images/product/${req.file.filename}`;
-                        db.run(`UPDATE Products SET image_url = ? WHERE product_id = ?`, [imageUrl, newId]);
-                    }
-                    resolve(newId);
+            productId = await new Promise((resolve, reject) => {
+                db.get("SELECT MAX(product_id) as maxId FROM Products", (err, row) => {
+                    const nextId = (row.maxId || 0) + 1;
+                    const pCode = `P-${String(nextId).padStart(3, '0')}`;
+
+                    // ใช้ category_id บันทึกลงตาราง Products 
+                    const sqlP = `INSERT INTO Products (product_code, name, category_id, cost_price, selling_price) VALUES (?, ?, ?, ?, ?)`;
+                    
+                    db.run(sqlP, [pCode, name, category_id, cost, price], function(err) {
+                        if (err) return reject(err);
+                        const newId = this.lastID;
+
+                        // ถ้ามีการอัปโหลดไฟล์รูปภาพมา ให้ทำการเปลี่ยนชื่อและย้ายไฟล์
+                        if (req.file) {
+                            const extension = path.extname(req.file.originalname);
+                            const paddedFileName = String(newId).padStart(3, '0'); // ทำเป็น 011
+                            const newFileName = `${paddedFileName}${extension}`;
+                            
+                            const oldPath = req.file.path;
+                            const newPath = path.join(__dirname, 'public/images/product', newFileName);
+
+                            fs.renameSync(oldPath, newPath);
+
+                            // อัปเดต URL รูปในตาราง Products ให้ตรงกับชื่อใหม่
+                            const imgUrl = `/images/product/${newFileName}`;
+                            db.run(`UPDATE Products SET image_url = ? WHERE product_id = ?`, [imgUrl, newId]);
+                        }
+                        resolve(newId);
+                    });
                 });
             });
         } else {
-            finalProductId = mode;
+            productId = mode;
         }
 
-        //บันทึก Transaction 
+        // บันทึกการเคลื่อนไหวสินค้า (Inventory_Transactions)
         await new Promise((resolve, reject) => {
-            const sqlTrans = `INSERT INTO Inventory_Transactions (product_id, product_status, quantity, transaction_type, location_id, user_id, date) VALUES (?, ?, 1, 'Stock In', ?, ?, DATETIME('now'))`;
-            db.run(sqlTrans, [finalProductId, condition, locationId, user_id], (err) => {
+            const sqlT = `INSERT INTO Inventory_Transactions (product_id, product_status, user_id, quantity, transaction_type, location_id) VALUES (?, ?, ?, 1, 'รับสินค้าเข้าคลัง', ?)`;
+            db.run(sqlT, [productId, condition, currentUserId, locationId], (err) => {
                 if (err) return reject(err);
                 resolve();
             });
         });
 
-        // อัปเดตตาราง Stock_Balances
-        // เช็กก่อนว่ามี "สินค้านี้ ในที่เก็บนี้" หรือยัง
-        db.get(`SELECT quantity FROM Stock_Balances WHERE product_id = ? AND location_id = ?`, [finalProductId, locationId], (err, row) => {
+        // อัปเดตยอดคงเหลือในตาราง Stock_Balances
+        db.get(`SELECT stock_id FROM Stock_Balances WHERE product_id = ? AND location_id = ?`, [productId, locationId], (err, row) => {
             if (row) {
-                // กรณีมีอยู่แล้ว -> อัปเดตบวกเพิ่ม
-                db.run(`UPDATE Stock_Balances SET quantity = quantity + 1 WHERE product_id = ? AND location_id = ?`, [finalProductId, locationId]);
+                db.run(`UPDATE Stock_Balances SET quantity = quantity + 1 WHERE stock_id = ?`, [row.stock_id]);
             } else {
-                // กรณีเป็นของใหม่ในโซนนี้ -> สร้างแถวใหม่
-                db.run(`INSERT INTO Stock_Balances (product_id, location_id, quantity) VALUES (?, ?, 1)`, [finalProductId, locationId]);
+                db.run(`INSERT INTO Stock_Balances (product_id, location_id, quantity) VALUES (?, ?, 1)`, [productId, locationId]);
             }
-            
-            // บันทึก Log และส่งคำตอบกลับ
-            db.run(`INSERT INTO System_Logs (username, action, description) VALUES (?, ?, ?)`, ['Admin', 'Add Stock', `เพิ่มสินค้า ID: ${finalProductId} เข้าคลังสำเร็จ`]);
-            res.status(201).json({ status: "success", message: "บันทึกสินค้าและอัปเดตยอดสต็อกเรียบร้อย!" });
         });
 
+        // บันทึกการกระทำลง System_Logs
+        db.run(`INSERT INTO System_Logs (user_id, action, description) VALUES (?, ?, ?)`, 
+            [currentUserId, 'นำสินค้าเข้า', `รับสินค้า ID:${productId} ${name} เข้าที่จัดเก็บ: ${location}`]);
+
+        res.status(201).json({ status: "success", message: "บันทึกข้อมูลและรันรหัสสินค้าเรียบร้อย!" });
+
     } catch (error) {
-        console.error("❌ SQL Error:", error.message);
-        res.status(500).json({ status: "error", message: "เกิดข้อผิดพลาด: " + error.message });
+        console.error("Database Error:", error);
+        res.status(500).json({ status: "error", message: error.message });
     }
 });
 
-// 5. สั่งให้เซิร์ฟเวอร์เริ่มทำงาน
+app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
+    const productId = req.params.id;
+    const { name, category_id, cost, price } = req.body; 
+    const currentUserId = req.session.userId || 1; // สมมติว่าได้จาก session มาแล้ว หรือใช้ 1 เป็นค่าเริ่มต้นสำหรับ admin
+
+    try {
+        // 1. อัปเดตข้อมูลหลักในตาราง Products
+        const sqlUpdate = `UPDATE Products SET name = ?, category_id = ?, cost_price = ?, selling_price = ? WHERE product_id = ?`;
+        
+        await new Promise((resolve, reject) => {
+            db.run(sqlUpdate, [name, category_id, cost, price, productId], function(err) {
+                if (err) return reject(err);
+                resolve();
+            });
+        });
+
+        // 2. ถ้ามีการเลือกรูปใหม่มา ค่อยอัปเดตรูป
+        if (req.file) {
+            const ext = path.extname(req.file.originalname);
+            const paddedId = String(productId).padStart(3, '0');
+            const newFileName = `${paddedId}${ext}`;
+            const newPath = path.join(__dirname, 'public/images/product', newFileName); 
+            
+            const fs = require('fs');
+            // ย้ายและเปลี่ยนชื่อไฟล์รูปใหม่
+            fs.renameSync(req.file.path, newPath);
+            
+            // อัปเดต path รูปใน Database
+            db.run(`UPDATE Products SET image_url = ? WHERE product_id = ?`, [`/images/product/${newFileName}`, productId]);
+        }
+
+        // 3. บันทึก Log ว่าใครเป็นคนแก้
+        db.run(`INSERT INTO System_Logs (user_id, action, description) VALUES (?, ?, ?)`, 
+            [currentUserId, 'แก้ไขข้อมูลสินค้า', `แก้ไขข้อมูลหลักของสินค้า ID:${productId} ${name}`]);
+
+        // ส่งสัญญาณบอกหน้าบ้านว่าเสร็จแล้ว
+        res.status(200).json({ status: "success", message: "อัปเดตข้อมูลสำเร็จ" });
+
+    } catch (error) {
+        console.error("Update Error:", error);
+        res.status(500).json({ status: "error", message: error.message });
+    }
+});
+
+// Start the server
 app.listen(port, () => {
     console.log(`🚀 Server is running on http://localhost:${port}`);
 });

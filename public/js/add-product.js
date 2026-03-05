@@ -1,26 +1,29 @@
-//เขียนให้มันอัปโหลดรูปยังไงวะ
 
-//-----------------------------------------------------------------------------------------------
-
-// ประกาศตัวแปรเก็บสินค้าทั้งหมดไว้ จะได้เรียกใช้ทีหลังได้ง่ายๆ
 let allProducts = [];
+const productSelect = document.getElementById('productSelect');
+const categorySelect = document.getElementById('categoryInput');
+const nameInput = document.querySelector('input[placeholder="กรุณากรอกชื่อสินค้า..."]');
+const costInput = document.getElementById('inputCost'); // อย่าลืมแก้ ID ใน EJS ให้ตรงนะแก!
+const priceInput = document.getElementById('inputPrice');
+const uploadBox = document.querySelector('.image-upload-box');
+const uploadBtn = document.querySelector('.btn-upload');
+const imageInput = document.getElementById('imageInput');
 
+// โหลดข้อมูลสินค้าทั้งหมดมาแสดงใน Dropdown
 async function loadProductsDropdown() {
     try {
-        // วิ่งไปเรียก API ดึงรายการสินค้าของคุณ
         const response = await fetch('/api/v1/products');
         const result = await response.json();
 
         if (result.status === 'success') {
-            allProducts = result.data; // เก็บข้อมูลทั้งหมดลงตัวแปร
-            const select = document.getElementById('productSelect');
-
-            // วนลูปเอาชื่อสินค้ามาสร้างเป็นตัวเลือก <option>
+            allProducts = result.data;
+            productSelect.innerHTML = '<option value="new">สร้างสินค้าชนิดใหม่...</option>'; // ล้างค่าเก่า
+            
             allProducts.forEach(product => {
                 const option = document.createElement('option');
                 option.value = product.product_id;
                 option.textContent = `รหัส ${product.product_id} : ${product.name}`;
-                select.appendChild(option);
+                productSelect.appendChild(option);
             });
         }
     } catch (error) {
@@ -28,32 +31,19 @@ async function loadProductsDropdown() {
     }
 }
 
-// สั่งให้ฟังก์ชันทำงานทันทีที่โหลดหน้าเว็บเสร็จ
 loadProductsDropdown();
 
-// ดักฟังว่ามีการกดเปลี่ยน Dropdown หรือเปล่า
-document.getElementById('productSelect').addEventListener('change', function(e) {
+productSelect.addEventListener('change', function(e) {
     const selectedValue = e.target.value;
-    
-    // ดึง Element ของส่วนหมวดหมู่มาเตรียมไว้
-    const categoryInput = document.getElementById('categoryInput');
-    const btnAddCategory = document.getElementById('btnAddCategory');
-    const nameInput = document.querySelector('input[placeholder="กรุณากรอกชื่อสินค้า..."]');
 
     if (selectedValue === 'new') {
-        // --- โค้ดเดิมของแกที่มีอยู่แล้ว ---
-        nameInput.readOnly = false;
-        nameInput.value = ''; // แนะนำให้เติมบรรทัดนี้เพื่อล้างชื่อเก่าออกด้วย
-        if (categoryInput) categoryInput.disabled = false;
-        if (btnAddCategory) btnAddCategory.disabled = false;
+        // Reset ฟอร์มสำหรับสร้างสินค้าใหม่
+        nameInput.value = ''; nameInput.readOnly = false;
+        if(costInput) { costInput.value = ''; costInput.readOnly = false; }
+        if(priceInput) { priceInput.value = ''; priceInput.readOnly = false; }
+        categorySelect.value = ''; categorySelect.disabled = false;
         
-        tagsArray = [];
-        renderTags();
-
-        // 🌟 ส่วนที่ต้องเพิ่ม: เสกปุ่มและไอคอนกลับมา 🌟
-        uploadBtn.style.display = 'block'; // สั่งให้ปุ่มกลับมาโชว์
-        
-        // คืนค่าไอคอน SVG และข้อความในกล่องสีส้ม (ก๊อปจากหน้า HTML ของแกมาเลย)
+        uploadBtn.style.display = 'block';
         uploadBox.innerHTML = `
             <div class="upload-icon">
                 <svg width="60" height="60" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
@@ -62,52 +52,32 @@ document.getElementById('productSelect').addEventListener('change', function(e) 
                     <polyline points="21 15 16 10 5 21"></polyline>
                 </svg>
             </div>
-            <h2>เลือกรูปภาพ</h2>
-        `;
+            <h2>เลือกรูปภาพ</h2>`;
     } else {
-        // --- กรณีสินค้าเก่า: ล็อกให้หมด ---
-        const selectedProduct = allProducts.find(p => p.product_id == selectedValue);
+        // auto-fill ข้อมูล เมื่อเลือกสินค้าที่มีอยู่แล้ว
+        const p = allProducts.find(item => item.product_id == selectedValue);
+        if (!p) return;
+
+        nameInput.value = p.name; nameInput.readOnly = true;
+        if(costInput) { costInput.value = p.cost_price; costInput.readOnly = true; }
+        if(priceInput) { priceInput.value = p.selling_price; priceInput.readOnly = true; }
         
-        nameInput.value = selectedProduct.name;
-        nameInput.readOnly = true;
-        
-        // 🌟 เพิ่ม 2 บรรทัดนี้: ล็อกส่วนการเพิ่มหมวดหมู่
-        if (categoryInput) categoryInput.disabled = true;  // 🔒 ห้ามเลือก
-        if (btnAddCategory) btnAddCategory.disabled = true; // 🔒 ห้ามกดเพิ่ม
+        categorySelect.value = p.category_id;
+        categorySelect.disabled = true;
 
-        inputCost.value = selectedProduct.cost_price;
-        inputCost.readOnly = true;
-
-        inputPrice.value = selectedProduct.selling_price;
-        inputPrice.readOnly = true;
-
-        // ดึงหมวดหมู่เดิมมาโชว์
-        if (selectedProduct.category) {
-            tagsArray = selectedProduct.category.split(', ');
-            renderTags();
-        }
-
-        if (selectedProduct.image_url) {
-            uploadBox.innerHTML = `<img src="${selectedProduct.image_url}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
+        if (p.image_url) {
+            uploadBox.innerHTML = `<img src="${p.image_url}" style="width:100%; height:100%; object-fit:cover; border-radius: 8px;">`;
         }
         uploadBtn.style.display = 'none';
     }
 });
 
-const imageInput = document.getElementById('imageInput'); // input file ที่ซ่อนอยู่
-const uploadBox = document.querySelector('.image-upload-box'); // กล่องสีส้ม
-const uploadBtn = document.querySelector('.btn-upload'); // ปุ่มอัปโหลด
-
-// พอกดกล่องสีส้ม หรือ ปุ่มอัปโหลด ให้ไปคลิก input file
+//การอัปโหลดรูปภาพ
 uploadBox.addEventListener('click', () => {
-    // ให้กดได้เฉพาะตอนที่เลือก "สร้างสินค้าใหม่" เท่านั้น
-    if(document.getElementById('productSelect').value === 'new') {
-        imageInput.click();
-    }
+    if(productSelect.value === 'new') imageInput.click();
 });
-uploadBtn.addEventListener('click', () => imageInput.click());
+if(uploadBtn) uploadBtn.addEventListener('click', () => imageInput.click());
 
-// พอเลือกรูปเสร็จ ให้เอารูปมาโชว์ทับกล่อง
 imageInput.addEventListener('change', function(event) {
     const file = event.target.files[0];
     if (file) {
@@ -119,144 +89,41 @@ imageInput.addEventListener('change', function(event) {
     }
 });
 
-
-let tagsArray = []; // ข้อมูลเริ่มต้น
-const tagsContainer = document.getElementById('tagsContainer');
-const categoryInput = document.getElementById('categoryInput');
-const btnAddCategory = document.getElementById('btnAddCategory');
-
-function renderTags() {
-    if (!tagsContainer) return;
-    tagsContainer.innerHTML = '';
-    
-    // เช็กว่าตอนนี้เลือกสินค้าเก่าอยู่หรือไม่
-    const isLocked = document.getElementById('productSelect').value !== 'new';
-
-    tagsArray.forEach((tag, index) => {
-        tagsContainer.innerHTML += `
-            <span class="tag tag-blue">
-                ${tag} 
-                ${isLocked ? '' : `<button type="button" class="btn-close" onclick="removeTag(${index})">×</button>`}
-            </span>
-        `;
-    });
-}
-
-// ฟังก์ชันลบ Tag (เมื่อกดกากบาท) - ต้องประกาศให้เป็น Global เพื่อให้ปุ่ม HTML เรียกใช้ได้
-window.removeTag = function(index) {
-    tagsArray.splice(index, 1); // เอาออกจาก Array
-    renderTags(); // วาดใหม่
-}
-
-// ฟังก์ชันเพิ่ม Tag (เมื่อกดปุ่มเพิ่ม หรือกด Enter)
-function addTag() {
-    if (!categoryInput) return;
-    
-    const newTag = categoryInput.value;
-
-    // 1. เช็กว่าเลือกตัวเลือกหรือยัง (ต้องไม่ใช่ค่าว่าง)
-    if (newTag !== "") {
-        // 2. เช็กว่าหมวดหมู่นี้ถูกเลือกไปแล้วหรือยัง (กันซ้ำ)
-        if (!tagsArray.includes(newTag)) {
-            tagsArray.push(newTag); // ใส่เข้า Array
-            renderTags(); // วาด Tag ใหม่
-        } else {
-            alert('คุณเลือกหมวดหมู่นี้ไปแล้ว!');
-        }
-    } else {
-        alert('กรุณาเลือกหมวดหมู่');
-    }
-
-    // 3. รีเซ็ต Dropdown กลับไปที่ตัวเลือกแรก ("-- เลือกหมวดหมู่ไอที --")
-    categoryInput.value = "";
-}
-
-// ผูก Event ให้ปุ่ม "เพิ่ม"
-if (btnAddCategory) {
-    btnAddCategory.addEventListener('click', addTag);
-}
-
-// ผูก Event ให้กด Enter ในช่องพิมพ์ได้
-if (categoryInput) {
-    categoryInput.addEventListener('keypress', function(e) {
-        if (e.key === 'Enter') {
-            e.preventDefault(); // กันฟอร์มเด้ง (ถ้าอยู่ใน <form>)
-            addTag();
-        }
-    });
-}
-
-// สภาพสินค้า เลือกอันไหนอันนั้นขึ้นสี อันไม่เลือกเป็นสีเทา
-const conditionBtns = document.querySelectorAll('.btn-condition');
-
-conditionBtns.forEach(btn => {
-    btn.addEventListener('click', function() {
-        // ลบสีออกจากทุกปุ่มก่อน (ให้เป็นสีเทา)
-        conditionBtns.forEach(b => b.classList.remove('active'));
-        // เติมสีให้ปุ่มที่เพิ่งโดนกด (CSS จะแยกสีน้ำเงิน/ส้ม จากคลาส btn-perfect, btn-damaged ที่เราใส่ไว้)
-        this.classList.add('active');
-    });
-});
-
-//ปุ่มบันทึกและยกเลิก
 const btnCancel = document.querySelector('.btn-cancel');
-const btnSave = document.querySelector('.btn-save');
-
-// กดยกเลิก
 if (btnCancel) {
     btnCancel.addEventListener('click', () => {
-        if(confirm('คุณต้องการยกเลิกการเปลี่ยนแปลง และกลับไปหน้ารายการสินค้าใช่หรือไม่?')) {
+        if (confirm('คุณต้องการยกเลิกการเพิ่ม/แก้ไขสินค้านี้หรือไม่?')) {
             window.location.href = '/product-list'; // กลับไปหน้ารายการสินค้า
         }
     });
 }
 
-// กดบันทึก
+//ปุ่มบันทึกสินค้า
+const btnSave = document.querySelector('.btn-save');
 if (btnSave) {
     btnSave.addEventListener('click', async () => {
-        // 1. เช็กโหมดจาก Dropdown (เป็น 'new' หรือเป็น ID เช่น '1')
-        const selectedMode = document.getElementById('productSelect').value;
+        const selectedMode = productSelect.value;
+        const name = nameInput.value.trim();
+        const categoryId = categorySelect.value;
+        const cost = costInput ? parseFloat(costInput.value) : 0;
+        const price = priceInput ? parseFloat(priceInput.value) : 0;
+        const location = document.querySelector('textarea.input-area').value.trim();
 
-        const nameInput = document.querySelector('.input-area[placeholder="กรุณากรอกชื่อสินค้า..."]');
-        const costInput = document.getElementById('inputCost');
-        const priceInput = document.getElementById('inputPrice');
-        const locationInput = document.querySelector('textarea.input-area');
+        // Validation
+        if (!name) { alert('กรุณากรอกชื่อสินค้า'); return; }
+        if (!categoryId) { alert('กรุณาเลือกหมวดหมู่สินค้า'); return; }
+        if (!location) { alert('กรุณากรอกที่จัดเก็บสินค้า'); return; }
 
-        const name = nameInput ? nameInput.value.trim() : '';
-        const cost = parseFloat(costInput.value);
-        const price = parseFloat(priceInput.value);
-        const location = locationInput ? locationInput.value.trim() : '';
-        const categories = tagsArray.join(', '); 
-        
-        const activeConditionBtn = document.querySelector('.btn-condition.active');
-        const condition = activeConditionBtn ? activeConditionBtn.innerText : 'สภาพสมบูรณ์';
-
-        // --- Validation เช็กความถูกต้อง ---
-        if (selectedMode === 'new' && (!imageInput || !imageInput.files[0])) {
-            alert('กรุณาอัปโหลดรูปภาพสินค้าด้วยครับ');
-            return;
-        }
-        if (!name) { alert('กรุณากรอกชื่อสินค้า'); nameInput.focus(); return; }
-        if (tagsArray.length === 0) { alert('กรุณาเพิ่มหมวดหมู่'); return; }
-        if (!location) { alert('กรุณากรอกที่จัดเก็บสินค้า'); locationInput.focus(); return; }
-
-        // 🌟 2. ใช้ FormData แพ็กของเตรียมส่ง 🌟
         const formData = new FormData();
-        
-        // แนบไฟล์รูป (เฉพาะตอนสร้างใหม่)
         if (selectedMode === 'new') {
             formData.append('image', imageInput.files[0]);
         }
-        
-        // ส่งบอกหลังบ้านด้วยว่าเป็นการสร้างใหม่ หรือเพิ่มของเก่า
-        formData.append('mode', selectedMode); 
-        
-        // แนบข้อมูลตัวหนังสืออื่นๆ
+        formData.append('mode', selectedMode);
         formData.append('name', name);
-        formData.append('category', categories);
-        formData.append('cost', cost || 0);
-        formData.append('price', price || 0);
-        formData.append('condition', condition);
+        formData.append('category_id', categoryId); // ส่งแค่ category_id ไปให้ Server
+        formData.append('cost', cost);
+        formData.append('price', price);
+        formData.append('condition', document.querySelector('.btn-condition.active').innerText);
         formData.append('location', location);
 
         try {
@@ -265,26 +132,31 @@ if (btnSave) {
 
             const response = await fetch('/api/v1/products', {
                 method: 'POST',
-                body: formData //
+                body: formData
             });
 
             const result = await response.json();
-
             if (result.status === 'success') {
                 alert('บันทึกข้อมูลสำเร็จ!');
-                window.location.href = '/add-product'; // กลับไปหน้ารายการสินค้า
+                window.location.reload(); // รีเฟรชหน้าเพื่อล้างข้อมูล
             } else {
-                alert(`เกิดข้อผิดพลาด: ${result.message}`); // แสดงข้อความผิดพลาดจากเซิร์ฟเวอร์
+                alert(`เกิดข้อผิดพลาด: ${result.message}`);
             }
         } catch (error) {
-            console.error('Error:', error);
             alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
         } finally {
-            btnSave.innerHTML = 'บันทึก';
+            btnSave.innerHTML = 'บันทึกสินค้า';
             btnSave.disabled = false;
         }
     });
 }
 
-// ตอนเปิดหน้ามาครั้งแรก ให้วาดหมวดหมู่รอไว้เลย
-renderTags();
+
+
+//เลือกสภาพสินค้า
+document.querySelectorAll('.btn-condition').forEach(btn => {
+    btn.addEventListener('click', function() {
+        document.querySelectorAll('.btn-condition').forEach(b => b.classList.remove('active'));
+        this.classList.add('active');
+    });
+});
