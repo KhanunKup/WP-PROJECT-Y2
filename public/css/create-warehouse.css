@@ -53,7 +53,15 @@ h4 {
     display: flex;
     justify-content: center;
     align-items: center;
+    flex-direction: column;
     margin-left: 5%;
+}
+
+.back {
+    width: 100%;
+    display: flex;
+    justify-content: flex-start;
+    box-sizing: border-box;
 }
 
 .box {
@@ -115,6 +123,25 @@ input, textarea {
     font-size: 15px;
     box-shadow: 0 0 5px rgb(0, 0, 0,0.2);
     width: 80%;
+}
+
+a {
+    text-decoration: none;
+}
+
+#btnBack {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    background-color: rgb(255, 255, 255,0);
+    gap: 10px;
+    border: none;
+    cursor: pointer;
+    color: #6d6d6d;
+}
+
+#btnBack:hover {
+    color: #9c9c9c;
 }
 
 #btn {

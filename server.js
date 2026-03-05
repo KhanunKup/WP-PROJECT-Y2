@@ -156,9 +156,21 @@ app.get('/warehouses', (req, res) => {
     res.render('warehouseSelect');
 });
 
+app.get('/delete-warehouse', (req, res) => {
+    // สั่ง render ไฟล์ views/warehouseDelete.ejs
+    res.render('warehouseDelete');
+});
+
 app.get('/users', (req, res) => {
     // สั่ง render ไฟล์ views/userManage.ejs
     res.render('userManage', {
+        username: req.session.username,
+    });
+});
+
+app.get('/edit-user', (req, res) => {
+    // สั่ง render ไฟล์ views/editUsers.ejs
+    res.render('editUsers', {
         username: req.session.username,
     });
 });
@@ -536,6 +548,31 @@ app.get('/api/v1/warehouses', function (req, res) {
     });
 });
 
+app.post('/api/v1/delete-warehouse', function (req, res) {
+    const {warehouse_id} = req.body;
+    const query = `DELETE FROM Warehouses WHERE warehouse_id = ?`;
+
+    if (!warehouse_id) {
+        return res.status(400).json({
+            status: "error",
+            message: "ไม่พบไอดีคลังสินค้า"
+        });
+    }
+
+    db.run(query, [warehouse_id], (err) => {
+        if (err) {
+            return res.status(500).json({
+                "status": "error",
+                "message": "ไม่สามารถลบข้อมูลคลังสินค้าได้",
+            })
+        }
+        return res.status(200).json({
+            "status": "success",
+            "message": "ลบข้อมูลคลังสินค้าสำเร็จ",
+        })
+    });
+});
+
 app.post('/api/v1/select-warehouse', function (req, res) {
     const { warehouse_id } = req.body;
 
@@ -645,6 +682,30 @@ app.delete('/api/v1/users/:id', function (req, res) {
         return res.status(200).json({
             "status": "success",
             "message": "ลบข้อมูลพนักงานสำเร็จ",
+            "data": rows
+        })
+    })
+});
+
+app.get('/editUser/:id', (req, res) => {
+    req.session.edit_id = req.params.id;
+    console.log(`session is ${req.session.edit_id}`)
+    res.redirect('/edit-user');
+});
+
+app.get('/api/v1/editUser', function (req, res) {
+    const sql = `SELECT * FROM Users WHERE user_id = ?`;
+    db.get(sql, [req.session.edit_id], (err, rows) => {
+        if (err) {
+            return res.status(400).json({
+                "status": "error",
+                "message": "ไม่สามารถเเก้ไขได้",
+                "data": null
+            })
+        }
+        return res.status(200).json({
+            "status": "success",
+            "message": "เเก้ไขข้อมูลพนักงานสำเร็จ",
             "data": rows
         })
     })
