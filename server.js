@@ -812,7 +812,8 @@ app.get('/api/v1/dashboard-summary', (req, res) => {
                                     on p.product_id = sb.product_id
                                     left join Categories c 
                                     on p.category_id = c.category_id
-                                    where sb.quantity <= 20;`
+                                    where sb.quantity <= 20
+                                    order by p.product_id;`
             db.all(lowStockProduct,[],(err,products)=>{
                 if (err) {
                     console.error(err.message);
@@ -823,17 +824,33 @@ app.get('/api/v1/dashboard-summary', (req, res) => {
                                     from System_Logs
                                     where description != '-'
                                     order by created_at desc limit 10;`
-                    db.all(activity,[],(err,log)=>{
-                        res.status(200).json({
-                        status: "success",
-                        message: "ดึงข้อมูลได้สำเร็จ",
-                        // send data
-                        data: {
-                            stats: stats,
-                            chart: quantityByCategory,
-                            lowStock: products,
-                            activity: log
-                        }
+                db.all(activity,[],(err,log)=>{
+                    if (err) {
+                        console.error(err.message);
+                        return res.status(500).json({ status: "error", message: "Server Error", data: null });
+                    }
+                    // pull value of product base on price (group by category)
+                    const value = `select c.category_name as name, ifnull(sum(sb.quantity * p.cost_price), 0) as total_value
+                                    from Categories c
+                                    left join Products p
+                                    on c.category_id = p.category_id
+                                    left join Stock_Balances sb
+                                    on p.product_id = sb.product_id
+                                    group by c.category_id, category_name
+                                    order by total_value desc;`
+                        db.all(value,[],(err,price)=>{
+                            res.status(200).json({
+                            status: "success",
+                            message: "ดึงข้อมูลได้สำเร็จ",
+                            // send data
+                            data: {
+                                stats: stats,
+                                chart: quantityByCategory,
+                                lowStock: products,
+                                activity: log,
+                                value: price
+                            }
+                        });
                     });
                 });
             });
