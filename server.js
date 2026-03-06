@@ -921,12 +921,14 @@ app.get('/api/v1/dashboard-summary', (req, res) => {
                 return res.status(500).json({ status: "error", message: "Server Error", data: null });
             }
             // show low stock list (will equal to lowStock at the top of card)
-            const lowStockProduct= `select p.product_code, name, c.category_name, sb.quantity 
+            const lowStockProduct= `select p.product_code, name, c.category_name, l.area ,sb.quantity
                                     from Products p
                                     left join Stock_Balances sb 
                                     on p.product_id = sb.product_id
                                     left join Categories c 
                                     on p.category_id = c.category_id
+									left join Locations l
+									on l.location_id = sb.product_id
                                     where sb.quantity <= 20
                                     order by p.product_id;`
             db.all(lowStockProduct,[],(err,products)=>{
