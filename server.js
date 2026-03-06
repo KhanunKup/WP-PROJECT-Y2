@@ -755,10 +755,10 @@ app.get('/api/v1/dashboard-summary', (req, res) => {
     // pull status to add at top of dashboard (4 card) totalStock, lowStock,addThisMonth, exportThisMonth
     const cardTop = `select (select sum(quantity) from Stock_Balances) as TotalStock, 
                     (select count(*) from Stock_Balances where quantity <= 20) as LowStock,
-                    (select sum(quantity) from Inventory_Transactions where transaction_type = 'นำเข้าสินค้า' 
-                        and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')) as stockInMonth,
-                    (select sum(quantity) from Inventory_Transactions where transaction_type = 'เบิกจ่ายสินค้า'  
-                        and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')) as stockOutMonth`;
+                    ifnull((select sum(quantity) from Inventory_Transactions where transaction_type = 'นำเข้าสินค้า' 
+                        and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')),0) as stockInMonth,
+                    ifnull((select sum(quantity) from Inventory_Transactions where transaction_type = 'เบิกจ่ายสินค้า'
+                        and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')),0) as stockOutMonth`;
     // get only 1 row
     db.get(cardTop,[],(err,stats)=>{
         if (err) {
