@@ -31,18 +31,13 @@
                     <p>จัดการผู้ใช้</p>
                 </div>
             </a>
-            <a href="#">
-                <div class="nav-item">
-                    <img src="/images/dashboard-setting-pic.svg" alt="Setting">
-                    <p>การตั้งค่า</p>
-                </div>
-            </a>
         </div>
 
         <div class="profile">
             <img src="/images/navbar-profile-pic.svg" alt="Profile">
             <p><%= username %></p>
             <p id="datetime-display"></p>
+            <p class="logout-btn"><a id="logout">ออกจากระบบ</a></p>
         </div>
     </navbar>
     <script>
@@ -55,9 +50,9 @@
             };
             const timeString = now.toLocaleTimeString('th-TH', options);
             document.getElementById('datetime-display').innerText = timeString;
-            // /api/v1/auth/logout
         }
         updateTime();
         setInterval(updateTime, 1000);
     </script>
+    <script src="/js/logout.js"></script>
 </body>

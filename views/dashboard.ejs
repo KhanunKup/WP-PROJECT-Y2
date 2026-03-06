@@ -1,14 +1,12 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="/css/dashboard.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="/chartjs/chart.umd.js"></script>
 </head>
-
 <body>
     <%- include("partials/dashboard.ejs") %>
         <div class="info-zone">
@@ -70,25 +68,25 @@
                     </table>
                 </div>
 
-                <!-- wait for implement -->
-               <div class="panel">
-                    <h2 class="panel-title">จำนวนสินค้าแบ่งตามประเภท</h2>
-                    <div style="height: 300px;">
-                        <canvas id="categoryChart"></canvas>
+                <div class="right-column">
+                    <div class="panel">
+                        <h2 class="panel-title">จำนวนสินค้าแบ่งตามประเภท</h2>
+                        <div style="height: 250px; position: relative; width: 100%;">
+                            <canvas id="categoryChart"></canvas>
+                        </div>
                     </div>
-                </div>
 
-                <div class="panel">
-                    <h2 class="panel-title">กิจกรรมล่าสุด</h2>
-                    <ul class="activity-list" id="activity-list">
-                        <!-- implemented in dashboard.js -->
-                    </ul>
-                </div>
+                    <div class="panel">
+                        <h2 class="panel-title">สัดส่วนมูลค่าสินค้า (บาท)</h2>
+                        <div style="height: 250px; position: relative; width: 100%;">
+                            <canvas id="valueChart"></canvas>
+                        </div>
+                    </div>
 
-                <div class="panel">
-                    <h2 class="panel-title">จำนวนสินค้าแบ่งตามประเภท</h2>
-                    <div style="height: 300px;">
-                        <canvas id="categoryChart"></canvas>
+                    <div class="panel">
+                        <h2 class="panel-title">กิจกรรมล่าสุด</h2>
+                        <ul class="activity-list" id="activity-list">
+                            </ul>
                     </div>
                 </div>
             </div>
