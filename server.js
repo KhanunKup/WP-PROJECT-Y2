@@ -60,6 +60,7 @@ const isAdmin = (req, res, next) => {
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/sweetalert', express.static(__dirname + '/node_modules/sweetalert2/dist'));
+app.use('/chartjs', express.static(__dirname + '/node_modules/chart.js/dist'));
 app.use(express.json()); // ให้ระบบอ่าน JSON ที่ Frontend ส่งมาได้
 app.use(express.urlencoded({ extended: true }));
 
@@ -317,39 +318,51 @@ app.post('/api/v1/auth/logout', (req, res) => {
 
 //api getproduct
 app.get('/api/v1/products', (req, res) => {
-    // 1. รับพารามิเตอร์ที่หน้าเว็บส่งมาผ่าน URL (Query String)
-    const { search, category } = req.query;
+    // 1. รับค่า 3 อย่างจากหน้าเว็บ
+    const { search, category, status } = req.query;
 
-    // 2. เตรียมประโยค SQL พื้นฐาน (ใช้ 1=1 เพื่อให้ต่อต่อง่ายๆ)
-    let sql = `SELECT * FROM Products WHERE 1=1`;
-    let params = []; // เอาไว้เก็บค่าที่จะเอาไปแทนที่เครื่องหมาย ?
+    // 2. ใช้ JOIN เพื่อดึงชื่อหมวดหมู่ (c.category_name) และคำนวณสต็อกรวม (total_stock)
+    let sql = `
+        SELECT 
+            p.*, 
+            c.category_name,
+            IFNULL(SUM(sb.quantity), 0) AS total_stock
+        FROM Products p
+        LEFT JOIN Categories c ON p.category_id = c.category_id
+        LEFT JOIN Stock_Balances sb ON p.product_id = sb.product_id
+        WHERE 1=1
+    `;
+    let params = [];
 
-    // 3. สร้างเงื่อนไขแบบยืดหยุ่น (Dynamic SQL)
-    // ถ้ามีการพิมพ์คำค้นหามา
+    // 3. กรองตามชื่อสินค้า
     if (search) {
-        sql += ` AND name LIKE ?`;
-        // ใช้ % หน้าหลัง เพื่อให้ค้นหาคำที่ซ่อนอยู่ตรงกลางได้ (เช่น พิมพ์ "ใส่" ก็เจอ "ออกัสใส่ไข่")
+        sql += ` AND p.name LIKE ?`;
         params.push(`%${search}%`);
     }
 
-    // ถ้ามีการเลือกหมวดหมู่ และไม่ได้เลือกคำว่า "all"
+    // 4. กรองตามชื่อหมวดหมู่ (เทียบกับ c.category_name แทน)
     if (category && category !== 'all') {
-        sql += ` AND category = ?`;
+        sql += ` AND c.category_name = ?`;
         params.push(category);
     }
 
-    // 4. สั่ง Database ให้ค้นหาข้อมูล (ใช้ db.all เพราะผลลัพธ์อาจมีหลายแถว)
+    // 5. จัดกลุ่มข้อมูลสินค้าแต่ละตัวก่อนเช็คสต็อก
+    sql += ` GROUP BY p.product_id`;
+
+    // 6. กรองตามสถานะสต็อก (ต้องใช้ HAVING เพราะเป็นการเช็คผลรวมหลัง GROUP BY)
+    if (status === 'instock') {
+        sql += ` HAVING total_stock > 0`;
+    } else if (status === 'outstock') {
+        sql += ` HAVING total_stock <= 0`;
+    }
+
+    // 7. สั่งรัน Database
     db.all(sql, params, (err, rows) => {
         if (err) {
             console.error("Database Error:", err.message);
             return res.status(500).json({ status: "error", message: "ดึงข้อมูลไม่สำเร็จ" });
         }
-
-        // 5. ส่งผลลัพธ์กลับไปให้หน้าเว็บ
-        return res.status(200).json({
-            status: "success",
-            data: rows
-        });
+        return res.status(200).json({ status: "success", data: rows });
     });
 });
 
@@ -914,7 +927,8 @@ app.get('/api/v1/dashboard-summary', (req, res) => {
                                     on p.product_id = sb.product_id
                                     left join Categories c 
                                     on p.category_id = c.category_id
-                                    where sb.quantity <= 20;`
+                                    where sb.quantity <= 20
+                                    order by p.product_id;`
             db.all(lowStockProduct,[],(err,products)=>{
                 if (err) {
                     console.error(err.message);
@@ -925,17 +939,33 @@ app.get('/api/v1/dashboard-summary', (req, res) => {
                                     from System_Logs
                                     where description != '-'
                                     order by created_at desc limit 10;`
-                    db.all(activity,[],(err,log)=>{
-                        res.status(200).json({
-                        status: "success",
-                        message: "ดึงข้อมูลได้สำเร็จ",
-                        // send data
-                        data: {
-                            stats: stats,
-                            chart: quantityByCategory,
-                            lowStock: products,
-                            activity: log
-                        }
+                db.all(activity,[],(err,log)=>{
+                    if (err) {
+                        console.error(err.message);
+                        return res.status(500).json({ status: "error", message: "Server Error", data: null });
+                    }
+                    // pull value of product base on price (group by category)
+                    const value = `select c.category_name as name, ifnull(sum(sb.quantity * p.cost_price), 0) as total_value
+                                    from Categories c
+                                    left join Products p
+                                    on c.category_id = p.category_id
+                                    left join Stock_Balances sb
+                                    on p.product_id = sb.product_id
+                                    group by c.category_id, category_name
+                                    order by total_value desc;`
+                        db.all(value,[],(err,price)=>{
+                            res.status(200).json({
+                            status: "success",
+                            message: "ดึงข้อมูลได้สำเร็จ",
+                            // send data
+                            data: {
+                                stats: stats,
+                                chart: quantityByCategory,
+                                lowStock: products,
+                                activity: log,
+                                value: price
+                            }
+                        });
                     });
                 });
             });
