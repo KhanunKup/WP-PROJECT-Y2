@@ -49,7 +49,7 @@ async function fetchLogsAndOrders(){
             });
             // ----- lastest activity ------
 
-            // ----- chart.js -----
+            // ----- chart.js (doughnut) -----
             const labels = dataArray.chart.map(item => item.category_name);
             const dataValues = dataArray.chart.map(item => item.quantity);
 
@@ -78,6 +78,34 @@ async function fetchLogsAndOrders(){
                 }
             });
             // -----------
+
+            // ----- chart.js (pie) -----
+            const pieLabels = dataArray.value.map(item => item.name);
+            const pieDataValues = dataArray.value.map(item => item.total_value);
+            const ctxPie = document.getElementById('valueChart').getContext('2d');
+            new Chart(ctxPie, {
+                type: 'pie', 
+                data: {
+                    labels: pieLabels,
+                    datasets: [{
+                        label: 'มูลค่า (บาท)',
+                        data: pieDataValues,
+                        backgroundColor: ['#e74a3b', '#f6c23e', '#1cc88a', '#36b9cc', '#4e73df', '#858796'],
+                        hoverOffset: 4
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: {
+                        legend: {
+                            display: true,
+                            position: 'right'
+                        }
+                    }
+                }
+            });
+            // ----------------------
         }
     } catch (error) {
         console.log('Fetch error:', error);

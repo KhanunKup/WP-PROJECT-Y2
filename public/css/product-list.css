@@ -1,5 +1,11 @@
 /* public/css/product-list.css */
-
+@font-face {
+    font-family: 'Outfit';
+    src: url('/fonts/Outfit-VariableFont_wght.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
 /* ตั้งค่าฟอนต์และพื้นหลังของหน้าเว็บ (ใช้ฟอนต์ที่คุณใช้อยู่ หรือ sans-serif พื้นฐาน) */
 @font-face {
     font-family: 'Kanit';
@@ -8,9 +14,10 @@
     font-style: normal;
     font-display: swap;
 }
-
-body {
+*{
     font-family: 'Kanit', sans-serif;
+}
+body {
     margin: 0;
     padding: 0;
     background-color: #ffffff;
@@ -99,6 +106,7 @@ h1 {
     display: flex;
     flex-direction: column;
     transition: transform 0.2s;
+    box-shadow: 0 4px 8px rgb(94, 94, 94);
 }
 
 .product-card:hover {
@@ -113,6 +121,7 @@ h1 {
     background-color: #fff;
     border-radius: 8px;
     margin-bottom: 15px;
+    box-shadow: 0 4px 8px rgb(143, 143, 143);
 }
 
 /* ชื่อสินค้า */
@@ -124,6 +133,7 @@ h1 {
 
 /* ปุ่มรายละเอียดสีส้ม */
 .product-card button {
+    width: 100%;
     background-color: #E67E22;
     color: white;
     border: none;
@@ -132,7 +142,7 @@ h1 {
     cursor: pointer;
     font-size: 14px;
     font-weight: bold;
-    align-self: flex-start; /* ให้ปุ่มหดขนาดพอดีกับข้อความและชิดซ้าย */
+    align-self: center; /* ให้ปุ่มหดขนาดพอดีกับข้อความและชิดซ้าย */
     transition: 0.2s;
 }
 
