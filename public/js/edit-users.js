@@ -35,7 +35,20 @@ userForm.addEventListener('submit', async function (event) {
     const email = document.getElementById('email').value;
     const phone_number = document.getElementById('phone').value;
     //const role = document.getElementById('role').value;
-    const role = document.querySelector('input[name="role"]:checked').value;
+    const roleElement = document.querySelector('input[name="role"]:checked');
+
+    if (!username || !password || !firstname || !lastname || !email || !phone_number || !roleElement) {
+        Swal.fire({
+            title: 'แจ้งเตือน',
+            text: 'กรุณากรอกข้อมูลและเลือกสิทธิ์ผู้ใช้งานให้ครบถ้วน',
+            icon: 'warning',
+            confirmButtonText: 'ตกลง',
+            confirmButtonColor: '#E67E22'
+        });
+        return;
+    }
+
+    const role = roleElement.value
 
     Swal.fire({
         title: "คุณเเน่ใจที่จะเเก้ไขข้อมูลผู้ใช้?",
