@@ -87,6 +87,7 @@ navbar {
 
 .profile {
     display: flex;
+    flex-wrap: wrap;
     align-items: center;
     gap: 15px;
     padding: 20px;
@@ -104,6 +105,24 @@ navbar {
     font-size: 16px;
     font-weight: bold;
 }
+
+#datetime-display{
+    flex-wrap: none;
+}
+
+.logout-btn{
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.logout-btn:hover{
+    color: #E67E22;
+}
+
 navbar a {
     text-decoration: none;
     color: inherit;
