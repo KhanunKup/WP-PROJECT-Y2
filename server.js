@@ -626,7 +626,7 @@ app.post('/api/v1/select-warehouse', function (req, res) {
 
 app.get('/api/v1/users', function (req, res) {
     const queryTotal = 'SELECT COUNT(*) AS total FROM Users';
-    const queryUser = 'SELECT * FROM Users';
+    const queryUser = `SELECT * FROM Users INNER JOIN Roles ON Users.role_id = Roles.role_id`;
     const queryAdmin = "SELECT COUNT(*) AS adminTotal FROM Users WHERE role_id = '1'";
 
     db.get(queryTotal, (err, countRow) => {
@@ -735,6 +735,36 @@ app.get('/api/v1/editUser', function (req, res) {
             "data": rows
         })
     })
+});
+
+app.post('/api/v1/updateUser', async function (req, res) {
+    const { username, password, firstname, lastname, email, phone_number, role } = req.body;
+    const hashedPassword = await bcrypt.hash(password, saltRounds);
+    const sql = `UPDATE Users SET username = ?, password = ?, firstname = ?, lastname = ?, email = ?, phone_number = ?, role_id = ? WHERE user_id = ${req.session.edit_id}`
+    db.run(sql, [username, hashedPassword, firstname, lastname, email, phone_number, role], function (err) {
+        if (err) {
+            if (err.message.includes("NOT NULL")) {
+                return res.status(400).json({
+                    "status": "error",
+                    "message": "กรุณากรอกข้อมูลให้ครบ",
+                    "data": null
+                })
+            }
+        }
+        return res.status(201).json({
+            "status": "success",
+            "message": "เเก้ไขข้อมูลพนักงานสำเร็จ",
+            "data": {
+                "user_id": this.lastID,
+                "username": username,
+                "firstname": firstname,
+                "lastname": lastname,
+                "email": email,
+                "phone_number": phone_number,
+                "role": role
+            }
+        })
+    });
 });
 
 app.get('/api/v1/all-order', (req, res) => {

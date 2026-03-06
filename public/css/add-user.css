@@ -59,6 +59,7 @@ input:focus {
     border: none;
     cursor: pointer;
     color: #969696;
+    transition: all 0.2s ease-in-out;
 }
 
 .btn-con {
@@ -118,4 +119,13 @@ a {
 .role-btn:hover,.addbtn:hover {
     background-color: #1a5bb8;
     color: white;
+}
+
+#save:hover {
+    transform: scale(1.1);
+    margin-left: 2%;
+}
+
+#btn:hover {
+    transform: scale(1.1);
 }
