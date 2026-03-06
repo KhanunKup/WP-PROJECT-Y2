@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>รายการสินค้า</title>
     <link rel="stylesheet" href="/css/product-list.css">
+    <%- include("partials/icon.ejs") %>
 </head>
 <body>
     <%- include("partials/navbar.ejs") %>
@@ -16,8 +17,11 @@
         <label style="font-weight: bold; font-size: 14px;">คัดกรองหมวดหมู่</label>
         <select id="categoryFilter">
             <option value="all">ทั้งหมด</option>
-            <option value="food">อาหาร</option>
-            <option value="drink">เครื่องดื่ม</option>
+            <option value="อุปกรณ์เสริม">อุปกรณ์เสริม</option>
+            <option value="ฮาร์ดแวร์คอมพิวเตอร์">ฮาร์ดแวร์คอมพิวเตอร์</option>
+            <option value="แล็ปท็อป">แล็ปท็อป</option>
+            <option value="จอคอมพิวเตอร์">จอคอมพิวเตอร์</option>
+            <option value="อุปกรณ์เครือข่าย">อุปกรณ์เครือข่าย</option>
         </select>
     </div>
 

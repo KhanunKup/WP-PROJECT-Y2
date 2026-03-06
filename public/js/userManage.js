@@ -43,8 +43,8 @@ async function fetchUsers() {
                         <td>${item.username}</td>
                         <td>${item.firstname} ${item.lastname}</td>
                         <td>${item.email}</td>
-                        <td>${item.role_id}</td>
-                        <td style="display: flex; padding: 23px; justify-content: right; gap: 20px;">
+                        <td>${item.role_name}</td>
+                        <td style="display: flex; padding: 20%; justify-content: right; gap: 20px;">
                             <button class="delete-btn" 
                                     data-id="${item.user_id}" 
                                     data-username="${item.username}"
@@ -105,5 +105,26 @@ function confirmDelete(userId, username) {
                 Swal.fire('Error!', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
             }
         }
+    });
+}
+
+const searchInput = document.getElementById('searchInput');
+
+if (searchInput) {
+    searchInput.addEventListener('keyup', function() {
+        const filter = this.value.toLowerCase(); 
+        
+        const rows = document.querySelectorAll('#user-table tr');
+
+        rows.forEach(row => {
+            const username = row.cells[1].textContent.toLowerCase();
+            const fullname = row.cells[2].textContent.toLowerCase();
+
+            if (username.includes(filter) || fullname.includes(filter)) {
+                row.style.display = '';
+            } else {
+                row.style.display = 'none';
+            }
+        });
     });
 }
