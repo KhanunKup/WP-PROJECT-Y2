@@ -40,13 +40,13 @@ function renderProducts(products) {
         const cardHTML = `
             <div class="product-card" style="display: flex; flex-direction: column; align-items: center; padding: 15px; border: 1px solid #ddd; border-radius: 10px;">
                 <img src="${product.image_url || '/images/default-product.png'}" alt="${product.name}" style="width: 100%; height: 150px; object-fit: contain; margin-bottom: 10px;">
-                <h4 class="product-name" style="margin-bottom: 5px; text-align: center;">${product.name}</h4>
+                <h4 class="product-name" style="margin-bottom: 5px; text-align: center; font-family: 'Outfit', sans-serif;">${product.name}</h4>
                 <div style="margin-bottom: 15px;">${stockText}</div>
                 <a href="/product-details/${product.product_id}" style="width: 100%;">
                     <button>รายละเอียด</button>
                 </a>
-            </div>
-        `;
+            </div>`
+            ;
         productContainer.innerHTML += cardHTML;
     });
 }
