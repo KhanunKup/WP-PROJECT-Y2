@@ -386,6 +386,7 @@ app.get('/api/v1/product-details/:id', (req, res) => {
             p.product_code,
             l.area,
             it.product_status,
+            l.location_id,
             -- คำนวณยอดรวม: ถ้าเป็น 'นำเข้าสินค้า' ให้บวกยอด ถ้าเป็นอย่างอื่น (เช่น เบิกออก) ให้ลบยอด
             SUM(CASE WHEN it.transaction_type = 'นำเข้าสินค้า' THEN it.quantity ELSE -it.quantity END) AS quantity
         FROM Inventory_Transactions it
@@ -423,13 +424,6 @@ app.get('/api/v1/product-details/:id', (req, res) => {
 
 //เพิ่มสินค้าใหม่ หรือ รับสินค้าเข้าคลัง
 app.post('/api/v1/products', upload.single('image'), async (req, res) => {
-    let sql = `
-        SELECT p.*, c.category_name 
-        FROM Products p
-        LEFT JOIN Categories c ON p.category_id = c.category_id
-        WHERE 1=1`;
-
-    let params = [];
 
     const { mode, name, category_id, cost, price, condition, location } = req.body;
     const currentUserId = req.session.userId || 1; //รับค่าจาก session หรือ default เป็น 1 ถ้ายังไม่มีระบบ login
@@ -486,7 +480,7 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
 
         // บันทึกการเคลื่อนไหวสินค้า (Inventory_Transactions)
         await new Promise((resolve, reject) => {
-            const sqlT = `INSERT INTO Inventory_Transactions (product_id, product_status, user_id, quantity, transaction_type, location_id) VALUES (?, ?, ?, 1, 'รับสินค้าเข้าคลัง', ?)`;
+            const sqlT = `INSERT INTO Inventory_Transactions (product_id, product_status, user_id, quantity, transaction_type, location_id) VALUES (?, ?, ?, 1, 'นำเข้าสินค้า', ?)`;
             db.run(sqlT, [productId, condition, currentUserId, locationId], (err) => {
                 if (err) return reject(err);
                 resolve();
@@ -504,7 +498,7 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
 
         // บันทึกการกระทำลง System_Logs
         db.run(`INSERT INTO System_Logs (user_id, action, description) VALUES (?, ?, ?)`,
-            [currentUserId, 'นำสินค้าเข้า', `รับสินค้า ID:${productId} ${name} เข้าที่จัดเก็บ: ${location}`]);
+            [currentUserId, 'นำเข้าสินค้า', `รับสินค้า ID:${productId} ${name} เข้าที่จัดเก็บ: ${location}`]);
 
         res.status(201).json({ status: "success", message: "บันทึกข้อมูลและรันรหัสสินค้าเรียบร้อย!" });
 
@@ -565,12 +559,14 @@ app.get('/api/v1/stocks/:productId/:locationId', (req, res) => {
             p.product_id, p.product_code, p.name, p.selling_price, p.image_url, 
             c.category_name,
             l.area AS location_name,
-            (SELECT SUM(quantity) FROM Inventory_Transactions 
+            (SELECT SUM(CASE WHEN transaction_type = 'นำเข้าสินค้า' THEN quantity ELSE -quantity END) 
+             FROM Inventory_Transactions 
              WHERE product_id = p.product_id AND location_id = l.location_id 
-             AND product_status IN ('สภาพสมบูรณ์', 'ของใหม่/สภาพดี')) AS good_qty,
-            (SELECT SUM(quantity) FROM Inventory_Transactions 
+             AND product_status = 'ปกติ') AS good_qty,
+            (SELECT SUM(CASE WHEN transaction_type = 'นำเข้าสินค้า' THEN quantity ELSE -quantity END) 
+             FROM Inventory_Transactions 
              WHERE product_id = p.product_id AND location_id = l.location_id 
-             AND product_status IN ('ชำรุด/เสียหาย', 'ของชำรุด/เสียหาย')) AS damaged_qty
+             AND product_status = 'เสียหาย') AS damaged_qty
         FROM Products p
         LEFT JOIN Categories c ON p.category_id = c.category_id
         LEFT JOIN Locations l ON l.location_id = ?
@@ -610,9 +606,11 @@ const { product_id, product_status, quantity, transaction_type, location_name } 
         const sqlInsertTrans = `INSERT INTO Inventory_Transactions (product_id, location_id, quantity, product_status, transaction_type, user_id) VALUES (?, ?, ?, ?, ?, ?)`;
         db.run(sqlInsertTrans, [product_id, locationId, quantity, product_status, transaction_type, user_id], function(err) {
             if (err) throw err;
+            
+            const adjustQty = transaction_type === 'เบิกจ่าย' ? -quantity : quantity;
 
             const sqlUpdateStock = `UPDATE Stock_Balances SET quantity = quantity + ? WHERE product_id = ? AND location_id = ?`;
-            db.run(sqlUpdateStock, [quantity, product_id, locationId], function(err2) {
+            db.run(sqlUpdateStock, [adjustQty, product_id, locationId], function(err2) {
                 if (this.changes === 0) {
                     db.run(`INSERT INTO Stock_Balances (product_id, location_id, quantity) VALUES (?, ?, ?)`, [product_id, locationId, quantity]);
                 }
