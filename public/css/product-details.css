@@ -25,11 +25,28 @@ body {
     padding: 0 20px;
 }
 
+/* --- กล่องด้านบน --- */
 .form-container {
     background-color: #e2e8f0; /* สีเทาอ่อน */
     border-radius: 20px;
     padding: 40px 50px;
     box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.go-back a {
+    background-color: #1d4ed8;
+    color: white;
+    text-decoration: none;
+    padding: 8px 20px;
+    border-radius: 20px;
+    font-size: 0.95rem;
+    display: inline-block;
+    margin-bottom: 25px;
+    transition: background-color 0.2s;
+}
+
+.go-back a:hover { 
+    background-color: #1e3a8a; 
 }
 
 .form-layout {
@@ -45,35 +62,6 @@ body {
     display: flex;
     flex-direction: column;
     gap: 15px;
-}
-
-.orange-box {
-    background-color: #f97316; /* สีส้ม */
-    color: white;
-    height: 250px;
-    border-radius: 10px;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 10px;
-}
-
-.orange-box h2 {
-    font-size: 1.5rem;
-    font-weight: 500;
-}
-
-.btn-upload {
-    background-color: #ea580c; /* สีส้มเข้มกว่านิดนึง */
-    color: white;
-    border: none;
-    padding: 12px;
-    border-radius: 8px;
-    font-weight: bold;
-    cursor: pointer;
-    font-size: 1rem;
-    width: 100%;
 }
 
 .tag-group {
@@ -111,6 +99,18 @@ body {
     font-weight: bold;
     cursor: pointer;
     font-size: 1rem;
+}
+
+.image-box {
+    width: 300px;
+    height: 300px;
+}
+
+#productImage {
+    border-radius: 10px;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
 }
 
 /* --- ฝั่งขวา --- */
@@ -269,6 +269,61 @@ input[type="number"]::-webkit-outer-spin-button {
 .tag-blue .btn-close {
     cursor: pointer;
 }
+
+.detail-container {
+    background-color: #f1f5f9;
+    border-radius: 15px;
+    padding: 20px;
+}
+
+table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+th {
+    text-align: left;
+    padding: 15px;
+    color: #1e293b;
+    font-size: 1.1rem;
+    border-bottom: 2px solid #e2e8f0;
+}
+
+td {
+    padding: 15px;
+    background-color: white;
+    border-bottom: 5px solid #f1f5f9; /* ทำเส้นคั่นระหว่างแถว */
+    color: #475569;
+}
+
+td:first-child { border-top-left-radius: 8px; border-bottom-left-radius: 8px; }
+td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
+
+/* ป้ายสถานะในตาราง */
+.status-pill {
+    padding: 6px 20px;
+    border-radius: 20px;
+    color: white;
+    font-size: 0.85rem;
+    display: inline-block;
+    text-align: center;
+    min-width: 110px;
+}
+
+.status-perfect { background-color: #1d4ed8; } /* น้ำเงิน */
+.status-damaged { background-color: #ea580c; } /* ส้ม */
+
+.qty-text {
+    color: #2563eb;
+    font-weight: 500;
+}
+
+.edit-link {
+    color: #64748b;
+    text-decoration: none;
+    font-size: 0.9rem;
+}
+.edit-link:hover { color: #1e293b; }
 
 @media (max-width: 768px) {
     

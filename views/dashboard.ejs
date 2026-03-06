@@ -6,22 +6,22 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
     <link rel="stylesheet" href="/css/dashboard.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
 
 <body>
     <%- include("partials/dashboard.ejs") %>
         <div class="info-zone">
             <h1>EASYMANAGE <span style="font-family: Kanit;">ระบบจัดการสินค้า</span></h1>
-            <h1>ตอนนี้คุณอยู่ที่คลังสินค้า : <%= warehouseName %></h1>
-
+            <span>ตอนนี้คุณอยู่ที่คลังสินค้า : <%= warehouseName %></span>
             <div class="dashboard-grid">
                 <div class="card">
                     <div class="card-header">
                         <img src="/images/dashboard-db-pic.svg">
                         <span>จำนวนสินค้าทั้งหมด</span> 
                     </div>
-                    <div class="card-value">67,911</div>
-                    <div class="card-subtext text-green">+150 <span class="icon-gray">เดือนนี้</span></div>
+                    <div class="card-value" id="total-stock">290</div>
+                    <div class="card-subtext text-green">+<span id="total-stock-change">150</span> <span class="icon-gray">เดือนนี้</span></div>
                 </div>
 
                 <div class="card">
@@ -29,8 +29,8 @@
                         <img src="/images/dashboard-alert-pic.svg">
                         <span>จำนวนสินค้าใกล้หมด</span>
                     </div>
-                    <div class="card-value">67 <span class="unit">รายการ</span></div>
-                    <div class="card-subtext">เพิ่มมา <span class="text-red">+3</span></div>
+                    <div class="card-subtext">จำนวนทั้งหมด</div>
+                    <div class="card-value" id="low-stock"><span class="unit">รายการ</span></div>
                 </div>
 
                 <div class="card">
@@ -39,7 +39,7 @@
                         <span>จำนวนสินค้าที่เพิ่มมา</span>
                     </div>
                     <div class="card-subtext" style="margin-bottom: 15px;">เดือนนี้</div>
-                    <div class="card-value text-green">+67 <span class="unit">รายการ</span></div>
+                    <div class="card-value text-green" id="import-stock"><span class="unit">รายการ</span></div>
                 </div>
 
                 <div class="card">
@@ -48,7 +48,7 @@
                         <span>จำนวนสินค้าที่ออกไป</span> 
                     </div>
                     <div class="card-subtext" style="margin-bottom: 15px;">เดือนนี้</div>
-                    <div class="card-value text-red">-67 <span class="unit">รายการ</span></div>
+                    <div class="card-value text-red" id="export-stock"><span class="unit">รายการ</span></div>
                 </div>
             </div>
 
@@ -64,36 +64,35 @@
                                 <th>สถานะ</th>
                             </tr>
                         </thead>
-                        <tbody>
-                            <!-- wait for implement -->
-                            <tr>
-                                <td>MacBook Pro 16"</td>
-                                <td>laptop</td>
-                                <td>3</td>
-                                <td>กำลังเติมสินค้า</td>
-                            </tr>
+                        <tbody id="table-body">
+                            <!-- implemented in dashboard.js -->
                         </tbody>
                     </table>
                 </div>
 
                 <!-- wait for implement -->
-                <div class="right-column">
-                    <div class="panel">
-                        <h2 class="panel-title">จำนวนสินค้าแบ่งตามประเภท</h2>
-                        <div class="chart-placeholder"></div>
+               <div class="panel">
+                    <h2 class="panel-title">จำนวนสินค้าแบ่งตามประเภท</h2>
+                    <div style="height: 300px;">
+                        <canvas id="categoryChart"></canvas>
                     </div>
+                </div>
 
-                    <!-- wait for implement -->
-                    <div class="panel">
-                        <h2 class="panel-title">กิจกรรมล่าสุด</h2>
-                        <ul class="activity-list">
-                            <li>10:30 น. ....</li>
-                            <li>09:15 น. ....</li>
-                            <li>05:45 น. ....</li>
-                        </ul>
+                <div class="panel">
+                    <h2 class="panel-title">กิจกรรมล่าสุด</h2>
+                    <ul class="activity-list" id="activity-list">
+                        <!-- implemented in dashboard.js -->
+                    </ul>
+                </div>
+
+                <div class="panel">
+                    <h2 class="panel-title">จำนวนสินค้าแบ่งตามประเภท</h2>
+                    <div style="height: 300px;">
+                        <canvas id="categoryChart"></canvas>
                     </div>
                 </div>
             </div>
         </div>
+    <script src="/js/dashboard.js"></script>
 </body>
 </html>

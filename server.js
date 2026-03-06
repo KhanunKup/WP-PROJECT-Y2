@@ -198,17 +198,16 @@ app.post('/api/v1/auth/login', (req, res) => {
 
     // 3. ไปค้นหาใน Database
     const sql = `SELECT * FROM Users WHERE username = ?`;
-    const insert = `insert into System_logs (username, action, description) values (?, ?, ?)`;
+    const insert = `insert into System_logs (user_id, action, description) values (?, ?, ?)`;
     db.get(sql, [username], async (err, row) => {
         if (err) {
-            return res.status(500).json({
-                status: "error",
-                message: "Server Error",
-                data: null
+            return res.status(500).json({ 
+                status: "error", 
+                message: "เซิร์ฟเวอร์มีปัญหา", 
+                data: null 
             });
         }
 
-        // (สมมติว่าเช็ครหัสผ่านผ่านแล้ว)
         if (row) {
             const isMatch = await bcrypt.compare(password, row.password);
             if (isMatch) {
@@ -217,10 +216,10 @@ app.post('/api/v1/auth/login', (req, res) => {
                 req.session.role = row.role;
 
                 //เก็บเข้า system_logs database
-                db.run(insert, [username, 'Login', 'Login Success'], (err) => {
-                    if (err) {
-                        console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);
-                    }
+                db.run(insert, [row.user_id, 'เข้าสู่ระบบ', 'เข้าสู่ระบบสำเร็จ'], (err) => { 
+                    if (err) { 
+                        console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message); 
+                    } 
                 });
                 // ตอบ JSON Success กลับไป
                 return res.status(200).json({
@@ -232,8 +231,8 @@ app.post('/api/v1/auth/login', (req, res) => {
                         firstname: row.firstname
                     }
                 });
-            } else {
-                db.run(insert, [username, 'Login', 'Login Rejected'], (err) => {
+            }else{
+                db.run (insert, [row.user_id,'เข้าสู่ระบบ','เข้าสู่ระบบไม่สำเร็จ'],(err) => {
                     if (err) {
                         console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);
                     }
@@ -245,7 +244,7 @@ app.post('/api/v1/auth/login', (req, res) => {
                 });
             }
         } else {
-            db.run(insert, [username, 'Login', 'Login Rejected'], (err) => {
+            db.run (insert, [row.user_id,'เข้าสู่ระบบ','เข้าสู่ระบบไม่สำเร็จ'],(err) => {
                 if (err) {
                     console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);
                 }
@@ -288,15 +287,22 @@ app.post('/api/v1/add-warehouse', (req, res) => {
 
 
 app.post('/api/v1/auth/logout', (req, res) => {
+    const userId = req.session ? req.session.userId : null;
+    const insert = `insert into System_logs (user_id, action, description) values (?, ?, ?)`;
     req.session.destroy((err) => {
         if (err) {
             return res.status(500).send('Error destroying session.');
         }
+        db.run (insert, [userId,'ออกจากระบบ','ออกจากระบบสำเร็จ'],(err) => {
+            if (err) {
+                console.error("บันทึก Log ออกจากระบบไม่สำเร็จ:", err.message);
+            }
+        });
         res.clearCookie('connect.sid');
 
         res.status(200).json({
-            status: "success",
-            message: "Logout successful"
+            status: "success", 
+            message: "ออกจากระบบสำเร็จ"
         });
     });
 });
@@ -340,37 +346,57 @@ app.get('/api/v1/products', (req, res) => {
 });
 
 app.get('/api/v1/product-details/:id', (req, res) => {
-    const sql = `SELECT 
+    const productId = req.params.id;
+
+    // คำสั่งที่ 1: ดึงข้อมูลหลักของสินค้า (รายละเอียดครึ่งบน)
+    const sqlProduct = `
+        SELECT 
             p.*, 
-            IFNULL(SUM(sb.quantity), 0) AS total_stock,
-            IFNULL(GROUP_CONCAT(DISTINCT l.area), 'ยังไม่ได้กำหนด') AS area
+            IFNULL(SUM(sb.quantity), 0) AS total_stock
         FROM Products p
         LEFT JOIN Stock_Balances sb ON p.product_id = sb.product_id
-        LEFT JOIN Locations l ON sb.location_id = l.location_id
         WHERE p.product_id = ?
-        GROUP BY p.product_id;`;
-    const id = req.params.id;
-    db.get(sql, [id], (err, row) => {
-        if (err) {
-            return res.status(500).json({
-                status: "error",
-                message: "เกิดข้อผิดพลาดในการดึงข้อมูลสินค้า",
-                data: null
-            });
-        }
-        if (row) {
+        GROUP BY p.product_id;
+    `;
+
+    // คำสั่งที่ 2: ดึงข้อมูลรายการสต็อกย่อย โดยคำนวณสดจากตารางประวัติ
+    const sqlStock = `
+        SELECT 
+            p.product_code,
+            l.area,
+            it.product_status,
+            -- คำนวณยอดรวม: ถ้าเป็น 'นำเข้าสินค้า' ให้บวกยอด ถ้าเป็นอย่างอื่น (เช่น เบิกออก) ให้ลบยอด
+            SUM(CASE WHEN it.transaction_type = 'นำเข้าสินค้า' THEN it.quantity ELSE -it.quantity END) AS quantity
+        FROM Inventory_Transactions it
+        JOIN Products p ON it.product_id = p.product_id
+        JOIN Locations l ON it.location_id = l.location_id
+        WHERE it.product_id = ?
+        GROUP BY p.product_code, l.area, it.product_status
+        -- กรองเอาเฉพาะกลุ่มที่คำนวณแล้วยังมียอดคงเหลือมากกว่า 0
+        HAVING quantity > 0;
+    `;
+
+    // 1. สั่งรันคำสั่งแรก (ดึงข้อมูลหลัก)
+    db.get(sqlProduct, [productId], (err, productRow) => {
+        if (err) return res.status(500).json({ status: "error", message: err.message, data: null });
+        if (!productRow) return res.status(404).json({ status: "error", message: "ไม่พบสินค้า", data: null });
+
+        // 2. ถ้าเจอสินค้า ให้สั่งรันคำสั่งที่สองต่อ (ดึงรายการสต็อก)
+        db.all(sqlStock, [productId], (err, stockRows) => {
+            if (err) return res.status(500).json({ status: "error", message: err.message, data: null });
+
+            // 3. จับข้อมูลทั้ง 2 ก้อน มัดรวมกันใน property "data" แล้วส่งกลับไป
+            console.log("1. ข้อมูล Product:", productRow);
+            console.log("2. ข้อมูล Stock List:", stockRows);
             res.status(200).json({
                 status: "success",
                 message: "ดึงข้อมูลสินค้าสำเร็จ",
-                data: row
+                data: {
+                    productInfo: productRow, // เป็น Object {...} สำหรับแสดงครึ่งบน
+                    stockList: stockRows     // เป็น Array [...] สำหรับวนลูปโชว์ตารางครึ่งล่าง
+                }
             });
-        } else {
-            res.status(404).json({
-                status: "error",
-                message: "ไม่พบสินค้าที่ระบุ",
-                data: null
-            });
-        }
+        });
     });
 });
 
@@ -747,6 +773,72 @@ app.get('/api/v1/all-order', (req, res) => {
             // row would look like this
             // {"status":"success","message":"ดึงข้อมูลสำเร็จ",data:[{"date":"2026-03-04 17:00:00","username":"admin","name":"-","detail":"Admin somchai logged out","action":"LOGOUT","email":"-","role":"-"}, {}, {} ]
         });
+    });
+});
+
+// 
+app.get('/api/v1/dashboard-summary', (req, res) => {
+    // pull status to add at top of dashboard (4 card) totalStock, lowStock,addThisMonth, exportThisMonth
+    const cardTop = `select (select sum(quantity) from Stock_Balances) as TotalStock, 
+                    (select count(*) from Stock_Balances where quantity <= 20) as LowStock,
+                    ifnull((select sum(quantity) from Inventory_Transactions where transaction_type = 'นำเข้าสินค้า' 
+                        and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')),0) as stockInMonth,
+                    ifnull((select sum(quantity) from Inventory_Transactions where transaction_type = 'เบิกจ่ายสินค้า'
+                        and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')),0) as stockOutMonth`;
+    // get only 1 row
+    db.get(cardTop,[],(err,stats)=>{
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ status: "error", message: "Server Error", data: null });
+        }
+        // map quantity to category (use in chart histogram) -> (อุปกรณ์เสริม, 290)
+        const chartBar = `select c.category_name, ifnull(sum(quantity),0) as quantity 
+                            from Categories c
+                            left join Products p 
+                            on c.category_id = p.category_id
+                            left join Stock_Balances sb 
+                            on p.product_id = sb.product_id
+                            group by c.category_id, c.category_name`
+        db.all(chartBar,[],(err,quantityByCategory)=>{
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ status: "error", message: "Server Error", data: null });
+            }
+            // show low stock list (will equal to lowStock at the top of card)
+            const lowStockProduct= `select p.product_code, name, c.category_name, sb.quantity 
+                                    from Products p
+                                    left join Stock_Balances sb 
+                                    on p.product_id = sb.product_id
+                                    left join Categories c 
+                                    on p.category_id = c.category_id
+                                    where sb.quantity <= 20;`
+            db.all(lowStockProduct,[],(err,products)=>{
+                if (err) {
+                    console.error(err.message);
+                    return res.status(500).json({ status: "error", message: "Server Error", data: null });
+                }
+                // pull lastest activity in sys_log data (limit 10 rows) exclude login-logout activity
+                const activity = `select created_at as date, description
+                                    from System_Logs
+                                    where description != '-'
+                                    order by created_at desc limit 10;`
+                    db.all(activity,[],(err,log)=>{
+                        res.status(200).json({
+                        status: "success",
+                        message: "ดึงข้อมูลได้สำเร็จ",
+                        // send data
+                        data: {
+                            stats: stats,
+                            chart: quantityByCategory,
+                            lowStock: products,
+                            activity: log
+                        }
+                    });
+                });
+            });
+            
+        });
+            
     });
 });
 
