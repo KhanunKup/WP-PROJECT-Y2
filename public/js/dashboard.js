@@ -32,6 +32,7 @@ async function fetchLogsAndOrders(){
                     <td>${item.product_code}</td>
                     <td>${item.name}</td>
                     <td>${item.category_name}</td>
+                    <td>${item.area}</td>
                     <td>${item.quantity}</td>
                 </tr>
                 `
