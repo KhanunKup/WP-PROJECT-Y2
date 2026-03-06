@@ -33,6 +33,7 @@
     border-radius: 15px;
     padding: 30px;
     width: 40%;
+    background-color: white;
 }
 
 table {
@@ -41,8 +42,8 @@ table {
     border-spacing: 0;
     box-shadow: 0 4px 8px rgb(0, 0, 0,0.2);
     overflow: hidden;
-    border-top-left-radius: 10px;
-    border-top-right-radius: 10px;
+    border-radius: 10px;
+    border: 1px solid white;
 }
 
 th {
@@ -50,7 +51,8 @@ th {
     padding-bottom: 3%;
     padding-top: 3%;
     font-size: 24px;
-    background-color: rgb(223, 223, 223);
+    background-color: #1750AC;
+    color: white;
     border-bottom: 1px solid rgb(0, 0, 0,0.2);
     text-align: left;
 }
@@ -109,4 +111,12 @@ table tr:nth-child(even) {
 }
 table tr:nth-child(odd) {
     background-color: #ffffff;
+}
+
+tr:nth-child(odd) {
+  background-color: #f2f2f2;
+}
+
+tr:nth-child(even) {
+  background-color: #ffffff;
 }
