@@ -60,6 +60,7 @@ const isAdmin = (req, res, next) => {
 app.set('view engine', 'ejs');
 app.use(express.static(path.join(__dirname, 'public')));
 app.use('/sweetalert', express.static(__dirname + '/node_modules/sweetalert2/dist'));
+app.use('/chartjs', express.static(__dirname + '/node_modules/chart.js/dist'));
 app.use(express.json()); // ให้ระบบอ่าน JSON ที่ Frontend ส่งมาได้
 app.use(express.urlencoded({ extended: true }));
 
