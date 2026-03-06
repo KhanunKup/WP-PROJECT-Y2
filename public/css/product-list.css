@@ -124,6 +124,7 @@ h1 {
 
 /* ปุ่มรายละเอียดสีส้ม */
 .product-card button {
+    width: 100%;
     background-color: #E67E22;
     color: white;
     border: none;
@@ -132,7 +133,7 @@ h1 {
     cursor: pointer;
     font-size: 14px;
     font-weight: bold;
-    align-self: flex-start; /* ให้ปุ่มหดขนาดพอดีกับข้อความและชิดซ้าย */
+    align-self: center; /* ให้ปุ่มหดขนาดพอดีกับข้อความและชิดซ้าย */
     transition: 0.2s;
 }
 
