@@ -40,7 +40,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                     card.className = 'card';
                     card.innerHTML = `
                         <img src="/images/select-warehouse-pic.svg">
-                        <h1>${item.warehouse_name}</h1>
+                        <h1 style="text-align: center;">${item.warehouse_name}</h1>
                         <button onclick="selectWarehouse('${item.warehouse_id}')">เลือก</button>
                     `;
                     container.appendChild(card);

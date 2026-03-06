@@ -25,7 +25,7 @@ const storage = multer.diskStorage({
     filename: (req, file, cb) => {
         const productName = req.body.name || 'product';
         const safeName = productName.replace(/\s+/g, '-').replace(/[^\w\u0E00-\u0E7F-]/g, '');
-        const uniqueSuffix = Date.now().toString().slice(-4); 
+        const uniqueSuffix = Date.now().toString().slice(-4);
         cb(null, `${safeName}-${uniqueSuffix}${path.extname(file.originalname)}`);
     }
 });
@@ -41,18 +41,18 @@ app.use(session({
     cookie: { maxAge: 10 * 60000 }
 }));
 
-const isAuth = (req,res,next) => {
-    if(req.session.userId){
+const isAuth = (req, res, next) => {
+    if (req.session.userId) {
         next();
-    }else{
+    } else {
         res.redirect('/');
     }
 }
 
-const isAdmin = (req,res,next) => {
-    if(req.session.userId && req.session.role == 'admin' || req.session.role == 'manager'){
+const isAdmin = (req, res, next) => {
+    if (req.session.userId && req.session.role == 'admin' || req.session.role == 'manager') {
         next();
-    }else{
+    } else {
         return res.redirect('/dashboard');
     }
 }
@@ -78,6 +78,10 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "/public/login.html"));
 });
 
+app.get('/create-warehouse', (req, res) => {
+    res.sendFile(path.join(__dirname, "/public/create-warehouse.html"));
+});
+
 app.get('/dashboard', (req, res) => {
     // สั่ง render ไฟล์ views/dashboard.ejs
     // if (!req.session.username) {
@@ -91,7 +95,7 @@ app.get('/dashboard', (req, res) => {
     // }
     res.render('dashboard', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName 
+        warehouseName: req.session.warehouseName
     });
 });
 
@@ -99,7 +103,7 @@ app.get('/product-list', (req, res) => {
     // สั่ง render ไฟล์ views/product-list
     res.render('product-list', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName 
+        warehouseName: req.session.warehouseName
     });
 });
 
@@ -107,7 +111,7 @@ app.get('/add-product', (req, res) => {
     // สั่ง render ไฟล์ views/add-product.ejs
     res.render('add-product', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName 
+        warehouseName: req.session.warehouseName
     });
 });
 
@@ -122,21 +126,21 @@ app.get('/edit-product/:id', (req, res) => {
 app.get('/history', (req, res) => {
     res.render('order-history', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName 
+        warehouseName: req.session.warehouseName
     });;
 });
 
 app.get('/receive-log', (req, res) => {
     res.render('order-receive-log', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName 
+        warehouseName: req.session.warehouseName
     });;
 });
 
 app.get('/export-log', (req, res) => {
     res.render('order-export-log', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName 
+        warehouseName: req.session.warehouseName
     });;
 });
 
@@ -147,19 +151,31 @@ app.get('/product-details/:id', (req, res) => {
     });
 });
 
-app.get('/warehouses', (req,res) => {
+app.get('/warehouses', (req, res) => {
     // สั่ง render ไฟล์ views/warehouseSelect.ejs
     res.render('warehouseSelect');
 });
 
-app.get('/users', (req,res) => {
+app.get('/delete-warehouse', (req, res) => {
+    // สั่ง render ไฟล์ views/warehouseDelete.ejs
+    res.render('warehouseDelete');
+});
+
+app.get('/users', (req, res) => {
     // สั่ง render ไฟล์ views/userManage.ejs
     res.render('userManage', {
         username: req.session.username,
     });
 });
 
-app.get('/add-users', (req,res) => {
+app.get('/edit-user', (req, res) => {
+    // สั่ง render ไฟล์ views/editUsers.ejs
+    res.render('editUsers', {
+        username: req.session.username,
+    });
+});
+
+app.get('/add-users', (req, res) => {
     // สั่ง render ไฟล์ views/userManage.ejs
     res.render('add-users', {
         username: req.session.username,
@@ -194,7 +210,7 @@ app.post('/api/v1/auth/login', (req, res) => {
 
         if (row) {
             const isMatch = await bcrypt.compare(password, row.password);
-            if(isMatch){
+            if (isMatch) {
                 req.session.userId = row.user_id;
                 req.session.username = row.username;
                 req.session.role = row.role;
@@ -221,10 +237,10 @@ app.post('/api/v1/auth/login', (req, res) => {
                         console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);
                     }
                 });
-                return res.status(401).json({ 
-                    status: "error", 
-                    message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", 
-                    data: null 
+                return res.status(401).json({
+                    status: "error",
+                    message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+                    data: null
                 });
             }
         } else {
@@ -233,14 +249,42 @@ app.post('/api/v1/auth/login', (req, res) => {
                     console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);
                 }
             });
-            return res.status(401).json({ 
-                status: "error", 
-                message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง", 
-                data: null 
+            return res.status(401).json({
+                status: "error",
+                message: "ชื่อผู้ใช้หรือรหัสผ่านไม่ถูกต้อง",
+                data: null
             });
         }
     });
 });
+
+app.post('/api/v1/add-warehouse', (req, res) => {
+    // 1. รับค่าที่ Frontend ส่งมา
+    const { warehouse_name, warehouse_add } = req.body;
+
+    // 2. ตรวจสอบเบื้องต้น
+    if (!warehouse_name || !warehouse_add) {
+        return res.status(400).json({
+            status: "error",
+            message: "กรุณากรอกข้อมูลให้ครบถ้วน",
+            data: null
+        });
+    }
+
+    const sql = `INSERT INTO Warehouses (warehouse_name, warehouse_address) VALUES (?, ?)`;
+    db.run(sql, [warehouse_name, warehouse_add], (err) => {
+        if (err) {
+            console.error("Database Error:", err.message);
+            return res.status(500).json({ status: "error", message: "เพิ่มข้อมูลคลังสินค้าไม่สำเร็จ" });
+        }
+
+        return res.status(200).json({
+            status: "success",
+            message: "เพิ่มคลังสินค้าสำเร็จ"
+        });
+    });
+});
+
 
 app.post('/api/v1/auth/logout', (req, res) => {
     const userId = req.session ? req.session.userId : null;
@@ -255,7 +299,7 @@ app.post('/api/v1/auth/logout', (req, res) => {
             }
         });
         res.clearCookie('connect.sid');
-        
+
         res.status(200).json({
             status: "success", 
             message: "ออกจากระบบสำเร็จ"
@@ -363,7 +407,7 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
         FROM Products p
         LEFT JOIN Categories c ON p.category_id = c.category_id
         WHERE 1=1`;
-    
+
     let params = [];
 
     const { mode, name, category_id, cost, price, condition, location } = req.body;
@@ -375,7 +419,7 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
         const locationId = await new Promise((resolve, reject) => {
             db.get(`SELECT location_id FROM Locations WHERE area = ?`, [location], (err, row) => {
                 if (row) return resolve(row.location_id);
-                db.run(`INSERT INTO Locations (warehouse_id, area) VALUES (?, ?)`, [1, location], function(err) {
+                db.run(`INSERT INTO Locations (warehouse_id, area) VALUES (?, ?)`, [1, location], function (err) {
                     if (err) return reject(err);
                     resolve(this.lastID);
                 });
@@ -392,8 +436,8 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
 
                     // ใช้ category_id บันทึกลงตาราง Products 
                     const sqlP = `INSERT INTO Products (product_code, name, category_id, cost_price, selling_price) VALUES (?, ?, ?, ?, ?)`;
-                    
-                    db.run(sqlP, [pCode, name, category_id, cost, price], function(err) {
+
+                    db.run(sqlP, [pCode, name, category_id, cost, price], function (err) {
                         if (err) return reject(err);
                         const newId = this.lastID;
 
@@ -402,7 +446,7 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
                             const extension = path.extname(req.file.originalname);
                             const paddedFileName = String(newId).padStart(3, '0'); // ทำเป็น 011
                             const newFileName = `${paddedFileName}${extension}`;
-                            
+
                             const oldPath = req.file.path;
                             const newPath = path.join(__dirname, 'public/images/product', newFileName);
 
@@ -439,7 +483,7 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
         });
 
         // บันทึกการกระทำลง System_Logs
-        db.run(`INSERT INTO System_Logs (user_id, action, description) VALUES (?, ?, ?)`, 
+        db.run(`INSERT INTO System_Logs (user_id, action, description) VALUES (?, ?, ?)`,
             [currentUserId, 'นำสินค้าเข้า', `รับสินค้า ID:${productId} ${name} เข้าที่จัดเก็บ: ${location}`]);
 
         res.status(201).json({ status: "success", message: "บันทึกข้อมูลและรันรหัสสินค้าเรียบร้อย!" });
@@ -452,15 +496,15 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
 
 app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
     const productId = req.params.id;
-    const { name, category_id, cost, price } = req.body; 
+    const { name, category_id, cost, price } = req.body;
     const currentUserId = req.session.userId || 1; // สมมติว่าได้จาก session มาแล้ว หรือใช้ 1 เป็นค่าเริ่มต้นสำหรับ admin
 
     try {
         // 1. อัปเดตข้อมูลหลักในตาราง Products
         const sqlUpdate = `UPDATE Products SET name = ?, category_id = ?, cost_price = ?, selling_price = ? WHERE product_id = ?`;
-        
+
         await new Promise((resolve, reject) => {
-            db.run(sqlUpdate, [name, category_id, cost, price, productId], function(err) {
+            db.run(sqlUpdate, [name, category_id, cost, price, productId], function (err) {
                 if (err) return reject(err);
                 resolve();
             });
@@ -471,18 +515,18 @@ app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
             const ext = path.extname(req.file.originalname);
             const paddedId = String(productId).padStart(3, '0');
             const newFileName = `${paddedId}${ext}`;
-            const newPath = path.join(__dirname, 'public/images/product', newFileName); 
-            
+            const newPath = path.join(__dirname, 'public/images/product', newFileName);
+
             const fs = require('fs');
             // ย้ายและเปลี่ยนชื่อไฟล์รูปใหม่
             fs.renameSync(req.file.path, newPath);
-            
+
             // อัปเดต path รูปใน Database
             db.run(`UPDATE Products SET image_url = ? WHERE product_id = ?`, [`/images/product/${newFileName}`, productId]);
         }
 
         // 3. บันทึก Log ว่าใครเป็นคนแก้
-        db.run(`INSERT INTO System_Logs (user_id, action, description) VALUES (?, ?, ?)`, 
+        db.run(`INSERT INTO System_Logs (user_id, action, description) VALUES (?, ?, ?)`,
             [currentUserId, 'แก้ไขข้อมูลสินค้า', `แก้ไขข้อมูลหลักของสินค้า ID:${productId} ${name}`]);
 
         // ส่งสัญญาณบอกหน้าบ้านว่าเสร็จแล้ว
@@ -497,7 +541,7 @@ app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
 app.get('/api/v1/categories', (req, res) => {
     const sql = `SELECT * FROM Categories ORDER BY category_name ASC`;
     db.all(sql, [], (err, rows) => {
-        if (err){
+        if (err) {
             return res.status(500).json({
                 status: "error",
                 message: err.message,
@@ -517,20 +561,45 @@ app.get('/api/v1/warehouses', function (req, res) {
     db.all(query, (err, rows) => {
         if (err) {
             return res.status(500).json({
-                "status" : "error",
+                "status": "error",
                 "message": "ไม่สามารถดึงข้อมูลคลังสินค้าได้",
                 "data": null
             })
         }
         return res.status(200).json({
-                "status" : "success",
-                "message": "ดึงข้อมูลคลังสินค้าสำเร็จ",
-                "data": rows
-            })
+            "status": "success",
+            "message": "ดึงข้อมูลคลังสินค้าสำเร็จ",
+            "data": rows
+        })
     });
 });
 
-app.post('/api/v1/select-warehouse', function(req, res){
+app.post('/api/v1/delete-warehouse', function (req, res) {
+    const {warehouse_id} = req.body;
+    const query = `DELETE FROM Warehouses WHERE warehouse_id = ?`;
+
+    if (!warehouse_id) {
+        return res.status(400).json({
+            status: "error",
+            message: "ไม่พบไอดีคลังสินค้า"
+        });
+    }
+
+    db.run(query, [warehouse_id], (err) => {
+        if (err) {
+            return res.status(500).json({
+                "status": "error",
+                "message": "ไม่สามารถลบข้อมูลคลังสินค้าได้",
+            })
+        }
+        return res.status(200).json({
+            "status": "success",
+            "message": "ลบข้อมูลคลังสินค้าสำเร็จ",
+        })
+    });
+});
+
+app.post('/api/v1/select-warehouse', function (req, res) {
     const { warehouse_id } = req.body;
 
     if (!warehouse_id) {
@@ -546,7 +615,7 @@ app.post('/api/v1/select-warehouse', function(req, res){
             req.session.warehouseId = warehouse_id;
             req.session.warehouseName = row.warehouse_name;
         }
-        
+
         return res.status(200).json({
             status: "success",
             message: "เลือกคลังสินค้าสำเร็จ",
@@ -590,57 +659,81 @@ app.get('/api/v1/users', function (req, res) {
     });
 });
 
-app.post('/api/v1/users', async function(req,res){
+app.post('/api/v1/users', async function (req, res) {
     const { username, password, firstname, lastname, email, phone_number, role } = req.body;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
     const sql = `INSERT INTO Users(username, password, firstname, lastname, email, phone_number, role_id) VALUES(?, ?, ?, ?, ?, ?, ?)`
-    db.run(sql,[username, hashedPassword, firstname, lastname, email, phone_number, role], function(err){
-        if(err){
-            if(err.message.includes("UNIQUE")){
+    db.run(sql, [username, hashedPassword, firstname, lastname, email, phone_number, role], function (err) {
+        if (err) {
+            if (err.message.includes("UNIQUE")) {
                 return res.status(409).json({
-                    "status" : "error",
-                    "message" : "ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว",
-                    "data" : null
+                    "status": "error",
+                    "message": "ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว",
+                    "data": null
                 })
-            }else if(err.message.includes("NOT NULL")){
+            } else if (err.message.includes("NOT NULL")) {
                 return res.status(400).json({
-                    "status" : "error",
-                    "message" : "กรุณากรอกข้อมูลให้ครบ",
-                    "data" : null
+                    "status": "error",
+                    "message": "กรุณากรอกข้อมูลให้ครบ",
+                    "data": null
                 })
             }
         }
         return res.status(201).json({
-                "status" : "success",
-                "message": "เพิ่มข้อมูลพนักงานใหม่สำเร็จ",
-                "data": {
-                    "user_id" : this.lastID,
-                    "username": username,
-                    "firstname": firstname,
-                    "lastname": lastname,
-                    "email": email,
-                    "phone_number": phone_number,
-                    "role": role 
-                }
-            })
+            "status": "success",
+            "message": "เพิ่มข้อมูลพนักงานใหม่สำเร็จ",
+            "data": {
+                "user_id": this.lastID,
+                "username": username,
+                "firstname": firstname,
+                "lastname": lastname,
+                "email": email,
+                "phone_number": phone_number,
+                "role": role
+            }
+        })
     });
 });
 
-app.delete('/api/v1/users/:id', function (req,res) {
+app.delete('/api/v1/users/:id', function (req, res) {
     const sql = `DELETE FROM Users WHERE user_id = ?`;
-    db.run(sql,[req.params.id], (err, rows) => {
+    db.run(sql, [req.params.id], (err, rows) => {
         if (err) {
             return res.status(400).json({
-                "status" : "error",
+                "status": "error",
                 "message": "ไม่สามารถลบได้",
                 "data": null
             })
         }
         return res.status(200).json({
-                "status" : "success",
-                "message": "ลบข้อมูลพนักงานสำเร็จ",
-                "data": rows
+            "status": "success",
+            "message": "ลบข้อมูลพนักงานสำเร็จ",
+            "data": rows
+        })
+    })
+});
+
+app.get('/editUser/:id', (req, res) => {
+    req.session.edit_id = req.params.id;
+    console.log(`session is ${req.session.edit_id}`)
+    res.redirect('/edit-user');
+});
+
+app.get('/api/v1/editUser', function (req, res) {
+    const sql = `SELECT * FROM Users WHERE user_id = ?`;
+    db.get(sql, [req.session.edit_id], (err, rows) => {
+        if (err) {
+            return res.status(400).json({
+                "status": "error",
+                "message": "ไม่สามารถเเก้ไขได้",
+                "data": null
             })
+        }
+        return res.status(200).json({
+            "status": "success",
+            "message": "เเก้ไขข้อมูลพนักงานสำเร็จ",
+            "data": rows
+        })
     })
 });
 
@@ -667,7 +760,7 @@ app.get('/api/v1/all-order', (req, res) => {
                 on us.role_id = ro.role_id
                 order by created_at desc;`
     // (db.all) pull every column and [] is blank waiting for param (in this case is no parameter)
-    db.all(sql,[], (err, rows) => {
+    db.all(sql, [], (err, rows) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ status: "error", message: "Server Error", data: null });
@@ -680,6 +773,72 @@ app.get('/api/v1/all-order', (req, res) => {
             // row would look like this
             // {"status":"success","message":"ดึงข้อมูลสำเร็จ",data:[{"date":"2026-03-04 17:00:00","username":"admin","name":"-","detail":"Admin somchai logged out","action":"LOGOUT","email":"-","role":"-"}, {}, {} ]
         });
+    });
+});
+
+// 
+app.get('/api/v1/dashboard-summary', (req, res) => {
+    // pull status to add at top of dashboard (4 card) totalStock, lowStock,addThisMonth, exportThisMonth
+    const cardTop = `select (select sum(quantity) from Stock_Balances) as TotalStock, 
+                    (select count(*) from Stock_Balances where quantity <= 20) as LowStock,
+                    ifnull((select sum(quantity) from Inventory_Transactions where transaction_type = 'นำเข้าสินค้า' 
+                        and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')),0) as stockInMonth,
+                    ifnull((select sum(quantity) from Inventory_Transactions where transaction_type = 'เบิกจ่ายสินค้า'
+                        and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')),0) as stockOutMonth`;
+    // get only 1 row
+    db.get(cardTop,[],(err,stats)=>{
+        if (err) {
+            console.error(err.message);
+            return res.status(500).json({ status: "error", message: "Server Error", data: null });
+        }
+        // map quantity to category (use in chart histogram) -> (อุปกรณ์เสริม, 290)
+        const chartBar = `select c.category_name, ifnull(sum(quantity),0) as quantity 
+                            from Categories c
+                            left join Products p 
+                            on c.category_id = p.category_id
+                            left join Stock_Balances sb 
+                            on p.product_id = sb.product_id
+                            group by c.category_id, c.category_name`
+        db.all(chartBar,[],(err,quantityByCategory)=>{
+            if (err) {
+                console.error(err.message);
+                return res.status(500).json({ status: "error", message: "Server Error", data: null });
+            }
+            // show low stock list (will equal to lowStock at the top of card)
+            const lowStockProduct= `select p.product_code, name, c.category_name, sb.quantity 
+                                    from Products p
+                                    left join Stock_Balances sb 
+                                    on p.product_id = sb.product_id
+                                    left join Categories c 
+                                    on p.category_id = c.category_id
+                                    where sb.quantity <= 20;`
+            db.all(lowStockProduct,[],(err,products)=>{
+                if (err) {
+                    console.error(err.message);
+                    return res.status(500).json({ status: "error", message: "Server Error", data: null });
+                }
+                // pull lastest activity in sys_log data (limit 10 rows) exclude login-logout activity
+                const activity = `select created_at as date, description
+                                    from System_Logs
+                                    where description != '-'
+                                    order by created_at desc limit 10;`
+                    db.all(activity,[],(err,log)=>{
+                        res.status(200).json({
+                        status: "success",
+                        message: "ดึงข้อมูลได้สำเร็จ",
+                        // send data
+                        data: {
+                            stats: stats,
+                            chart: quantityByCategory,
+                            lowStock: products,
+                            activity: log
+                        }
+                    });
+                });
+            });
+            
+        });
+            
     });
 });
 
