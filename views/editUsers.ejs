@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="css/add-user.css">
     <title>Add Users</title>
+    <%- include("partials/icon.ejs") %>
 </head>
 
 <body>
@@ -48,7 +49,7 @@
                     </div>
                     <div class="btn-con">
                         <button type="submit" class="addbtn" onclick="window.location.href='/users'">ยกเลิก</button>
-                        <button type="submit" class="addbtn" style="background-color: #E67E22; color: white;">บันทึกข้อมูล</button>
+                        <button type="submit" class="addbtn" id="save" style="background-color: #E67E22; color: white;">บันทึกข้อมูล</button>
                     </div>
                 </form>
             </div>

@@ -73,14 +73,14 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
     });
 
-    // 🌟 4. ปุ่มยกเลิก
+    //ปุ่มยกเลิก
     btnCancel.addEventListener('click', () => {
         if(confirm('ยกเลิกการแก้ไขและกลับไปหน้ารายละเอียดสินค้า?')) {
             window.location.href = `/product-details/${productId}`;
         }
     });
 
-    // 🌟 5. ปุ่มบันทึกข้อมูล
+    //ปุ่มบันทึกข้อมูล
     btnSave.addEventListener('click', async () => {
         if (!nameInput.value.trim() || !categorySelect.value) {
             alert('กรุณากรอกชื่อสินค้าและเลือกหมวดหมู่ให้ครบถ้วน');

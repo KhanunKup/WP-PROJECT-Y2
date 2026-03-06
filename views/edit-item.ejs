@@ -5,11 +5,81 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>แก้ไขรายละเอียดสินค้า</title>
     <link rel="stylesheet" href="/css/edit-item.css">
+    <%- include("partials/icon.ejs") %>
 </head>
 <body>
     <%- include("partials/navbar.ejs") %>
-    
-    <!-- เขียนไว้ก่อนเเดี๋ยวมาทำต่องับ  -->
-     <h2>แก้ไขข้อมูลสินค้า (แต่ละอัน)</h2>
+
+    <main class="container">
+        <div class="form-container">
+            <div class="form-layout">
+                <div class="form-left">
+                    <div class="image-box-dark">
+                        <span class="badge-product-id" id="displayCode">Product ID: ...</span>
+                        <img id="displayImage" src="" alt="Product Image">
+                    </div>
+                    <div class="tag-group-display" style="margin-top: 15px;">
+                        <span class="tag-orange-light" id="displayCategory">หมวดหมู่</span>
+                    </div>
+                </div>
+
+                <div class="form-right">
+                    <h2 class="form-title">รายละเอียดสินค้า:</h2>
+
+                    <div class="input-group">
+                        <label class="label-box">ชื่อสินค้า:</label>
+                        <input type="text" id="inputName" class="input-area" readonly>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label-box">รหัสสินค้า:</label>
+                        <input type="text" id="inputItemCode" class="input-area" readonly>
+                    </div>
+
+                    <div class="input-group align-top">
+                        <label class="label-box" style="margin-top: 5px;">จำนวน:</label>
+                        <div class="qty-inputs-container" style="flex: 1;">
+                            <div class="qty-row">
+                                <span class="badge-status badge-good">สภาพสมบูรณ์</span>
+                                <div class="input-wrapper-unit">
+                                    <input type="number" id="inputGoodQty" class="input-area" min="0">
+                                    <span class="unit-text">ชิ้น</span>
+                                </div>
+                            </div>
+                            <div class="qty-row" style="margin-top: 10px;">
+                                <span class="badge-status badge-damaged">ชำรุด/เสียหาย</span>
+                                <div class="input-wrapper-unit">
+                                    <input type="number" id="inputDamagedQty" class="input-area" min="0">
+                                    <span class="unit-text">ชิ้น</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label-box">ราคาขาย:</label>
+                        <div class="input-wrapper-unit">
+                            <input type="text" id="inputPrice" class="input-area" readonly>
+                            <span class="unit-text">บาท</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label class="label-box">ที่จัดเก็บ:</label>
+                        <input type="text" id="inputLocation" class="input-area" style="background-color: #f8f9fc; color: #64748b;">
+                    </div>
+                </div>
+            </div>
+
+            <div class="form-actions-3btn">
+                <button class="btn-cancel" id="btnCancel">✖ ยกเลิก</button>
+                <button class="btn-delete" id="btnDelete">ลบรายการสินค้า</button>
+                <button class="btn-save" id="btnSave">✎ บันทึกรายการรายละเอียดสินค้า</button>
+            </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="/js/edit-item.js"></script>
 </body>
 </html>
