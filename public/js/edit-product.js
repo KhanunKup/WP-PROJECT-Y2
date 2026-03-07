@@ -42,7 +42,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         const result = await response.json();
 
         if (result.status === 'success') {
-            const product = result.data;
+            const product = result.data.productInfo;
             nameInput.value = product.name;
             categorySelect.value = product.category_id; // เลือกหมวดหมู่ให้ตรง
             costInput.value = product.cost_price;
