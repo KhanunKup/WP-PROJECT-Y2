@@ -50,10 +50,19 @@ const isAuth = (req, res, next) => {
 }
 
 const isAdmin = (req, res, next) => {
-    if (req.session.userId && req.session.role == 'admin' || req.session.role == 'manager') {
+    if (req.session.userId && req.session.role_id == 1 || req.session.role == 2) {
         next();
     } else {
         return res.redirect('/dashboard');
+    }
+}
+
+const warehouseSelect = (req,res, next) => {
+    if (req.session.warehouseId) {
+        next()
+    }else{
+        // ถ้ายังไม่ได้เลือก ให้กลับไปหน้าเลือกคลังสินค้าก่อน
+        return res.redirect('/warehouses');
     }
 }
 
@@ -79,115 +88,130 @@ app.get('/', (req, res) => {
     res.sendFile(path.join(__dirname, "/public/login.html"));
 });
 
-app.get('/warehouses', (req,res) => {
+app.get('/warehouses',isAuth ,(req,res) => {
     // สั่ง render ไฟล์ views/warehouseSelect.ejs
-    res.render('warehouseSelect');
-});
-
-app.get('/create-warehouse', (req, res) => {
-    res.sendFile(path.join(__dirname, "/public/create-warehouse.html"));
-});
-
-app.get('/delete-warehouse', (req, res) => {
-    // สั่ง render ไฟล์ views/warehouseDelete.ejs
-    res.render('warehouseDelete');
-});
-
-app.get('/dashboard', (req, res) => {
-    // สั่ง render ไฟล์ views/dashboard.ejs
-    // if (!req.session.username) {
-    //     // ถ้ายังไม่ได้ login ให้กลับไปหน้า login ก่อน
-    //     return res.redirect('/');
-    // }
-
-    // if (!req.session.warehouseId) {
-    //     // ถ้ายังไม่ได้เลือก ให้กลับไปหน้าเลือกคลังสินค้าก่อน
-    //     return res.redirect('/warehouses');
-    // }
-    res.render('dashboard', {
+    res.render('warehouseSelect',{
         username: req.session.username,
-        warehouseName: req.session.warehouseName
+        role_id: req.session.role_id
     });
 });
 
-app.get('/product-list', (req, res) => {
+app.get('/create-warehouse',isAuth ,isAdmin ,(req, res) => {
+    res.sendFile(path.join(__dirname, "/public/create-warehouse.html"),{
+        username: req.session.username,
+        role_id: req.session.role_id
+    });
+});
+
+app.get('/delete-warehouse',isAuth ,isAdmin ,(req, res) => {
+    // สั่ง render ไฟล์ views/warehouseDelete.ejs
+    res.render('warehouseDelete',{
+        username: req.session.username,
+        role_id: req.session.role_id
+    });
+});
+
+app.get('/dashboard',isAuth ,warehouseSelect ,(req, res) => {
+    if (!req.session.warehouseId) {
+        // ถ้ายังไม่ได้เลือก ให้กลับไปหน้าเลือกคลังสินค้าก่อน
+        return res.redirect('/warehouses');
+    }
+    res.render('dashboard', {
+        username: req.session.username,
+        warehouseName: req.session.warehouseName,
+        role_id: req.session.role_id
+    });
+});
+
+app.get('/product-list',isAuth ,warehouseSelect ,(req, res) => {
     // สั่ง render ไฟล์ views/product-list
     res.render('product-list', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName
+        warehouseName: req.session.warehouseName,
+        role_id: req.session.role_id
     });
 });
 
-app.get('/add-product', (req, res) => {
+app.get('/add-product',isAuth ,warehouseSelect ,(req, res) => {
     // สั่ง render ไฟล์ views/add-product.ejs
     res.render('add-product', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName
+        warehouseName: req.session.warehouseName,
+        role_id: req.session.role_id
     });
 });
 
-app.get('/edit-product/:id', (req, res) => {
+app.get('/edit-product/:id',isAuth ,warehouseSelect ,(req, res) => {
     // สั่ง render ไฟล์ views/edit-product.ejs
     res.render('edit-product', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName
+        warehouseName: req.session.warehouseName,
+        role_id: req.session.role_id
     });
 });
 
-app.get('/edit-item/:productId/:locationId', (req, res) => {
+app.get('/edit-item/:productId/:locationId',isAuth ,warehouseSelect ,(req, res) => {
     // สั่ง render ไฟล์ views/edit-item.ejs
     res.render('edit-item', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName
+        warehouseName: req.session.warehouseName,
+        role_id: req.session.role_id
     });
 });
 
-app.get('/history', (req, res) => {
+app.get('/history',isAuth ,warehouseSelect ,(req, res) => {
     res.render('order-history', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName
+        warehouseName: req.session.warehouseName,
+        role_id: req.session.role_id
     });;
 });
 
-app.get('/receive-log', (req, res) => {
+app.get('/receive-log',isAuth ,warehouseSelect ,(req, res) => {
     res.render('order-receive-log', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName
+        warehouseName: req.session.warehouseName,
+        role_id: req.session.role_id
     });;
 });
 
-app.get('/export-log', (req, res) => {
+app.get('/export-log',isAuth ,warehouseSelect ,(req, res) => {
     res.render('order-export-log', {
         username: req.session.username,
-        warehouseName: req.session.warehouseName
+        warehouseName: req.session.warehouseName,
+        role_id: req.session.role_id
     });;
 });
 
-app.get('/product-details/:id', (req, res) => {
+app.get('/product-details/:id',isAuth ,warehouseSelect ,(req, res) => {
     // สั่ง render ไฟล์ views/product-details
     res.render('product-details', {
         username: req.session.username,
+        role_id: req.session.role_id
     });
 });
 
-app.get('/users', (req, res) => {
+app.get('/users',isAuth ,isAdmin ,(req, res) => {
     // สั่ง render ไฟล์ views/userManage.ejs
     res.render('userManage', {
         username: req.session.username,
+        role_id: req.session.role_id
     });
 });
 
-app.get('/edit-user', (req, res) => {
+app.get('/edit-user',isAuth ,isAdmin ,(req, res) => {
     // สั่ง render ไฟล์ views/editUsers.ejs
     res.render('editUsers', {
         username: req.session.username,
+        role_id: req.session.role_id
     });
 });
 
-app.get('/add-users', (req, res) => {
+app.get('/add-users',isAuth ,isAdmin ,(req, res) => {
     // สั่ง render ไฟล์ views/userManage.ejs
     res.render('add-users', {
         username: req.session.username,
+        role_id: req.session.role_id
     });
 });
 
@@ -222,7 +246,7 @@ app.post('/api/v1/auth/login', (req, res) => {
             if (isMatch) {
                 req.session.userId = row.user_id;
                 req.session.username = row.username;
-                req.session.role = row.role;
+                req.session.role_id = row.role_id;
 
                 //เก็บเข้า system_logs database
                 db.run(insert, [row.user_id, 'เข้าสู่ระบบ', 'เข้าสู่ระบบสำเร็จ'], (err) => { 
@@ -320,19 +344,25 @@ app.post('/api/v1/auth/logout', (req, res) => {
 app.get('/api/v1/products', (req, res) => {
     // 1. รับค่า 3 อย่างจากหน้าเว็บ
     const { search, category, status } = req.query;
+    const currentWarehouseId = req.session.warehouseId;
+
+    let params = [currentWarehouseId];
 
     // 2. ใช้ JOIN เพื่อดึงชื่อหมวดหมู่ (c.category_name) และคำนวณสต็อกรวม (total_stock)
     let sql = `
         SELECT 
             p.*, 
             c.category_name,
-            IFNULL(SUM(sb.quantity), 0) AS total_stock
+            (
+                SELECT IFNULL(SUM(sb.quantity), 0)
+                FROM Stock_Balances sb
+                JOIN Locations l ON sb.location_id = l.location_id
+                WHERE sb.product_id = p.product_id AND l.warehouse_id = ?
+            ) AS total_stock
         FROM Products p
         LEFT JOIN Categories c ON p.category_id = c.category_id
-        LEFT JOIN Stock_Balances sb ON p.product_id = sb.product_id
         WHERE 1=1
     `;
-    let params = [];
 
     // 3. กรองตามชื่อสินค้า
     if (search) {
@@ -368,6 +398,7 @@ app.get('/api/v1/products', (req, res) => {
 
 app.get('/api/v1/product-details/:id', (req, res) => {
     const productId = req.params.id;
+    const currentWarehouseId = req.session.warehouseId;
 
     // คำสั่งที่ 1: ดึงข้อมูลหลักของสินค้า (รายละเอียดครึ่งบน)
     const sqlProduct = `
@@ -376,7 +407,8 @@ app.get('/api/v1/product-details/:id', (req, res) => {
             IFNULL(SUM(sb.quantity), 0) AS total_stock
         FROM Products p
         LEFT JOIN Stock_Balances sb ON p.product_id = sb.product_id
-        WHERE p.product_id = ?
+        LEFT JOIN Locations l ON sb.location_id = l.location_id
+        WHERE p.product_id = ? AND l.warehouse_id = ?
         GROUP BY p.product_id;
     `;
 
@@ -386,24 +418,25 @@ app.get('/api/v1/product-details/:id', (req, res) => {
             p.product_code,
             l.area,
             it.product_status,
+            l.location_id,
             -- คำนวณยอดรวม: ถ้าเป็น 'นำเข้าสินค้า' ให้บวกยอด ถ้าเป็นอย่างอื่น (เช่น เบิกออก) ให้ลบยอด
             SUM(CASE WHEN it.transaction_type = 'นำเข้าสินค้า' THEN it.quantity ELSE -it.quantity END) AS quantity
         FROM Inventory_Transactions it
         JOIN Products p ON it.product_id = p.product_id
         JOIN Locations l ON it.location_id = l.location_id
-        WHERE it.product_id = ?
+        WHERE it.product_id = ? AND l.warehouse_id = ?
         GROUP BY p.product_code, l.area, it.product_status
         -- กรองเอาเฉพาะกลุ่มที่คำนวณแล้วยังมียอดคงเหลือมากกว่า 0
         HAVING quantity > 0;
     `;
 
     // 1. สั่งรันคำสั่งแรก (ดึงข้อมูลหลัก)
-    db.get(sqlProduct, [productId], (err, productRow) => {
+    db.get(sqlProduct, [productId, currentWarehouseId], (err, productRow) => {
         if (err) return res.status(500).json({ status: "error", message: err.message, data: null });
         if (!productRow) return res.status(404).json({ status: "error", message: "ไม่พบสินค้า", data: null });
 
         // 2. ถ้าเจอสินค้า ให้สั่งรันคำสั่งที่สองต่อ (ดึงรายการสต็อก)
-        db.all(sqlStock, [productId], (err, stockRows) => {
+        db.all(sqlStock, [productId, currentWarehouseId], (err, stockRows) => {
             if (err) return res.status(500).json({ status: "error", message: err.message, data: null });
 
             // 3. จับข้อมูลทั้ง 2 ก้อน มัดรวมกันใน property "data" แล้วส่งกลับไป
@@ -423,23 +456,17 @@ app.get('/api/v1/product-details/:id', (req, res) => {
 
 //เพิ่มสินค้าใหม่ หรือ รับสินค้าเข้าคลัง
 app.post('/api/v1/products', upload.single('image'), async (req, res) => {
-    let sql = `
-        SELECT p.*, c.category_name 
-        FROM Products p
-        LEFT JOIN Categories c ON p.category_id = c.category_id
-        WHERE 1=1`;
-
-    let params = [];
 
     const { mode, name, category_id, cost, price, condition, location } = req.body;
     const currentUserId = req.session.userId || 1; //รับค่าจาก session หรือ default เป็น 1 ถ้ายังไม่มีระบบ login
+    const currentWarehouseId = req.session.warehouseId;
 
     try {
         //หา location_id จากชื่อพื้นที่จัดเก็บ ถ้าไม่มีให้สร้างใหม่
         const locationId = await new Promise((resolve, reject) => {
-            db.get(`SELECT location_id FROM Locations WHERE area = ?`, [location], (err, row) => {
+            db.get(`SELECT location_id FROM Locations WHERE area = ? AND warehouse_id = ?`, [location, currentWarehouseId], (err, row) => {
                 if (row) return resolve(row.location_id);
-                db.run(`INSERT INTO Locations (warehouse_id, area) VALUES (?, ?)`, [1, location], function (err) {
+                db.run(`INSERT INTO Locations (warehouse_id, area) VALUES (?, ?)`, [currentWarehouseId, location], function (err) {
                     if (err) return reject(err);
                     resolve(this.lastID);
                 });
@@ -486,7 +513,7 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
 
         // บันทึกการเคลื่อนไหวสินค้า (Inventory_Transactions)
         await new Promise((resolve, reject) => {
-            const sqlT = `INSERT INTO Inventory_Transactions (product_id, product_status, user_id, quantity, transaction_type, location_id) VALUES (?, ?, ?, 1, 'รับสินค้าเข้าคลัง', ?)`;
+            const sqlT = `INSERT INTO Inventory_Transactions (product_id, product_status, user_id, quantity, transaction_type, location_id) VALUES (?, ?, ?, 1, 'นำเข้าสินค้า', ?)`;
             db.run(sqlT, [productId, condition, currentUserId, locationId], (err) => {
                 if (err) return reject(err);
                 resolve();
@@ -503,8 +530,8 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
         });
 
         // บันทึกการกระทำลง System_Logs
-        db.run(`INSERT INTO System_Logs (user_id, action, description) VALUES (?, ?, ?)`,
-            [currentUserId, 'นำสินค้าเข้า', `รับสินค้า ID:${productId} ${name} เข้าที่จัดเก็บ: ${location}`]);
+        db.run(`INSERT INTO System_Logs (user_id, warehouse_id, action, description) VALUES (?, ?, ?, ?)`,
+            [currentUserId, currentWarehouseId, 'นำเข้าสินค้า', `รับสินค้า ID:${productId} ${name} เข้าที่จัดเก็บ: ${location}`]);
 
         res.status(201).json({ status: "success", message: "บันทึกข้อมูลและรันรหัสสินค้าเรียบร้อย!" });
 
@@ -518,6 +545,7 @@ app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
     const productId = req.params.id;
     const { name, category_id, cost, price } = req.body; 
     const currentUserId = req.session.userId || 1; //รับค่าจาก session หรือ ใช้ 1 เป็นค่าเริ่มต้น ถ้ายังไม่มีระบบ login
+    const currentWarehouseId = req.session.warehouseId;
 
     try {
         // อัปเดตข้อมูลหลักของสินค้า (Products)
@@ -546,8 +574,8 @@ app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
         }
 
         //บันทึกการกระทำลง System_Logs
-        db.run(`INSERT INTO System_Logs (user_id, action, description) VALUES (?, ?, ?)`, 
-            [currentUserId, 'แก้ไขข้อมูลสินค้า', `แก้ไขข้อมูลหลักของสินค้า ID:${productId} ${name}`]);
+        db.run(`INSERT INTO System_Logs (user_id, warehouse_id, action, description) VALUES (?, ?, ?, ?)`, 
+            [currentUserId, currentWarehouseId, 'แก้ไขข้อมูลสินค้า', `แก้ไขข้อมูลหลักของสินค้า ID:${productId} ${name}`]);
 
         res.status(200).json({ status: "success", message: "อัปเดตข้อมูลสำเร็จ" });
 
@@ -559,25 +587,28 @@ app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
 
 app.get('/api/v1/stocks/:productId/:locationId', (req, res) => {
     const { productId, locationId } = req.params;
-    
+    const currentWarehouseId = req.session.warehouseId;
+
     const sql = `
         SELECT 
             p.product_id, p.product_code, p.name, p.selling_price, p.image_url, 
             c.category_name,
             l.area AS location_name,
-            (SELECT SUM(quantity) FROM Inventory_Transactions 
+            (SELECT SUM(CASE WHEN transaction_type = 'นำเข้าสินค้า' THEN quantity ELSE -quantity END) 
+             FROM Inventory_Transactions 
              WHERE product_id = p.product_id AND location_id = l.location_id 
-             AND product_status IN ('สภาพสมบูรณ์', 'ของใหม่/สภาพดี')) AS good_qty,
-            (SELECT SUM(quantity) FROM Inventory_Transactions 
+             AND product_status = 'ปกติ') AS good_qty,
+            (SELECT SUM(CASE WHEN transaction_type = 'นำเข้าสินค้า' THEN quantity ELSE -quantity END) 
+             FROM Inventory_Transactions 
              WHERE product_id = p.product_id AND location_id = l.location_id 
-             AND product_status IN ('ชำรุด/เสียหาย', 'ของชำรุด/เสียหาย')) AS damaged_qty
+             AND product_status = 'เสียหาย') AS damaged_qty
         FROM Products p
         LEFT JOIN Categories c ON p.category_id = c.category_id
-        LEFT JOIN Locations l ON l.location_id = ?
+        LEFT JOIN Locations l ON l.location_id = ? AND l.warehouse_id = ?
         WHERE p.product_id = ?;
     `;
     
-    db.get(sql, [locationId, productId], (err, row) => {
+    db.get(sql, [locationId, currentWarehouseId, productId], (err, row) => {
         if (err) return res.status(500).json({ status: "error", message: err.message });
         if (!row) return res.status(404).json({ status: "error", message: "ไม่พบข้อมูล" });
         
@@ -590,16 +621,17 @@ app.get('/api/v1/stocks/:productId/:locationId', (req, res) => {
 });
 
 app.post('/api/v1/transactions', async (req, res) => {
-const { product_id, product_status, quantity, transaction_type, location_name } = req.body;
+    const { product_id, product_status, quantity, transaction_type, location_name } = req.body;
     const user_id = req.session.userId || 1;
+    const currentWarehouseId = req.session.warehouseId;
 
     try {
         //หา location_id จากชื่อที่พิมพ์มา (ถ้าไม่มีให้สร้างใหม่เหมือนหน้า add-product)
         const locationId = await new Promise((resolve, reject) => {
-            db.get(`SELECT location_id FROM Locations WHERE area = ?`, [location_name], (err, row) => {
+            db.get(`SELECT location_id FROM Locations WHERE area = ? AND warehouse_id = ?`, [location_name, currentWarehouseId], (err, row) => {
                 if (row) return resolve(row.location_id);
                 // ถ้าไม่เจอชื่อ ให้สร้างใหม่ในคลังที่ 1
-                db.run(`INSERT INTO Locations (warehouse_id, area) VALUES (?, ?)`, [1, location_name], function(err) {
+                db.run(`INSERT INTO Locations (warehouse_id, area) VALUES (?, ?)`, [currentWarehouseId, location_name], function(err) {
                     if (err) return reject(err);
                     resolve(this.lastID);
                 });
@@ -610,9 +642,11 @@ const { product_id, product_status, quantity, transaction_type, location_name } 
         const sqlInsertTrans = `INSERT INTO Inventory_Transactions (product_id, location_id, quantity, product_status, transaction_type, user_id) VALUES (?, ?, ?, ?, ?, ?)`;
         db.run(sqlInsertTrans, [product_id, locationId, quantity, product_status, transaction_type, user_id], function(err) {
             if (err) throw err;
+            
+            const adjustQty = transaction_type === 'เบิกจ่าย' ? -quantity : quantity;
 
             const sqlUpdateStock = `UPDATE Stock_Balances SET quantity = quantity + ? WHERE product_id = ? AND location_id = ?`;
-            db.run(sqlUpdateStock, [quantity, product_id, locationId], function(err2) {
+            db.run(sqlUpdateStock, [adjustQty, product_id, locationId], function(err2) {
                 if (this.changes === 0) {
                     db.run(`INSERT INTO Stock_Balances (product_id, location_id, quantity) VALUES (?, ?, ?)`, [product_id, locationId, quantity]);
                 }
@@ -854,8 +888,9 @@ app.post('/api/v1/updateUser', async function (req, res) {
 });
 
 app.get('/api/v1/all-order', (req, res) => {
+    const currentWarehouseId = req.session.warehouseId;
     // send data to
-    const sql = `select date, u.username as username, concat(u.firstname ,' ', u.lastname) as fullname,
+    const sql = `select datetime(date, '+7 hours') as date, u.username as username, concat(u.firstname ,' ', u.lastname) as fullname,
                 concat('ชื่อสินค้า: ',p.name,' ,จำนวน: ',quantity,' ,สถานะ: ',product_status) as detail,
                 transaction_type as action,u.email as email, r.role_name as role
                 
@@ -866,17 +901,21 @@ app.get('/api/v1/all-order', (req, res) => {
                 on it.product_id = p.product_id
                 left join Roles as r
                 on u.role_id = r.role_id
+                left join Locations l
+                on it.location_id = l.location_id
+                where l.warehouse_id = ?
                 
                 union all
-                select created_at as date, us.username, concat(us.firstname,' ',us.lastname) as fullname,  description as detail, action, us.email as email, ro.role_name as role
+                select datetime(created_at, '+7 hours') as date, us.username, concat(us.firstname,' ',us.lastname) as fullname,  description as detail, action, us.email as email, ro.role_name as role
                 from System_Logs as sl
                 left join Users as us
                 on sl.user_id = us.user_id
                 left join Roles as ro
                 on us.role_id = ro.role_id
-                order by created_at desc;`
+                where sl.warehouse_id = ? OR sl.warehouse_id IS NULL
+                order by date desc;`
     // (db.all) pull every column and [] is blank waiting for param (in this case is no parameter)
-    db.all(sql, [], (err, rows) => {
+    db.all(sql, [currentWarehouseId,currentWarehouseId], (err, rows) => {
         if (err) {
             console.error(err.message);
             return res.status(500).json({ status: "error", message: "Server Error", data: null });
@@ -894,15 +933,18 @@ app.get('/api/v1/all-order', (req, res) => {
 
 // 
 app.get('/api/v1/dashboard-summary', (req, res) => {
+    const currentWarehouseId = req.session.warehouseId;
     // pull status to add at top of dashboard (4 card) totalStock, lowStock,addThisMonth, exportThisMonth
-    const cardTop = `select (select sum(quantity) from Stock_Balances) as TotalStock, 
-                    (select count(*) from Stock_Balances where quantity <= 20) as LowStock,
-                    ifnull((select sum(quantity) from Inventory_Transactions where transaction_type = 'นำเข้าสินค้า' 
+    const cardTop = `select (select sum(quantity) from Stock_Balances sb join Locations l on sb.location_id = l.location_id where l.warehouse_id = ?) as TotalStock, 
+                    (select count(*) from Stock_Balances sb join Locations l on sb.location_id = l.location_id where quantity <= 20 and l.warehouse_id = ?) as LowStock,
+                    ifnull((select sum(quantity) from Inventory_Transactions it join Locations l on it.location_id = l.location_id 
+                        where transaction_type = 'นำเข้าสินค้า' and l.warehouse_id = ?
                         and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')),0) as stockInMonth,
-                    ifnull((select sum(quantity) from Inventory_Transactions where transaction_type = 'เบิกจ่ายสินค้า'
+                    ifnull((select sum(quantity) from Inventory_Transactions  it join Locations l on it.location_id = l.location_id 
+                        where transaction_type = 'เบิกจ่ายสินค้า' and l.warehouse_id = ?
                         and strftime('%Y-%m', date) = strftime('%Y-%m', 'now')),0) as stockOutMonth`;
     // get only 1 row
-    db.get(cardTop,[],(err,stats)=>{
+    db.get(cardTop,[currentWarehouseId,currentWarehouseId,currentWarehouseId,currentWarehouseId],(err,stats)=>{
         if (err) {
             console.error(err.message);
             return res.status(500).json({ status: "error", message: "Server Error", data: null });
@@ -914,8 +956,11 @@ app.get('/api/v1/dashboard-summary', (req, res) => {
                             on c.category_id = p.category_id
                             left join Stock_Balances sb 
                             on p.product_id = sb.product_id
+                            left join Locations l
+                            on sb.location_id = l.location_id
+                            where l.warehouse_id = ?
                             group by c.category_id, c.category_name`
-        db.all(chartBar,[],(err,quantityByCategory)=>{
+        db.all(chartBar,[currentWarehouseId],(err,quantityByCategory)=>{
             if (err) {
                 console.error(err.message);
                 return res.status(500).json({ status: "error", message: "Server Error", data: null });
@@ -927,21 +972,25 @@ app.get('/api/v1/dashboard-summary', (req, res) => {
                                     on p.product_id = sb.product_id
                                     left join Categories c 
                                     on p.category_id = c.category_id
-									left join Locations l
-									on l.location_id = sb.product_id
-                                    where sb.quantity <= 20
+                                    left join Locations l
+                                    on l.location_id = sb.location_id
+                                    where sb.quantity <= 20 and l.warehouse_id = ?
                                     order by p.product_id;`
-            db.all(lowStockProduct,[],(err,products)=>{
+            db.all(lowStockProduct,[currentWarehouseId],(err,products)=>{
                 if (err) {
                     console.error(err.message);
                     return res.status(500).json({ status: "error", message: "Server Error", data: null });
                 }
                 // pull lastest activity in sys_log data (limit 10 rows) exclude login-logout activity
-                const activity = `select created_at as date, description
-                                    from System_Logs
-                                    where description != '-'
-                                    order by created_at desc limit 10;`
-                db.all(activity,[],(err,log)=>{
+                const activity = `select datetime(sl.created_at, '+7 hours') as date, 
+                                        us.username,
+                                        sl.description
+                                    from System_Logs as sl
+                                    left join Users as us
+                                    on sl.user_id = us.user_id
+                                    where sl.description != '-' AND (sl.warehouse_id = ? OR sl.warehouse_id IS NULL)
+                                    order by 1 desc limit 10;`
+                db.all(activity,[currentWarehouseId],(err,log)=>{
                     if (err) {
                         console.error(err.message);
                         return res.status(500).json({ status: "error", message: "Server Error", data: null });
@@ -953,9 +1002,12 @@ app.get('/api/v1/dashboard-summary', (req, res) => {
                                     on c.category_id = p.category_id
                                     left join Stock_Balances sb
                                     on p.product_id = sb.product_id
+                                    left join Locations l
+                                    on sb.location_id = l.location_id
+                                    WHERE l.warehouse_id = ?
                                     group by c.category_id, category_name
                                     order by total_value desc;`
-                        db.all(value,[],(err,price)=>{
+                        db.all(value,[currentWarehouseId],(err,price)=>{
                             res.status(200).json({
                             status: "success",
                             message: "ดึงข้อมูลได้สำเร็จ",

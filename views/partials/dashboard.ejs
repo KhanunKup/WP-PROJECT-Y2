@@ -16,7 +16,7 @@
             <a href="/product-list">
                 <div class="nav-item">
                     <img src="images/dashboard-box-pic.svg" alt="Inventory">
-                    <p>คลังสินค้า</p>
+                    <p>รายการสินค้า</p>
                 </div>
             </a>
             <a href="/history">
@@ -25,12 +25,20 @@
                     <p>รายงานผล</p>
                 </div>
             </a>
+            <a href="/warehouses">
+                <div class="nav-item">
+                    <img src="/images/select-warehouse-pic.svg" alt="Warehouse">
+                    <p>เลือกคลังสินค้า</p>
+                </div>
+            </a>
+            <% if(role_id == 1 || role_id == 2) { %>
             <a href="/users">
                 <div class="nav-item">
                     <img src="/images/dashboard-user-pic.svg" alt="User">
                     <p>จัดการผู้ใช้</p>
                 </div>
             </a>
+            <% } %>
         </div>
 
         <div class="profile">
