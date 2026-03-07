@@ -25,7 +25,7 @@ async function selectWarehouse(warehouseId) {
                 if (result.status === 'success') {
                     Swal.fire({
                         title: "ลบคลังสินค้าสำเร็จ!",
-                        text: "คลังสินค้าถูกลบจากระบบเรียบร้อย.",
+                        text: "คลังสินค้าถูกลบจากระบบเรียบร้อย",
                         icon: "success",
                         confirmButtonText: "ตกลง"
                     }).then(() => {
