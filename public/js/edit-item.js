@@ -94,9 +94,9 @@ document.addEventListener('DOMContentLoaded', async () => {
                     const oldD = parseInt(damagedInput.dataset.old) || 0;
 
                     //
-                    if (oldG > 0) await sendTrans('ปกติ', oldG, 'เบิกจ่าย', initialLocationName);
-                    if (oldD > 0) await sendTrans('เสียหาย', oldD, 'เบิกจ่าย', initialLocationName);
-
+                    if (oldG > 0) await sendTrans('ปกติ', Math.abs(oldG), 'เบิกจ่ายสินค้า', initialLocationName);
+                    if (oldD > 0) await sendTrans('เสียหาย', Math.abs(oldD), 'เบิกจ่ายสินค้า', initialLocationName);
+                
                     Swal.fire({
                         title: "สำเร็จ!",
                         text: "ลบรายการสำเร็จ!",
@@ -136,12 +136,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                     //ถ้าย้ายที่เก็บ จะต้องบันทึกการเคลื่อนไหวทั้งที่เก่าและที่ใหม่
                     if (newLocationName !== initialLocationName) {
                         // หักที่เก่าออกให้หมด
-                        if (oldGood > 0) await sendTrans('ปกติ', -oldGood, 'เบิกจ่าย', initialLocationName);
-                        if (oldDamaged > 0) await sendTrans('เสียหาย', -oldDamaged, 'เบิกจ่าย', initialLocationName);
+                        if (oldGood > 0) await sendTrans('ปกติ', Math.abs(oldGood), 'เบิกจ่ายสินค้า', initialLocationName);
+                        if (oldDamaged > 0) await sendTrans('เสียหาย', Math.abs(oldDamaged), 'เบิกจ่ายสินค้า', initialLocationName);
                         // เพิ่มเข้าที่ใหม่ตามจำนวนที่กรอกมา
-                        if (newGood > 0) await sendTrans('ปกติ', newGood, 'นำเข้าสินค้า', newLocationName);
-                        if (newDamaged > 0) await sendTrans('เสียหาย', newDamaged, 'นำเข้าสินค้า', newLocationName);
-                    }
+                        if (newGood > 0) await sendTrans('ปกติ', Math.abs(newGood), 'นำเข้าสินค้า', newLocationName);
+                        if (newDamaged > 0) await sendTrans('เสียหาย', Math.abs(newDamaged), 'นำเข้าสินค้า', newLocationName);
+                    } 
                     //ถ้าไม่ย้ายที่ ก็แค่บันทึกความเปลี่ยนแปลงของจำนวนในที่เดิม
                     else {
                         //ใหม่ดีมากกว่า - เก่าดี
@@ -150,12 +150,12 @@ document.addEventListener('DOMContentLoaded', async () => {
                         if (diffG > 0) {
                             await sendTrans('ปกติ', Math.abs(diffG), 'นำเข้าสินค้า', newLocationName)
                         } else if (diffG < 0) {
-                            await sendTrans('ปกติ', Math.abs(diffG), 'เบิกจ่าย', newLocationName)
+                            await sendTrans('ปกติ', Math.abs(diffG), 'เบิกจ่ายสินค้า', newLocationName)
                         };
                         if (diffD > 0) {
                             await sendTrans('เสียหาย', Math.abs(diffD), 'นำเข้าสินค้า', newLocationName)
                         } else if (diffD < 0) {
-                            await sendTrans('เสียหาย', Math.abs(diffD), 'เบิกจ่าย', newLocationName)
+                            await sendTrans('เสียหาย', Math.abs(diffD), 'เบิกจ่ายสินค้า', newLocationName)
                         };
                     }
 
