@@ -57,7 +57,7 @@ userForm.addEventListener('submit', async function (event) {
                 } else {
                     Swal.fire({
                         icon: "error",
-                        title: "เกิดช้อผิดพลาด!",
+                        title: "เกิดข้อผิดพลาด!",
                         text: result.message,
                     })
                 }

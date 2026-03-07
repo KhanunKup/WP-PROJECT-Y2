@@ -39,7 +39,7 @@ loginForm.addEventListener('submit', async function (event) {
             // ถ้ามี Error (เช่น 400, 401)
             Swal.fire({
                 icon: "error",
-                title: "เกิดช้อผิดพลาด!",
+                title: "เกิดข้อผิดพลาด!",
                 text: result.message,
             })
         }
