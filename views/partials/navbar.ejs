@@ -10,9 +10,12 @@
     <div class="right-menu">
         <div class="nav-text">
             <a href="/dashboard"><p id="dashboard">หน้าหลัก</p></a>
-            <a href="/product-list"><p id="inventory">คลังสินค้า</p></a>
+            <a href="/product-list"><p id="inventory">รายการสินค้า</p></a>
             <a href="/history"><p id="report">รายงานผล</p></a>
+            <a href="/warehouses"><p id="warehouse">เลือกคลังสินค้า</p></a>
+            <% if(role_id == 1 || role_id == 2) { %>
             <a href="/users"><p id="users">จัดการผู้ใช้</p></a>
+            <% } %>
         </div>
         <div class="user-info">
             <img class="user-img" src="/images/navbar-profile-pic.svg">

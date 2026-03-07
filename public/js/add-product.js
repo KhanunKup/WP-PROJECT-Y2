@@ -146,7 +146,7 @@ if (btnSave) {
         formData.append('category_id', categoryId); // ส่งแค่ category_id ไปให้ Server
         formData.append('cost', cost);
         formData.append('price', price);
-        formData.append('condition', document.querySelector('.btn-condition.active').innerText);
+        formData.append('condition', document.querySelector('.btn-condition.active').value);
         formData.append('location', location);
 
         try {
