@@ -982,10 +982,14 @@ app.get('/api/v1/dashboard-summary', (req, res) => {
                     return res.status(500).json({ status: "error", message: "Server Error", data: null });
                 }
                 // pull lastest activity in sys_log data (limit 10 rows) exclude login-logout activity
-                const activity = `select created_at as date, description
-                                    from System_Logs
-                                    where description != '-' AND (warehouse_id = ? OR warehouse_id IS NULL)
-                                    order by created_at desc limit 10;`
+                const activity = `select datetime(sl.created_at, '+7 hours') as date, 
+                                        us.username,
+                                        sl.description
+                                    from System_Logs as sl
+                                    left join Users as us
+                                    on sl.user_id = us.user_id
+                                    where sl.description != '-' AND (sl.warehouse_id = ? OR sl.warehouse_id IS NULL)
+                                    order by 1 desc limit 10;`
                 db.all(activity,[currentWarehouseId],(err,log)=>{
                     if (err) {
                         console.error(err.message);
