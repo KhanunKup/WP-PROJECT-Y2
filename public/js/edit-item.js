@@ -6,7 +6,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const goodInput = document.getElementById('inputGoodQty');
     const damagedInput = document.getElementById('inputDamagedQty');
     const locationInput = document.getElementById('inputLocation'); // ช่องที่พิมพ์แก้ได้
-    
+
     let initialLocationName = ""; //ตัวแปรเก็บชื่อเดิมไว้เช็กการย้ายที่
     try {
         const response = await fetch(`/api/v1/stocks/${productId}/${locationId}`);
@@ -14,12 +14,12 @@ document.addEventListener('DOMContentLoaded', async () => {
 
         if (result.status === 'success') {
             const data = result.data;
-            
+
             // 🌟 คืนค่าส่วนที่หายไป: แสดงข้อมูลฝั่งซ้าย (Badge, รูป, หมวดหมู่)
             document.getElementById('displayCode').innerText = `รหัสสินค้า: ${data.product_code || '-'}`;
             document.getElementById('displayImage').src = data.image_url || '/images/default.png';
             document.getElementById('displayCategory').innerText = data.category_name || 'ทั่วไป';
-            
+
             // 🌟 คืนค่าส่วนที่หายไป: แสดงข้อมูลฝั่งขวา (ชื่อ, รหัส, ราคา)
             document.getElementById('inputName').value = data.name || '';
             document.getElementById('inputItemCode').value = data.product_code || '';
@@ -39,8 +39,8 @@ document.addEventListener('DOMContentLoaded', async () => {
             // ตั้งค่าลิมิตยอดรวม (ถ้าต้องการใช้ระบบ Balance ยอด)
             totalInventoryLimit = (parseInt(data.good_qty) || 0) + (parseInt(data.damaged_qty) || 0);
         }
-    } catch (error) { 
-        console.error("Fetch Data Error:", error); 
+    } catch (error) {
+        console.error("Fetch Data Error:", error);
     }
 
     //เพิ่มฟังก์ชัน sendTrans ไว้ท้ายสุดของบล็อก DOMContentLoaded
@@ -60,26 +60,57 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     // ปุ่มยกเลิก
     document.getElementById('btnCancel').addEventListener('click', () => {
-        if (confirm('ยืนยันการยกเลิกการแก้ไข? ข้อมูลจะไม่ถูกบันทึก')) {
-            window.location.href = `/product-details/${productId}`;
-        }
+        Swal.fire({
+            title: 'ยืนยันการยกเลิก',
+            text: `คุณเเน่ใจที่จะยกเลิกการแก้ไข? ข้อมูลจะไม่ถูกบันทึก`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#09a00e',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ยืนยันการยกเลิก',
+            cancelButtonText: 'เเก้ไขสินค้าต่อ'
+        }).then(async (Result) => {
+            if (Result.isConfirmed) {
+                window.location.href = `/product-details/${productId}`;
+            }
+        })
     });
 
     // ปุ่มลบ
     document.getElementById('btnDelete').addEventListener('click', async () => {
-        if (confirm('ยืนยันการลบรายการนี้? ข้อมูลจะถูกลบถาวร')) {
-            try {
-                const oldG = parseInt(goodInput.dataset.old) || 0;
-                const oldD = parseInt(damagedInput.dataset.old) || 0;
+        Swal.fire({
+            title: 'ยืนยันการลบ',
+            text: `คุณเเน่ใจที่จะยืนยันการลบสินค้ารายการนี้?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#09a00e',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ยืนยันการลบสินค้า',
+            cancelButtonText: 'ยกเลิก'
+        }).then(async (Result) => {
+            if (Result.isConfirmed) {
+                try {
+                    const oldG = parseInt(goodInput.dataset.old) || 0;
+                    const oldD = parseInt(damagedInput.dataset.old) || 0;
 
-                //
-                if (oldG > 0) await sendTrans('ปกติ', Math.abs(oldG), 'เบิกจ่ายสินค้า', initialLocationName);
-                if (oldD > 0) await sendTrans('เสียหาย', Math.abs(oldD), 'เบิกจ่ายสินค้า', initialLocationName);
+                    //
+                    if (oldG > 0) await sendTrans('ปกติ', Math.abs(oldG), 'เบิกจ่ายสินค้า', initialLocationName);
+                    if (oldD > 0) await sendTrans('เสียหาย', Math.abs(oldD), 'เบิกจ่ายสินค้า', initialLocationName);
                 
-                alert('ลบรายการสำเร็จ!');
-                window.location.href = `/product-details/${productId}`;
-            } catch (e) { alert('เกิดข้อผิดพลาด'); }
-        }
+                    Swal.fire({
+                        title: "สำเร็จ!",
+                        text: "ลบรายการสำเร็จ!",
+                        icon: "success",
+                        confirmButtonText: "ตกลง"
+                    }).then(async (ResultSuccess) => {
+                        if (ResultSuccess.isConfirmed) {
+                            window.location.href = `/product-details/${productId}`;
+                        }
+                    });
+
+                } catch (e) { alert('เกิดข้อผิดพลาด'); }
+            }
+        })
     });
 
     // ปุ่มบันทึก
@@ -90,36 +121,56 @@ document.addEventListener('DOMContentLoaded', async () => {
         const oldGood = parseInt(goodInput.dataset.old) || 0;
         const oldDamaged = parseInt(damagedInput.dataset.old) || 0;
 
-        if (confirm('ยืนยันการบันทึกการเปลี่ยนแปลง?')) {
-            try {
-                //ถ้าย้ายที่เก็บ จะต้องบันทึกการเคลื่อนไหวทั้งที่เก่าและที่ใหม่
-                if (newLocationName !== initialLocationName) {
-                    // หักที่เก่าออกให้หมด
-                    if (oldGood > 0) await sendTrans('ปกติ', Math.abs(oldGood), 'เบิกจ่ายสินค้า', initialLocationName);
-                    if (oldDamaged > 0) await sendTrans('เสียหาย', Math.abs(oldDamaged), 'เบิกจ่ายสินค้า', initialLocationName);
-                    // เพิ่มเข้าที่ใหม่ตามจำนวนที่กรอกมา
-                    if (newGood > 0) await sendTrans('ปกติ', Math.abs(newGood), 'นำเข้าสินค้า', newLocationName);
-                    if (newDamaged > 0) await sendTrans('เสียหาย', Math.abs(newDamaged), 'นำเข้าสินค้า', newLocationName);
-                } 
-                //ถ้าไม่ย้ายที่ ก็แค่บันทึกความเปลี่ยนแปลงของจำนวนในที่เดิม
-                else {
-                    //ใหม่ดีมากกว่า - เก่าดี
-                    const diffG = newGood - oldGood;
-                    const diffD = newDamaged - oldDamaged;
-                    if (diffG > 0) {
-                        await sendTrans('ปกติ', Math.abs(diffG), 'นำเข้าสินค้า', newLocationName)
-                    } else if (diffG < 0) {
-                        await sendTrans('ปกติ', Math.abs(diffG), 'เบิกจ่ายสินค้า', newLocationName)
-                    };
-                    if (diffD > 0) {
-                        await sendTrans('เสียหาย', Math.abs(diffD), 'นำเข้าสินค้า', newLocationName)
-                    } else if (diffD < 0) {
-                        await sendTrans('เสียหาย', Math.abs(diffD), 'เบิกจ่ายสินค้า', newLocationName)
-                    };
-                }
-                alert('บันทึกสำเร็จ!');
-                window.location.href = `/product-details/${productId}`;
-            } catch (e) { alert('เกิดข้อผิดพลาด'); }
-        }
+        Swal.fire({
+            title: 'ยืนยันการบันทึก',
+            text: `คุณเเน่ใจที่จะบันทึกการเปลี่ยนแปลง?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#09a00e',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'บันทึกสินค้า',
+            cancelButtonText: 'ยกเลิก'
+        }).then(async (Result) => {
+            if (Result.isConfirmed) {
+                try {
+                    //ถ้าย้ายที่เก็บ จะต้องบันทึกการเคลื่อนไหวทั้งที่เก่าและที่ใหม่
+                    if (newLocationName !== initialLocationName) {
+                        // หักที่เก่าออกให้หมด
+                        if (oldGood > 0) await sendTrans('ปกติ', Math.abs(oldGood), 'เบิกจ่ายสินค้า', initialLocationName);
+                        if (oldDamaged > 0) await sendTrans('เสียหาย', Math.abs(oldDamaged), 'เบิกจ่ายสินค้า', initialLocationName);
+                        // เพิ่มเข้าที่ใหม่ตามจำนวนที่กรอกมา
+                        if (newGood > 0) await sendTrans('ปกติ', Math.abs(newGood), 'นำเข้าสินค้า', newLocationName);
+                        if (newDamaged > 0) await sendTrans('เสียหาย', Math.abs(newDamaged), 'นำเข้าสินค้า', newLocationName);
+                    } 
+                    //ถ้าไม่ย้ายที่ ก็แค่บันทึกความเปลี่ยนแปลงของจำนวนในที่เดิม
+                    else {
+                        //ใหม่ดีมากกว่า - เก่าดี
+                        const diffG = newGood - oldGood;
+                        const diffD = newDamaged - oldDamaged;
+                        if (diffG > 0) {
+                            await sendTrans('ปกติ', Math.abs(diffG), 'นำเข้าสินค้า', newLocationName)
+                        } else if (diffG < 0) {
+                            await sendTrans('ปกติ', Math.abs(diffG), 'เบิกจ่ายสินค้า', newLocationName)
+                        };
+                        if (diffD > 0) {
+                            await sendTrans('เสียหาย', Math.abs(diffD), 'นำเข้าสินค้า', newLocationName)
+                        } else if (diffD < 0) {
+                            await sendTrans('เสียหาย', Math.abs(diffD), 'เบิกจ่ายสินค้า', newLocationName)
+                        };
+                    }
+
+                    Swal.fire({
+                        title: "สำเร็จ!",
+                        text: "บันทึกการเเก้ไขจำนวนสินค้าหรือที่อยู่สำเร็จ!",
+                        icon: "success",
+                        confirmButtonText: "ตกลง"
+                    }).then(async (ResultSuccess) => {
+                        if (ResultSuccess.isConfirmed) {
+                            window.location.href = `/product-details/${productId}`;
+                        }
+                    });
+                } catch (e) { alert('เกิดข้อผิดพลาด'); }
+            }
+        })
     });
 });

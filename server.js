@@ -799,7 +799,7 @@ app.post('/api/v1/users', async function (req, res) {
             if (err.message.includes("UNIQUE")) {
                 return res.status(409).json({
                     "status": "error",
-                    "message": "ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว",
+                    "message": "ชื่อผู้ใช้งานหรืออีเมลนี้มีอยู่ในระบบแล้ว",
                     "data": null
                 })
             } else if (err.message.includes("NOT NULL")) {
@@ -812,7 +812,7 @@ app.post('/api/v1/users', async function (req, res) {
         }
         return res.status(201).json({
             "status": "success",
-            "message": "เพิ่มข้อมูลพนักงานใหม่สำเร็จ",
+            "message": "เพิ่มข้อมูลผู้ใช้ใหม่สำเร็จ",
             "data": {
                 "user_id": this.lastID,
                 "username": username,
@@ -838,7 +838,7 @@ app.delete('/api/v1/users/:id', function (req, res) {
         }
         return res.status(200).json({
             "status": "success",
-            "message": "ลบข้อมูลพนักงานสำเร็จ",
+            "message": "ลบข้อมูลผู้ใช้สำเร็จ",
             "data": rows
         })
     })
@@ -884,7 +884,7 @@ app.post('/api/v1/updateUser', async function (req, res) {
         }
         return res.status(201).json({
             "status": "success",
-            "message": "เเก้ไขข้อมูลพนักงานสำเร็จ",
+            "message": "เเก้ไขข้อมูลผู้ใช้สำเร็จ",
             "data": {
                 "user_id": this.lastID,
                 "username": username,

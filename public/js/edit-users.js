@@ -73,7 +73,7 @@ userForm.addEventListener('submit', async function (event) {
                 const result = await response.json();
                 if (response.ok && result.status === 'success') {
                     Swal.fire({
-                        title: "เเก้ไขข้อมูลผู้ใช้สำเร็จ!",
+                        title: "สำเร็จ!",
                         text: result.message,
                         icon: "success",
                         confirmButtonText: "ตกลง"
