@@ -50,7 +50,7 @@ const isAuth = (req, res, next) => {
 }
 
 const isAdmin = (req, res, next) => {
-    if (req.session.userId && req.session.role_id == 1 || req.session.role == 2) {
+    if (req.session.userId && req.session.role_id == 1 || req.session.role_id == 2) {
         next();
     } else {
         return res.redirect('/dashboard');
