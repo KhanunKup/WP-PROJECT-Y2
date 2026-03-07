@@ -3,7 +3,7 @@ async function loadCategories() {
     try {
         const response = await fetch('/api/v1/categories');
         const result = await response.json();
-        
+
         if (result.status === 'success') {
             const categorySelect = document.getElementById('categoryInput');
             // ใส่ข้อมูลลงใน Dropdown
@@ -29,7 +29,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const costInput = document.getElementById('inputCost');
     const priceInput = document.getElementById('inputPrice');
     const totalStockInput = document.getElementById('inputTotalStock');
-    
+
     const imageInput = document.getElementById('imageInput');
     const uploadBox = document.getElementById('uploadBox');
     const btnUpload = document.getElementById('btnUpload');
@@ -62,11 +62,11 @@ document.addEventListener('DOMContentLoaded', async () => {
     uploadBox.addEventListener('click', () => imageInput.click());
     btnUpload.addEventListener('click', () => imageInput.click());
 
-    imageInput.addEventListener('change', function(event) {
+    imageInput.addEventListener('change', function (event) {
         const file = event.target.files[0];
         if (file) {
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = function (e) {
                 uploadBox.innerHTML = `<img src="${e.target.result}" style="width: 100%; height: 100%; object-fit: cover; border-radius: 8px;">`;
             }
             reader.readAsDataURL(file);
@@ -75,16 +75,32 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     //ปุ่มยกเลิก
     btnCancel.addEventListener('click', () => {
-        if(confirm('ยกเลิกการแก้ไขและกลับไปหน้ารายละเอียดสินค้า?')) {
-            window.location.href = `/product-details/${productId}`;
-        }
+        Swal.fire({
+            title: 'ยืนยันการยกเลิก',
+            text: `คุณเเน่ใจที่จะยกเลิกการแก้ไขและกลับไปหน้ารายละเอียดสินค้า?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#09a00e',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'ยืนยันการยกเลิก',
+            cancelButtonText: 'เเก้ไขสินค้าต่อ'
+        }).then(async (Result) => {
+            if (Result.isConfirmed) {
+                window.location.href = `/product-details/${productId}`;
+            }
+        })
     });
 
     //ปุ่มบันทึกข้อมูล
     btnSave.addEventListener('click', async () => {
         if (!nameInput.value.trim() || !categorySelect.value) {
-            alert('กรุณากรอกชื่อสินค้าและเลือกหมวดหมู่ให้ครบถ้วน');
-            return;
+            Swal.fire({
+                title: 'แจ้งเตือน',
+                text: 'กรุณากรอกชื่อสินค้าและเลือกหมวดหมู่ให้ครบถ้วน',
+                icon: 'warning',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#E67E22'
+            })
         }
 
         const formData = new FormData();
@@ -99,28 +115,53 @@ document.addEventListener('DOMContentLoaded', async () => {
             formData.append('image', imageInput.files[0]);
         }
 
-        try {
-            btnSave.innerHTML = '⏳ กำลังบันทึก...';
-            btnSave.disabled = true;
+        if (nameInput.value.trim() && categorySelect.value) {
+            Swal.fire({
+                title: 'ยืนยันการบันทึกการเปลี่ยนแปลง',
+                text: `คุณเเน่ใจที่จะบันทึกการเเก้ไขรายละเอียดสินค้า?`,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#09a00e',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'บันทึก',
+                cancelButtonText: 'ยกเลิก'
+            }).then(async (Result) => {
+                if (Result.isConfirmed) {
+                    try {
+                        btnSave.innerHTML = '⏳ กำลังบันทึก...';
+                        btnSave.disabled = true;
 
-            // ส่ง PUT request ไปอัปเดตข้อมูล
-            const response = await fetch(`/api/v1/products/${productId}`, {
-                method: 'PUT',
-                body: formData
-            });
+                        // ส่ง PUT request ไปอัปเดตข้อมูล
+                        const response = await fetch(`/api/v1/products/${productId}`, {
+                            method: 'PUT',
+                            body: formData
+                        });
 
-            const result = await response.json();
-            if (result.status === 'success') {
-                alert('อัปเดตข้อมูลสินค้าสำเร็จ!');
-                window.location.href = `/product-details/${productId}`; // กลับไปหน้าโชว์รายละเอียด
-            } else {
-                alert(`เกิดข้อผิดพลาด: ${result.message}`);
-            }
-        } catch (error) {
-            alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
-        } finally {
-            btnSave.innerHTML = '✎ บันทึกรายละเอียดสินค้า';
-            btnSave.disabled = false;
+                        const result = await response.json();
+                        if (result.status === 'success') {
+                            Swal.fire({
+                                title: "สำเร็จ!",
+                                text: result.message,
+                                icon: "success",
+                                confirmButtonText: "ตกลง"
+                            }).then(async (Result) => {
+                                if (Result.isConfirmed) {
+                                    window.location.href = `/product-details/${productId}`; // กลับไปหน้าโชว์รายละเอียด
+                                }
+                            });
+                        } else {
+                            alert(`เกิดข้อผิดพลาด: ${result.message}`);
+                        }
+                    } catch (error) {
+                        alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
+                    } finally {
+                        btnSave.innerHTML = '✎ บันทึกรายละเอียดสินค้า';
+                        btnSave.disabled = false;
+                    }
+                }
+            })
+        } else {
+            return;
         }
     });
 });
