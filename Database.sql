@@ -78,6 +78,7 @@ CREATE TABLE IF NOT EXISTS "Inventory_Transactions" (
 CREATE TABLE IF NOT EXISTS "System_Logs" (
     "log_id" INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
     "user_id" INTEGER,
+    "warehouse_id" INTEGER,
     "action" VARCHAR NOT NULL,
     "description" TEXT NOT NULL,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
