@@ -56,10 +56,11 @@
                     <table>
                         <thead>
                             <tr>
+                                <th>รหัสสินค้า</th>
                                 <th>ชื่อสินค้า</th>
-                                <th>ชนิดของสินค้า</th>
+                                <th>ชนิดสินค้า</th>
+                                <th>ตำแหน่งของสินค้า</th>
                                 <th>จำนวน</th>
-                                <th>สถานะ</th>
                             </tr>
                         </thead>
                         <tbody id="table-body">
@@ -79,14 +80,13 @@
                     <div class="panel">
                         <h2 class="panel-title">สัดส่วนมูลค่าสินค้า (บาท)</h2>
                         <div style="height: 250px; position: relative; width: 100%;">
-                            <canvas id="valueChart"></canvas>
+                            <canvas style="font-family: kanit;" id="valueChart"></canvas>
                         </div>
                     </div>
 
                     <div class="panel">
                         <h2 class="panel-title">กิจกรรมล่าสุด</h2>
-                        <ul class="activity-list" id="activity-list">
-                            </ul>
+                        <ul class="activity-list" id="activity-list"></ul>
                     </div>
                 </div>
             </div>
