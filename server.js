@@ -650,7 +650,17 @@ app.post('/api/v1/transactions', async (req, res) => {
                 if (this.changes === 0) {
                     db.run(`INSERT INTO Stock_Balances (product_id, location_id, quantity) VALUES (?, ?, ?)`, [product_id, locationId, quantity]);
                 }
-                res.status(201).json({ status: "success", message: "บันทึกสำเร็จ" });
+
+                const logDescription = `$ปรับปรุงสต๊อกสินค้า ID:${product_id} สถานะ: ${product_status} จำนวน ${quantity} ชิ้น ที่ ${location_name}`;
+                db.run(`INSERT INTO System_Logs (user_id, warehouse_id, action, description) VALUES (?, ?, ?, ?)`,
+                    [user_id, currentWarehouseId, transaction_type, logDescription], 
+                    (logErr) => {
+                        if (logErr) {
+                            console.error("บันทึก System_Logs ไม่สำเร็จ:", logErr.message);
+                        }
+                        res.status(201).json({ status: "success", message: "บันทึกสำเร็จ" });
+                    }
+                );
             });
         });
     } catch (error) {
