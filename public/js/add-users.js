@@ -10,7 +10,20 @@ userForm.addEventListener('submit', async function(event) {
     const email = document.getElementById('email').value;
     const phone_number = document.getElementById('phone_number').value;
     //const role = document.getElementById('role').value;
-    const role = document.querySelector('input[name="role"]:checked').value;
+    const roleElement = document.querySelector('input[name="role"]:checked');
+
+    if (!username || !password || !firstname || !lastname || !email || !phone_number || !roleElement) {
+        Swal.fire({
+            title: 'แจ้งเตือน',
+            text: 'กรุณากรอกข้อมูลและเลือกสิทธิ์ผู้ใช้งานให้ครบถ้วน',
+            icon: 'warning',
+            confirmButtonText: 'ตกลง',
+            confirmButtonColor: '#E67E22'
+        });
+        return;
+    }
+    const role = roleElement.value;
+
     try {
         const response = await fetch('/api/v1/users',{
             method: 'POST',
