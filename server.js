@@ -936,7 +936,7 @@ app.get('/api/v1/all-order', (req, res) => {
 app.get('/api/v1/dashboard-summary', (req, res) => {
     const currentWarehouseId = req.session.warehouseId;
     // pull status to add at top of dashboard (4 card) totalStock, lowStock,addThisMonth, exportThisMonth
-    const cardTop = `select (select sum(quantity) from Stock_Balances sb join Locations l on sb.location_id = l.location_id where l.warehouse_id = ?) as TotalStock, 
+    const cardTop = `select ifnull((select sum(quantity) from Stock_Balances sb join Locations l on sb.location_id = l.location_id where l.warehouse_id = ?),0) as TotalStock, 
                     (select count(*) from Stock_Balances sb join Locations l on sb.location_id = l.location_id where quantity <= 20 and l.warehouse_id = ?) as LowStock,
                     ifnull((select sum(quantity) from Inventory_Transactions it join Locations l on it.location_id = l.location_id 
                         where transaction_type = 'นำเข้าสินค้า' and l.warehouse_id = ?
