@@ -346,22 +346,23 @@ app.get('/api/v1/products', (req, res) => {
     const { search, category, status } = req.query;
     const currentWarehouseId = req.session.warehouseId;
 
+    if (!currentWarehouseId) {
+        return res.status(400).json({ status: "error", message: "ไม่พบข้อมูลคลังสินค้าปัจจุบัน" });
+    }
+
     let params = [currentWarehouseId];
 
     // 2. ใช้ JOIN เพื่อดึงชื่อหมวดหมู่ (c.category_name) และคำนวณสต็อกรวม (total_stock)
     let sql = `
         SELECT 
-            p.*, 
+            p.*,
             c.category_name,
-            (
-                SELECT IFNULL(SUM(sb.quantity), 0)
-                FROM Stock_Balances sb
-                JOIN Locations l ON sb.location_id = l.location_id
-                WHERE sb.product_id = p.product_id AND l.warehouse_id = ?
-            ) AS total_stock
+            IFNULL(SUM(sb.quantity), 0) AS total_stock
         FROM Products p
         LEFT JOIN Categories c ON p.category_id = c.category_id
-        WHERE 1=1
+        JOIN Stock_Balances sb ON p.product_id = sb.product_id
+        JOIN Locations l ON sb.location_id = l.location_id
+        WHERE l.warehouse_id = ?
     `;
 
     // 3. กรองตามชื่อสินค้า
