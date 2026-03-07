@@ -59,6 +59,30 @@ document.addEventListener('DOMContentLoaded', async () => {
     }
 
     // ปุ่มยกเลิก
+    document.getElementById('btnCancel').addEventListener('click', () => {
+        if (confirm('ยืนยันการยกเลิกการแก้ไข? ข้อมูลจะไม่ถูกบันทึก')) {
+            window.location.href = `/product-details/${productId}`;
+        }
+    });
+
+    // ปุ่มลบ
+    document.getElementById('btnDelete').addEventListener('click', async () => {
+        if (confirm('ยืนยันการลบรายการนี้? ข้อมูลจะถูกลบถาวร')) {
+            try {
+                const oldG = parseInt(goodInput.dataset.old) || 0;
+                const oldD = parseInt(damagedInput.dataset.old) || 0;
+
+                //
+                if (oldG > 0) await sendTrans('ปกติ', oldG, 'เบิกจ่าย', initialLocationName);
+                if (oldD > 0) await sendTrans('เสียหาย', oldD, 'เบิกจ่าย', initialLocationName);
+                
+                alert('ลบรายการสำเร็จ!');
+                window.location.href = `/product-details/${productId}`;
+            } catch (e) { alert('เกิดข้อผิดพลาด'); }
+        }
+    });
+
+    // ปุ่มบันทึก
     document.getElementById('btnSave').addEventListener('click', async () => {
         const newLocationName = locationInput.value.trim();
         const newGood = parseInt(goodInput.value) || 0;
