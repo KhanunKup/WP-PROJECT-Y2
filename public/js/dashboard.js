@@ -44,7 +44,7 @@ async function fetchLogsAndOrders(){
             const activityUl = document.getElementById('activity-list');
             dataArray.activity.forEach((item) => {
                 const li = `
-                <li><span style="color: #7d7d7d">${item.date} - </span> ${item.description}</li>
+                <li><span style="color: #7d7d7d">${item.date} - </span> ${item.username} ${item.description}</li>
                 `
                 activityUl.insertAdjacentHTML('beforeend', li);
             });

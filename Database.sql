@@ -83,5 +83,7 @@ CREATE TABLE IF NOT EXISTS "System_Logs" (
     "description" TEXT NOT NULL,
     "created_at" DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY ("user_id") REFERENCES "Users"("user_id") 
+    ON UPDATE NO ACTION ON DELETE NO ACTION,
+    FOREIGN KEY("warehouse_id") REFERENCES "Warehouses"("warehouse_id") 
     ON UPDATE NO ACTION ON DELETE NO ACTION
 );
