@@ -35,7 +35,7 @@ document.addEventListener('DOMContentLoaded', async () => {
                         <td>${item.area}</td>
                         <td><span class="status-pill ${badgeClass}">${statusName}</span></td>
                         <td><span class="qty-text">${item.quantity} ชิ้น</span></td>
-                        <td><a href="/edit-item/${productId}/${item.location_id}" class="edit-link">📝 แก้ไขจำนวนสินค้า</a></td>
+                        <td><a href="/edit-item/${productId}/${item.location_id}" class="edit-link">📝 แก้ไขที่อยู่เเละจำนวนสินค้า</a></td>
                     </tr>
                 `;
                 tableBody.insertAdjacentHTML('beforeend', row);

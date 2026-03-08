@@ -1,6 +1,6 @@
 const userForm = document.getElementById('add-users-form');
 
-userForm.addEventListener('submit', async function(event) {
+userForm.addEventListener('submit', async function (event) {
     event.preventDefault();
 
     const username = document.getElementById('username').value;
@@ -24,24 +24,47 @@ userForm.addEventListener('submit', async function(event) {
     }
     const role = roleElement.value;
 
-    try {
-        const response = await fetch('/api/v1/users',{
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json' // บอก Server ว่าส่งข้อมูลเป็น JSON นะ
-            },
-            body: JSON.stringify({ username: username, password: password, firstname: firstname, lastname: lastname, email: email, phone_number: phone_number, role: role}) // แปลงข้อมูลเป็น JSON String
-        });
+    Swal.fire({
+        title: 'ยืนยันการบันทึก',
+        text: `คุณต้องการที่จะบันทึกข้อมูลผู้ใช้งานหรือไม่?`,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#09a00e',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'บันทึก',
+        cancelButtonText: 'ยกเลิก'
+    }).then(async (Result) => {
+        if (Result.isConfirmed) {
+            try {
+                const response = await fetch('/api/v1/users', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json' // บอก Server ว่าส่งข้อมูลเป็น JSON นะ
+                    },
+                    body: JSON.stringify({ username: username, password: password, firstname: firstname, lastname: lastname, email: email, phone_number: phone_number, role: role }) // แปลงข้อมูลเป็น JSON String
+                });
 
-        const result = await response.json();
-        if(response.ok && result.status === 'success'){
-            alert(result.message);
-            window.location.href = '/users';
-        }else{
-            alert(result.message);
+                const result = await response.json();
+                if (response.ok && result.status === 'success') {
+                    Swal.fire({
+                        title: "สำเร็จ!",
+                        text: result.message,
+                        icon: "success",
+                        confirmButtonText: "ตกลง"
+                    }).then(() => {
+                        window.location.href = '/users';
+                    });
+                } else {
+                    Swal.fire({
+                        icon: "error",
+                        title: "เกิดข้อผิดพลาด!",
+                        text: result.message,
+                    })
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+            }
         }
-
-    } catch (error) {
-        console.error('Error:', error);
-    }
+    })
 })

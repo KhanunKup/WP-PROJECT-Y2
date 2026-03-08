@@ -50,7 +50,7 @@ const isAuth = (req, res, next) => {
 }
 
 const isAdmin = (req, res, next) => {
-    if (req.session.userId && req.session.role_id == 1 || req.session.role == 2) {
+    if (req.session.userId && (req.session.role_id == 1 || req.session.role_id == 2)) {
         next();
     } else {
         return res.redirect('/dashboard');
@@ -265,7 +265,7 @@ app.post('/api/v1/auth/login', (req, res) => {
                     }
                 });
             }else{
-                db.run (insert, [row.user_id,'เข้าสู่ระบบ','เข้าสู่ระบบไม่สำเร็จ'],(err) => {
+                db.run (insert, [row.user_id,'เข้าสู่ระบบ','เข้าสู่ระบบไม่สำเร็จ (รหัสผ่านไม่ถูกต้อง)'],(err) => {
                     if (err) {
                         console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);
                     }
@@ -277,7 +277,7 @@ app.post('/api/v1/auth/login', (req, res) => {
                 });
             }
         } else {
-            db.run (insert, [row.user_id,'เข้าสู่ระบบ','เข้าสู่ระบบไม่สำเร็จ'],(err) => {
+            db.run (insert, [null,'เข้าสู่ระบบ',`เข้าสู่ระบบไม่สำเร็จ ไม่พบไม่พบชื่อผู้ใช้: ${username}`],(err) => {
                 if (err) {
                     console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);
                 }
@@ -651,7 +651,17 @@ app.post('/api/v1/transactions', async (req, res) => {
                 if (this.changes === 0) {
                     db.run(`INSERT INTO Stock_Balances (product_id, location_id, quantity) VALUES (?, ?, ?)`, [product_id, locationId, adjustQty]);
                 }
-                res.status(201).json({ status: "success", message: "บันทึกสำเร็จ" });
+
+                const logDescription = `$ปรับปรุงสต๊อกสินค้า ID:${product_id} สถานะ: ${product_status} จำนวน ${quantity} ชิ้น ที่ ${location_name}`;
+                db.run(`INSERT INTO System_Logs (user_id, warehouse_id, action, description) VALUES (?, ?, ?, ?)`,
+                    [user_id, currentWarehouseId, transaction_type, logDescription], 
+                    (logErr) => {
+                        if (logErr) {
+                            console.error("บันทึก System_Logs ไม่สำเร็จ:", logErr.message);
+                        }
+                        res.status(201).json({ status: "success", message: "บันทึกสำเร็จ" });
+                    }
+                );
             });
         });
     } catch (error) {
@@ -789,7 +799,7 @@ app.post('/api/v1/users', async function (req, res) {
             if (err.message.includes("UNIQUE")) {
                 return res.status(409).json({
                     "status": "error",
-                    "message": "ชื่อผู้ใช้งานนี้มีอยู่ในระบบแล้ว",
+                    "message": "ชื่อผู้ใช้งานหรืออีเมลนี้มีอยู่ในระบบแล้ว",
                     "data": null
                 })
             } else if (err.message.includes("NOT NULL")) {
@@ -799,10 +809,15 @@ app.post('/api/v1/users', async function (req, res) {
                     "data": null
                 })
             }
+            return res.status(500).json({
+                "status": "error",
+                "message": "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                "data": null
+            });
         }
         return res.status(201).json({
             "status": "success",
-            "message": "เพิ่มข้อมูลพนักงานใหม่สำเร็จ",
+            "message": "เพิ่มข้อมูลผู้ใช้ใหม่สำเร็จ",
             "data": {
                 "user_id": this.lastID,
                 "username": username,
@@ -828,7 +843,7 @@ app.delete('/api/v1/users/:id', function (req, res) {
         }
         return res.status(200).json({
             "status": "success",
-            "message": "ลบข้อมูลพนักงานสำเร็จ",
+            "message": "ลบข้อมูลผู้ใช้สำเร็จ",
             "data": rows
         })
     })
@@ -861,8 +876,8 @@ app.get('/api/v1/editUser', function (req, res) {
 app.post('/api/v1/updateUser', async function (req, res) {
     const { username, password, firstname, lastname, email, phone_number, role } = req.body;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const sql = `UPDATE Users SET username = ?, password = ?, firstname = ?, lastname = ?, email = ?, phone_number = ?, role_id = ? WHERE user_id = ${req.session.edit_id}`
-    db.run(sql, [username, hashedPassword, firstname, lastname, email, phone_number, role], function (err) {
+    const sql = `UPDATE Users SET username = ?, password = ?, firstname = ?, lastname = ?, email = ?, phone_number = ?, role_id = ? WHERE user_id = ?`
+    db.run(sql, [username, hashedPassword, firstname, lastname, email, phone_number, role, req.session.edit_id], function (err) {
         if (err) {
             if (err.message.includes("NOT NULL")) {
                 return res.status(400).json({
@@ -874,7 +889,7 @@ app.post('/api/v1/updateUser', async function (req, res) {
         }
         return res.status(201).json({
             "status": "success",
-            "message": "เเก้ไขข้อมูลพนักงานสำเร็จ",
+            "message": "เเก้ไขข้อมูลผู้ใช้สำเร็จ",
             "data": {
                 "user_id": this.lastID,
                 "username": username,
@@ -936,7 +951,7 @@ app.get('/api/v1/all-order', (req, res) => {
 app.get('/api/v1/dashboard-summary', (req, res) => {
     const currentWarehouseId = req.session.warehouseId;
     // pull status to add at top of dashboard (4 card) totalStock, lowStock,addThisMonth, exportThisMonth
-    const cardTop = `select (select sum(quantity) from Stock_Balances sb join Locations l on sb.location_id = l.location_id where l.warehouse_id = ?) as TotalStock, 
+    const cardTop = `select ifnull((select sum(quantity) from Stock_Balances sb join Locations l on sb.location_id = l.location_id where l.warehouse_id = ?),0) as TotalStock, 
                     (select count(*) from Stock_Balances sb join Locations l on sb.location_id = l.location_id where quantity <= 20 and l.warehouse_id = ?) as LowStock,
                     ifnull((select sum(quantity) from Inventory_Transactions it join Locations l on it.location_id = l.location_id 
                         where transaction_type = 'นำเข้าสินค้า' and l.warehouse_id = ?

@@ -9,7 +9,7 @@ userForm.addEventListener('submit', function (event) {
     Swal.fire({
         title: "คุณเเน่ใจที่จะเพิ่มคลังสินค้า?",
         text: "คลังสินค้าจะถูกเพิ่มลงในระบบ",
-        icon: "info",
+        icon: "warning",
         showCancelButton: true,
         confirmButtonColor: "#09a00e",
         cancelButtonColor: "#d33",
@@ -32,7 +32,7 @@ userForm.addEventListener('submit', function (event) {
                 if (response.ok && resData.status === 'success') {
                     Swal.fire({
                         title: "เพิ่มคลังสินค้าสำเร็จ!",
-                        text: "คลังสินค้าถูกเพิ่มในระบบเรียบร้อย.",
+                        text: "คลังสินค้าถูกเพิ่มในระบบเรียบร้อย",
                         icon: "success",
                         confirmButtonText: "ตกลง"
                     }).then(() => {

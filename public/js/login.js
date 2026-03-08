@@ -3,7 +3,7 @@ const loginForm = document.getElementById('loginForm');
 const errorMessage = document.getElementById('errorMessage');
 
 // ดักจับเหตุการณ์เมื่อผู้ใช้กดปุ่ม "เข้าสู่ระบบ" (Submit)
-loginForm.addEventListener('submit', async function(event) {
+loginForm.addEventListener('submit', async function (event) {
     // 1. หยุดการทำงานปกติของฟอร์ม (ป้องกันไม่ให้หน้าเว็บรีเฟรช)
     event.preventDefault();
 
@@ -27,13 +27,21 @@ loginForm.addEventListener('submit', async function(event) {
         // 5. เช็ค status ว่าสำเร็จ หรือ มี Error
         if (response.ok && result.status === 'success') {
             // ถ้ายิง API สำเร็จ (200 OK)
-            alert(result.message); // แจ้งเตือน: "เข้าสู่ระบบสำเร็จ"
-            
+            Swal.fire({
+                title: "เข้าสู่ระบบสำเร็จ!",
+                icon: "success"
+            }).then(() => {
+                window.location.href = '/warehouses';
+            });
+
             // เปลี่ยนหน้าเว็บไปที่หน้า Dashboard (ตารางสินค้า)
-            window.location.href = '/warehouses'; 
         } else {
             // ถ้ามี Error (เช่น 400, 401)
-            alert(result.message); // เอากล่อง Error มาโชว์
+            Swal.fire({
+                icon: "error",
+                title: "เกิดข้อผิดพลาด!",
+                text: result.message,
+            })
         }
 
     } catch (error) {
