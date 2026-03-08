@@ -136,11 +136,11 @@ document.addEventListener('DOMContentLoaded', async () => {
                     //ถ้าย้ายที่เก็บ จะต้องบันทึกการเคลื่อนไหวทั้งที่เก่าและที่ใหม่
                     if (newLocationName !== initialLocationName) {
                         // หักที่เก่าออกให้หมด
-                        if (oldGood > 0) await sendTrans('ปกติ', Math.abs(oldGood), 'เบิกจ่ายสินค้า', initialLocationName);
-                        if (oldDamaged > 0) await sendTrans('เสียหาย', Math.abs(oldDamaged), 'เบิกจ่ายสินค้า', initialLocationName);
+                        if (oldGood > 0) await sendTrans('ปกติ', Math.abs(oldGood), 'เคลื่อนย้ายสินค้าออก', initialLocationName);
+                        if (oldDamaged > 0) await sendTrans('เสียหาย', Math.abs(oldDamaged), 'เคลื่อนย้ายสินค้าออก', initialLocationName);
                         // เพิ่มเข้าที่ใหม่ตามจำนวนที่กรอกมา
-                        if (newGood > 0) await sendTrans('ปกติ', Math.abs(newGood), 'นำเข้าสินค้า', newLocationName);
-                        if (newDamaged > 0) await sendTrans('เสียหาย', Math.abs(newDamaged), 'นำเข้าสินค้า', newLocationName);
+                        if (newGood > 0) await sendTrans('ปกติ', Math.abs(newGood), 'เคลื่อนย้ายสินค้าเข้า', newLocationName);
+                        if (newDamaged > 0) await sendTrans('เสียหาย', Math.abs(newDamaged), 'เคลื่อนย้ายสินค้าเข้า', newLocationName);
                     } 
                     //ถ้าไม่ย้ายที่ ก็แค่บันทึกความเปลี่ยนแปลงของจำนวนในที่เดิม
                     else {

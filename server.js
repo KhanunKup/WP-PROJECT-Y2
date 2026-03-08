@@ -421,14 +421,14 @@ app.get('/api/v1/product-details/:id', (req, res) => {
             it.product_status,
             l.location_id,
             -- คำนวณยอดรวม: ถ้าเป็น 'นำเข้าสินค้า' ให้บวกยอด ถ้าเป็นอย่างอื่น (เช่น เบิกออก) ให้ลบยอด
-            SUM(CASE WHEN it.transaction_type = 'นำเข้าสินค้า' THEN it.quantity ELSE -it.quantity END) AS quantity
+            SUM(CASE WHEN it.transaction_type in ('นำเข้าสินค้า','เคลื่อนย้ายสินค้าเข้า') THEN it.quantity ELSE -it.quantity END) AS quantity
         FROM Inventory_Transactions it
         JOIN Products p ON it.product_id = p.product_id
         JOIN Locations l ON it.location_id = l.location_id
         WHERE it.product_id = ? AND l.warehouse_id = ?
         GROUP BY p.product_code, l.area, it.product_status
         -- กรองเอาเฉพาะกลุ่มที่คำนวณแล้วยังมียอดคงเหลือมากกว่า 0
-        HAVING quantity > 0;
+        HAVING SUM(CASE WHEN it.transaction_type in ('นำเข้าสินค้า','เคลื่อนย้ายสินค้าเข้า') THEN it.quantity ELSE -it.quantity END) > 0;
     `;
 
     // 1. สั่งรันคำสั่งแรก (ดึงข้อมูลหลัก)
@@ -595,11 +595,11 @@ app.get('/api/v1/stocks/:productId/:locationId', (req, res) => {
             p.product_id, p.product_code, p.name, p.selling_price, p.image_url, 
             c.category_name,
             l.area AS location_name,
-            (SELECT SUM(CASE WHEN transaction_type = 'นำเข้าสินค้า' THEN quantity ELSE -quantity END) 
+            (SELECT SUM(CASE WHEN transaction_type in ('นำเข้าสินค้า','เคลื่อนย้ายสินค้าเข้า') THEN quantity ELSE -quantity END) 
              FROM Inventory_Transactions 
              WHERE product_id = p.product_id AND location_id = l.location_id 
              AND product_status = 'ปกติ') AS good_qty,
-            (SELECT SUM(CASE WHEN transaction_type = 'นำเข้าสินค้า' THEN quantity ELSE -quantity END) 
+            (SELECT SUM(CASE WHEN transaction_type in ('นำเข้าสินค้า','เคลื่อนย้ายสินค้าเข้า') THEN quantity ELSE -quantity END) 
              FROM Inventory_Transactions 
              WHERE product_id = p.product_id AND location_id = l.location_id 
              AND product_status = 'เสียหาย') AS damaged_qty
@@ -644,12 +644,12 @@ app.post('/api/v1/transactions', async (req, res) => {
         db.run(sqlInsertTrans, [product_id, locationId, quantity, product_status, transaction_type, user_id], function(err) {
             if (err) throw err;
             
-            const adjustQty = transaction_type === 'เบิกจ่าย' ? -quantity : quantity;
+            const adjustQty = transaction_type === 'เบิกจ่ายสินค้า' || transaction_type === 'เคลื่อนย้ายสินค้าออก' ? -quantity : quantity;
 
             const sqlUpdateStock = `UPDATE Stock_Balances SET quantity = quantity + ? WHERE product_id = ? AND location_id = ?`;
             db.run(sqlUpdateStock, [adjustQty, product_id, locationId], function(err2) {
                 if (this.changes === 0) {
-                    db.run(`INSERT INTO Stock_Balances (product_id, location_id, quantity) VALUES (?, ?, ?)`, [product_id, locationId, quantity]);
+                    db.run(`INSERT INTO Stock_Balances (product_id, location_id, quantity) VALUES (?, ?, ?)`, [product_id, locationId, adjustQty]);
                 }
 
                 const logDescription = `$ปรับปรุงสต๊อกสินค้า ID:${product_id} สถานะ: ${product_status} จำนวน ${quantity} ชิ้น ที่ ${location_name}`;
@@ -990,7 +990,14 @@ app.get('/api/v1/dashboard-summary', (req, res) => {
                                     on p.category_id = c.category_id
                                     left join Locations l
                                     on l.location_id = sb.location_id
-                                    where sb.quantity <= 20 and l.warehouse_id = ?
+                                    where sb.quantity <= 20 and l.warehouse_id = ? and (
+                      sb.quantity > 0 
+                      or (sb.quantity = 0 and (
+                          select transaction_type from Inventory_Transactions it 
+                          where it.product_id = sb.product_id and it.location_id = sb.location_id 
+                          order by transaction_id desc limit 1
+                      ) not in ('เคลื่อนย้ายสินค้าเข้า', 'เคลื่อนย้ายสินค้าออก'))
+                  )
                                     order by p.product_id;`
             db.all(lowStockProduct,[currentWarehouseId],(err,products)=>{
                 if (err) {
