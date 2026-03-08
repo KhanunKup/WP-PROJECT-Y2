@@ -9,6 +9,28 @@ const uploadBox = document.querySelector('.image-upload-box');
 const uploadBtn = document.querySelector('.btn-upload');
 const imageInput = document.getElementById('imageInput');
 
+const preventNegativeInput = (e) => {
+    if (e.key === '-' || e.key === 'e') {
+        e.preventDefault();
+    }
+};
+
+// ดักจับการกดคีย์บอร์ด
+if (costInput) costInput.addEventListener('keydown', preventNegativeInput);
+if (priceInput) priceInput.addEventListener('keydown', preventNegativeInput);
+
+// ดักจับการก็อปปี้เลขติดลบมาวาง
+if (costInput) {
+    costInput.addEventListener('input', function() {
+        if (this.value < 0) this.value = 0;
+    });
+}
+if (priceInput) {
+    priceInput.addEventListener('input', function() {
+        if (this.value < 0) this.value = 0;
+    });
+}
+
 // โหลดข้อมูลสินค้าทั้งหมดมาแสดงใน Dropdown
 async function loadProductsDropdown() {
     try {
@@ -141,9 +163,11 @@ if (btnSave) {
         const categoryId = categorySelect.value;
         const cost = costInput ? parseFloat(costInput.value) : 0;
         const price = priceInput ? parseFloat(priceInput.value) : 0;
-        const location = document.querySelector('textarea.input-area').value.trim();
+        
+        // ดึงค่าที่เป็น Text ยาวๆ ของ Location จาก input
+        const location = document.getElementById('inputLocation').value.trim();
 
-        // Validation
+        // Validation ตรวจสอบข้อมูล
         if (!name) {
             Swal.fire({
                 title: 'แจ้งเตือน',
@@ -152,6 +176,7 @@ if (btnSave) {
                 confirmButtonText: 'ตกลง',
                 confirmButtonColor: '#E67E22'
             });
+            return;
         }
         else if (!categoryId) {
             Swal.fire({
@@ -161,75 +186,74 @@ if (btnSave) {
                 confirmButtonText: 'ตกลง',
                 confirmButtonColor: '#E67E22'
             });
+            return;
         }
         else if (!location) {
             Swal.fire({
                 title: 'แจ้งเตือน',
-                text: 'กรุณากรอกที่จัดเก็บสินค้า',
+                text: 'กรุณาระบุที่อยู่จัดเก็บ (โซน, แถว, ชั้นวาง, ชั้น) ให้ครบถ้วน',
                 icon: 'warning',
                 confirmButtonText: 'ตกลง',
                 confirmButtonColor: '#E67E22'
             });
+            return;
         }
 
         const formData = new FormData();
-        if (selectedMode === 'new') {
+        if (selectedMode === 'new' && imageInput.files[0]) {
             formData.append('image', imageInput.files[0]);
         }
         formData.append('mode', selectedMode);
         formData.append('name', name);
-        formData.append('category_id', categoryId); // ส่งแค่ category_id ไปให้ Server
+        formData.append('category_id', categoryId); 
         formData.append('cost', cost);
         formData.append('price', price);
         formData.append('condition', document.querySelector('.btn-condition.active').value);
+        
+        // ส่งค่าที่เป็น Text ยาวๆ ของ Location ไปด้วยใน FormData เพื่อส่งไปที่ Server ผ่าน API
         formData.append('location', location);
 
-        if ((name && categoryId) && location) {
-            Swal.fire({
-                title: 'ยืนยันการบันทึก',
-                text: `คุณต้องการที่จะบันทึกรายละเอียดเพื่อเพิ่มสินค้าใช่หรือไม่?`,
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonColor: '#09a00e',
-                cancelButtonColor: '#d33',
-                confirmButtonText: 'บันทึกสินค้า',
-                cancelButtonText: 'ยกเลิก'
-            }).then(async (Result) => {
-                if (Result.isConfirmed) {
-                    try {
-                        btnSave.innerHTML = '⏳ กำลังบันทึก...';
-                        btnSave.disabled = true;
+        Swal.fire({
+            title: 'ยืนยันการบันทึก',
+            text: `คุณต้องการที่จะบันทึกรายละเอียดเพื่อเพิ่มสินค้าใช่หรือไม่?`,
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#09a00e',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'บันทึกสินค้า',
+            cancelButtonText: 'ยกเลิก'
+        }).then(async (Result) => {
+            if (Result.isConfirmed) {
+                try {
+                    btnSave.innerHTML = '⏳ กำลังบันทึก...';
+                    btnSave.disabled = true;
 
-                        const response = await fetch('/api/v1/products', {
-                            method: 'POST',
-                            body: formData
+                    const response = await fetch('/api/v1/products', {
+                        method: 'POST',
+                        body: formData
+                    });
+
+                    const result = await response.json();
+                    if (result.status === 'success') {
+                        Swal.fire({
+                            title: "สำเร็จ!",
+                            text: result.message,
+                            icon: "success",
+                            confirmButtonText: "ตกลง"
+                        }).then(() => {
+                            window.location.reload(); 
                         });
-
-                        const result = await response.json();
-                        if (result.status === 'success') {
-                            Swal.fire({
-                                title: "สำเร็จ!",
-                                text: result.message,
-                                icon: "success",
-                                confirmButtonText: "ตกลง"
-                            }).then(() => {
-                                window.location.reload(); // รีเฟรชหน้าเพื่อล้างข้อมูล
-                            });
-                        } else {
-                            alert(`เกิดข้อผิดพลาด: ${result.message}`);
-                        }
-                    } catch (error) {
-                        alert('ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้');
-                    } finally {
-                        btnSave.innerHTML = 'บันทึกสินค้า';
-                        btnSave.disabled = false;
+                    } else {
+                        Swal.fire('เกิดข้อผิดพลาด', result.message, 'error');
                     }
+                } catch (error) {
+                    Swal.fire('ข้อผิดพลาด', 'ไม่สามารถเชื่อมต่อเซิร์ฟเวอร์ได้', 'error');
+                } finally {
+                    btnSave.innerHTML = '✎ บันทึกสินค้า';
+                    btnSave.disabled = false;
                 }
-            })
-
-        } else {
-            return
-        }
+            }
+        });
     });
 }
 
