@@ -50,7 +50,7 @@ const isAuth = (req, res, next) => {
 }
 
 const isAdmin = (req, res, next) => {
-    if (req.session.userId && req.session.role_id == 1 || req.session.role_id == 2) {
+    if (req.session.userId && (req.session.role_id == 1 || req.session.role_id == 2)) {
         next();
     } else {
         return res.redirect('/dashboard');
@@ -265,7 +265,7 @@ app.post('/api/v1/auth/login', (req, res) => {
                     }
                 });
             }else{
-                db.run (insert, [row.user_id,'เข้าสู่ระบบ','เข้าสู่ระบบไม่สำเร็จ'],(err) => {
+                db.run (insert, [row.user_id,'เข้าสู่ระบบ','เข้าสู่ระบบไม่สำเร็จ (รหัสผ่านไม่ถูกต้อง)'],(err) => {
                     if (err) {
                         console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);
                     }
@@ -277,7 +277,7 @@ app.post('/api/v1/auth/login', (req, res) => {
                 });
             }
         } else {
-            db.run (insert, [row.user_id,'เข้าสู่ระบบ','เข้าสู่ระบบไม่สำเร็จ'],(err) => {
+            db.run (insert, [null,'เข้าสู่ระบบ',`เข้าสู่ระบบไม่สำเร็จ ไม่พบไม่พบชื่อผู้ใช้: ${username}`],(err) => {
                 if (err) {
                     console.error("บันทึก Log เข้าสู่ระบบไม่สำเร็จ:", err.message);
                 }
@@ -809,6 +809,11 @@ app.post('/api/v1/users', async function (req, res) {
                     "data": null
                 })
             }
+            return res.status(500).json({
+                "status": "error",
+                "message": "เกิดข้อผิดพลาดในการบันทึกข้อมูล",
+                "data": null
+            });
         }
         return res.status(201).json({
             "status": "success",
@@ -871,8 +876,8 @@ app.get('/api/v1/editUser', function (req, res) {
 app.post('/api/v1/updateUser', async function (req, res) {
     const { username, password, firstname, lastname, email, phone_number, role } = req.body;
     const hashedPassword = await bcrypt.hash(password, saltRounds);
-    const sql = `UPDATE Users SET username = ?, password = ?, firstname = ?, lastname = ?, email = ?, phone_number = ?, role_id = ? WHERE user_id = ${req.session.edit_id}`
-    db.run(sql, [username, hashedPassword, firstname, lastname, email, phone_number, role], function (err) {
+    const sql = `UPDATE Users SET username = ?, password = ?, firstname = ?, lastname = ?, email = ?, phone_number = ?, role_id = ? WHERE user_id = ?`
+    db.run(sql, [username, hashedPassword, firstname, lastname, email, phone_number, role, req.session.edit_id], function (err) {
         if (err) {
             if (err.message.includes("NOT NULL")) {
                 return res.status(400).json({
