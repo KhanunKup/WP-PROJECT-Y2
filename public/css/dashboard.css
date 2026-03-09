@@ -133,6 +133,23 @@ td {
     font-weight: 600;
     border-bottom: 1px solid #edf2f7;
 }
+/* wrap lowStock talble if it too long */
+.table-wrapper {
+    max-height: 800px;
+    overflow-y: auto;
+    overflow-x: auto;
+    border-radius: 8px;
+}
+.panel th {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    background-color: #D9D9D9;
+}
+.table-wrapper::-webkit-scrollbar {
+    width: 8px;
+    height: 8px;
+}
 /* graph & last activity */
 .right-column {
     display: flex;
@@ -157,4 +174,33 @@ td {
     font-weight: 500;
     color: #333;
     margin-bottom: 10px;
+}
+@media screen and (max-width: 1024px) {
+    .dashboard-grid {
+        /* make topCard 2 grid */
+        grid-template-columns: repeat(2, 1fr);
+    }
+    .bottom-grid {
+        grid-template-columns: 1fr;
+    }
+}
+/* for mobile */
+@media screen and (max-width: 768px) {
+    body {
+        flex-direction: column;
+    }
+    .info-zone {
+        padding: 20px 15px;
+        height: auto;
+        overflow-y: visible;
+    }
+    .dashboard-grid {
+        grid-template-columns: 1fr;
+    }
+    .info-zone h1 {
+        font-size: 20px;
+    }
+    .card-value {
+        font-size: 28px;
+    }
 }
