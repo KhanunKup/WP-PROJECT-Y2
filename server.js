@@ -922,7 +922,8 @@ app.get('/api/v1/all-order', (req, res) => {
                 where l.warehouse_id = ?
                 
                 union all
-                select datetime(created_at, '+7 hours') as date, us.username, concat(us.firstname,' ',us.lastname) as fullname,  description as detail, action, us.email as email, ro.role_name as role
+                select datetime(created_at, '+7 hours') as date, us.username, concat(us.firstname,' ',us.lastname) as fullname, 
+                description as detail, action, us.email as email, ro.role_name as role
                 from System_Logs as sl
                 left join Users as us
                 on sl.user_id = us.user_id
