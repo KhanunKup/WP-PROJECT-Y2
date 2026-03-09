@@ -30,6 +30,26 @@ document.addEventListener('DOMContentLoaded', async () => {
     const priceInput = document.getElementById('inputPrice');
     const totalStockInput = document.getElementById('inputTotalStock');
 
+    const preventNegativeInput = (e) => {
+        if (e.key === '-' || e.key === 'e') {
+            e.preventDefault();
+        }
+    };
+
+    if (costInput) costInput.addEventListener('keydown', preventNegativeInput);
+    if (priceInput) priceInput.addEventListener('keydown', preventNegativeInput);
+
+    if (costInput) {
+        costInput.addEventListener('input', function () {
+            if (this.value < 0) this.value = 0;
+        });
+    }
+    if (priceInput) {
+        priceInput.addEventListener('input', function () {
+            if (this.value < 0) this.value = 0;
+        });
+    }
+
     const imageInput = document.getElementById('imageInput');
     const uploadBox = document.getElementById('uploadBox');
     const btnUpload = document.getElementById('btnUpload');
