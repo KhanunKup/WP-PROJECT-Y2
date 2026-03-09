@@ -5,11 +5,11 @@ document.addEventListener('DOMContentLoaded', () => {
     // 2. ใช้ Event Delegation ดักจับการคลิกที่ "ตาราง" 
     // เพื่อหาปุ่ม Delete (ป้องกันปัญหาปุ่มกดไม่ได้เวลาโหลดข้อมูลใหม่)
     const tableBody = document.getElementById('user-table');
-    
+
     tableBody.addEventListener('click', (e) => {
         // ตรวจสอบว่าสิ่งที่คลิกคือปุ่มที่มี class 'delete-btn' ไหม
         const deleteBtn = e.target.closest('.delete-btn');
-        
+
         if (deleteBtn) {
             const userId = deleteBtn.dataset.id;
             const username = deleteBtn.dataset.username; // ดึงชื่อมาโชว์ใน Alert
@@ -33,17 +33,30 @@ async function fetchUsers() {
             document.getElementById('total-admin').innerText = userData.totalAdmin;
 
             const tableBody = document.getElementById('user-table');
-            tableBody.innerHTML = ''; 
-
-            // วนลูปจาก userData.users
+            tableBody.innerHTML = '';
             userData.users.forEach((item, index) => {
+                let roleBgColor = '#E0E0E0';
+                let roleTextColor = '#333333';
+
+                if (item.role_name === 'ผู้ดูเเลระบบ' || item.role_name === 'Admin') {
+                    roleBgColor = '#ffebee';
+                    roleTextColor = '#c62828';
+                } else if (item.role_name === 'ผู้จัดการ' || item.role_name === 'Manager') {
+                    roleBgColor = '#fff3e0';
+                    roleTextColor = '#ef6c00';
+                } else if (item.role_name === 'พนักงาน' || item.role_name === 'Staff') {
+                    roleBgColor = '#e8f5e9';
+                    roleTextColor = '#2e7d32';
+                }
                 const row = `
                     <tr>
                         <td>${index + 1}</td>
                         <td>${item.username}</td>
                         <td>${item.firstname} ${item.lastname}</td>
                         <td>${item.email}</td>
-                        <td>${item.role_name}</td>
+                        <td><span style="background-color: ${roleBgColor}; color: ${roleTextColor}; padding: 6px 16px; border-radius: 50px; font-size: 16px; font-weight: bold; display: inline-block; text-align: center;">
+                                ${item.role_name}
+                            </span></td>
                         <td style="display: flex; padding: 20%; justify-content: right; gap: 20px;">
                             <button class="delete-btn" 
                                     data-id="${item.user_id}" 
@@ -111,9 +124,9 @@ function confirmDelete(userId, username) {
 const searchInput = document.getElementById('searchInput');
 
 if (searchInput) {
-    searchInput.addEventListener('keyup', function() {
-        const filter = this.value.toLowerCase(); 
-        
+    searchInput.addEventListener('keyup', function () {
+        const filter = this.value.toLowerCase();
+
         const rows = document.querySelectorAll('#user-table tr');
 
         rows.forEach(row => {
