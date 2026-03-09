@@ -14,17 +14,25 @@
     font-display: swap;
 }
 
-body {
-    margin: 0;
+* {
+    box-sizing: border-box;
 }
 
-navbar {
+html,
+body {
+    margin: 0;
+    padding: 0;
+    overflow-x: hidden;
+}
+
+.navbar {
     font-family: 'Kanit', sans-serif;
     display: flex;
     align-items: center;
     justify-content: space-between;
     background-color: #ffffff;
-    padding: 10px 40px;
+    width: 100%;
+    padding: 10px 30px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
     height: 70px;
 }
@@ -77,7 +85,7 @@ navbar {
     color: #E67E22;
 }
 
-.nav-text a{
+.nav-text a {
     text-decoration: none;
 }
 
@@ -125,4 +133,84 @@ navbar {
     display: flex;
     align-items: center;
     gap: 30px;
+}
+
+.hamburger {
+    display: none;
+    flex-direction: column;
+    gap: 5px;
+    cursor: pointer;
+}
+
+.hamburger span {
+    width: 25px;
+    height: 3px;
+    background: #1750AC;
+    border-radius: 2px;
+    transition: 0.3s;
+}
+
+@media screen and (max-width: 950px) {
+
+    .hamburger {
+        display: flex;
+    }
+
+    .right-menu {
+        position: absolute;
+        top: 70px;
+        right: -100%;
+        left: auto;
+        flex-direction: column;
+        width: 260px;
+        background: white;
+        padding: 25px;
+        gap: 25px;
+        box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
+        border-radius: 0 0 0 15px;
+        transition: 0.3s;
+        align-items: flex-start;
+    }
+
+    .right-menu.active {
+        right: 0;
+    }
+
+    .nav-text {
+        flex-direction: column;
+        width: 100%;
+        gap: 15px;
+    }
+
+    .nav-text p {
+        font-size: 16px;
+    }
+
+    .user-info {
+        width: 100%;
+        border-top: 1px solid #eee;
+        padding-top: 15px;
+        border-left: none;
+    }
+
+}
+
+@media screen and (max-width: 600px) {
+
+    .navbar {
+        padding: 10px 20px;
+    }
+
+    .logo-img {
+        height: 35px;
+    }
+
+    .logo-text-group h1 {
+        font-size: 18px;
+    }
+
+    .logo-text-group h5 {
+        font-size: 8px;
+    }
+
 }

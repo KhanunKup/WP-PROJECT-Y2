@@ -1,5 +1,5 @@
 <link rel="stylesheet" href="/css/navbar.css">
-<navbar>
+<nav class="navbar">
     <a href="/dashboard" style="text-decoration: none;">
     <div class="logo">
         <img class="logo-img" src="/images/logo-pic.svg">
@@ -9,7 +9,12 @@
         </div>
     </div>
     </a>
-    <div class="right-menu">
+    <div class="hamburger" id="hamburger-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="right-menu" id="right-menu">
         <div class="nav-text">
             <a href="/dashboard">
                 <p id="dashboard">หน้าหลัก</p>
@@ -39,5 +44,15 @@
             </div>
         </div>
     </div>
-</navbar>
+</nav>
+
 <script src="/js/logout.js"></script>
+<script>
+    const hamburger = document.getElementById('hamburger-menu');
+    const rightMenu = document.getElementById('right-menu');
+
+    hamburger.addEventListener('click', () => {
+        rightMenu.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    });
+</script>

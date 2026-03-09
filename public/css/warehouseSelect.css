@@ -132,3 +132,89 @@ a {
 .card:hover {
     transform: scale(1.1);
 }
+
+@media screen and (max-width: 1024px) {
+    .container {
+        grid-template-columns: 40% 40%; 
+        gap: 5%;
+    }
+    
+    .text-left h1 {
+        font-size: 38px !important;
+    }
+
+    .card {
+        top: -5%;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    .logo {
+        flex-direction: column;
+        text-align: center;
+        padding-top: 20px;
+    }
+
+    .easymanage {
+        font-size: 32px !important;
+    }
+
+    .text-select {
+        flex-direction: column;
+        align-items: center;
+        text-align: center;
+        width: 100%;
+        margin-left: 0;
+        gap: 20px;
+        padding-bottom: 25px;
+    }
+
+    .text-left {
+        padding-bottom: 5% !important;
+    }
+
+    .text-left h1 {
+        font-size: 32px !important;
+    }
+
+    .text-left p {
+        font-size: 18px !important;
+        margin-top: 10px !important;
+    }
+
+    .add-btn {
+        flex-direction: column;
+        width: 90%;
+        gap: 15px;
+    }
+
+    .add-btn a {
+        width: 100%;
+    }
+
+    button {
+        width: 100%;
+        font-size: 18px;
+        padding: 12px;
+    }
+
+    .container {
+        grid-template-columns: 85%;
+        gap: 30px;
+        margin-top: 30px;
+    }
+
+    .card {
+        padding-top: 15%;
+        padding-bottom: 15%;
+        top: 0;
+    }
+    
+    .card img {
+        width: 40%;
+    }
+    
+    .card h1 {
+        font-size: 24px;
+    }
+}
