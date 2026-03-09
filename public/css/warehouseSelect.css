@@ -93,6 +93,7 @@ button {
     background-color: white;
     transition: transform .2s;
     cursor: pointer;
+    color: black;
 }
 
 #btnDelete {
