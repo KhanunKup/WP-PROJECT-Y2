@@ -38,7 +38,7 @@ app.use(session({
     secret: 'your-secret-key-for-your-store',
     resave: false,
     saveUninitialized: true,
-    cookie: { maxAge: 10 * 60000 }
+    cookie: { maxAge: 30 * 60 * 1000 }
 }));
 
 const isAuth = (req, res, next) => {
