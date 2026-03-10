@@ -1,34 +1,27 @@
 document.addEventListener('DOMContentLoaded', () => {
-    // 1. โหลดข้อมูลผู้ใช้มาแสดงในตารางทันทีที่เปิดหน้า
     fetchUsers();
 
-    // 2. ใช้ Event Delegation ดักจับการคลิกที่ "ตาราง" 
-    // เพื่อหาปุ่ม Delete (ป้องกันปัญหาปุ่มกดไม่ได้เวลาโหลดข้อมูลใหม่)
     const tableBody = document.getElementById('user-table');
 
     tableBody.addEventListener('click', (e) => {
-        // ตรวจสอบว่าสิ่งที่คลิกคือปุ่มที่มี class 'delete-btn' ไหม
         const deleteBtn = e.target.closest('.delete-btn');
 
         if (deleteBtn) {
             const userId = deleteBtn.dataset.id;
-            const username = deleteBtn.dataset.username; // ดึงชื่อมาโชว์ใน Alert
+            const username = deleteBtn.dataset.username;
             confirmDelete(userId, username);
         }
     });
 });
 
-// --- ฟังก์ชันดึงข้อมูลและสร้างตาราง ---
 async function fetchUsers() {
     try {
         const response = await fetch('/api/v1/users');
         const result = await response.json();
 
-        // ตรวจสอบ status แทนการเช็ค result.users โดยตรง
         if (result.status === 'success') {
-            const userData = result.data; // เข้าถึง object data ก่อน
+            const userData = result.data;
 
-            // อัปเดตตัวเลขจำนวนผู้ใช้/ผู้จัดการบน Card
             document.getElementById('total-user').innerText = userData.total;
             document.getElementById('total-admin').innerText = userData.totalAdmin;
 
@@ -50,23 +43,30 @@ async function fetchUsers() {
                 }
                 const row = `
                     <tr>
-                        <td>${index + 1}</td>
-                        <td>${item.username}</td>
-                        <td>${item.firstname} ${item.lastname}</td>
-                        <td>${item.email}</td>
-                        <td><span style="background-color: ${roleBgColor}; color: ${roleTextColor}; padding: 6px 16px; border-radius: 50px; font-size: 16px; font-weight: bold; display: inline-block; text-align: center;">
+                        <td style="vertical-align: middle;">${index + 1}</td>
+                        <td style="vertical-align: middle;">${item.username}</td>
+                        <td style="vertical-align: middle;">${item.firstname} ${item.lastname}</td>
+                        <td style="vertical-align: middle;">${item.email}</td>
+                        <td style="vertical-align: middle;">
+                            <span style="background-color: ${roleBgColor}; color: ${roleTextColor}; padding: 6px 16px; border-radius: 10px; font-size: 16px; font-weight: bold; display: inline-block; text-align: center; white-space: nowrap;">
                                 ${item.role_name}
-                            </span></td>
-                        <td style="display: flex; padding: 20%; justify-content: right; gap: 20px;">
-                            <button class="delete-btn" 
-                                    data-id="${item.user_id}" 
-                                    data-username="${item.username}"
-                                    style="border: none; background: transparent; color: red; cursor: pointer; font-size: 18px;">
-                                Delete
-                            </button>
-                            <a href="/editUser/${item.user_id}"><img src="/images/manageuser-edit.svg"></a>
+                            </span>
                         </td>
-                    </tr>
+                        
+                        <td style="vertical-align: middle;">
+                            <div style="display: flex; align-items: center; justify-content: flex-end; gap: 20px;">
+                                <button class="delete-btn" 
+                                        data-id="${item.user_id}" 
+                                        data-username="${item.username}"
+                                        style="border: none; background: transparent; color: red; cursor: pointer; font-size: 18px; font-weight: bold; padding: 0;">
+                                    Delete
+                                </button>
+                                <a href="/editUser/${item.user_id}" style="display: flex; align-items: center;">
+                                    <img src="/images/manageuser-edit.svg" alt="Edit" style="width: 24px; height: 24px;">
+                                </a>
+                            </div>
+                        </td>
+                        </tr>
                 `;
                 tableBody.insertAdjacentHTML('beforeend', row);
             });
