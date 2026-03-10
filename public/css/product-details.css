@@ -405,4 +405,19 @@ td:last-child { border-top-right-radius: 8px; border-bottom-right-radius: 8px; }
         justify-content: space-between;
         gap: 10px;
     }
+    .detail-container {
+        padding: 15px; /* ลดระยะขอบลงนิดหน่อยให้เต็มจอมือถือมากขึ้น */
+        overflow-x: auto; /* ทริคสำคัญ: สั่งให้กล่องนี้มีแถบเลื่อนซ้ายขวาได้ถ้าเนื้อหาล้น */
+        -webkit-overflow-scrolling: touch; /* ทำให้การใช้นิ้วไถบนมือถือ (โดยเฉพาะ iOS) ลื่นไหลขึ้น */
+    }
+
+    .detail-container table {
+        min-width: 700px; /* บังคับตารางให้กว้างอย่างน้อย 700px เพื่อไม่ให้คอลัมน์โดนบีบจนเละ */
+    }
+
+    /* ปรับขนาดตัวหนังสือในตารางบนมือถือให้เล็กลงนิดหน่อย */
+    th, td {
+        padding: 12px 10px;
+        font-size: 0.95rem;
+    }
 }
