@@ -208,7 +208,7 @@ app.get('/edit-user',isAuth ,isAdmin ,(req, res) => {
 });
 
 app.get('/add-users',isAuth ,isAdmin ,(req, res) => {
-    // สั่ง render ไฟล์ views/userManage.ejs
+    // สั่ง render ไฟล์ views/add-users.ejs
     res.render('add-users', {
         username: req.session.username,
         role_id: req.session.role_id
