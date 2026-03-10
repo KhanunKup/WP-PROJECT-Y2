@@ -61,7 +61,7 @@ body {
 }
 /* crop max width & height (add scorll bar)*/
 .table {
-    max-height: 400px;
+    max-height: calc(100vh - 280px);
     overflow-y: auto;
     overflow-x: auto;
     border-radius: 8px;
@@ -81,6 +81,7 @@ body {
 .data-table {
     width: 100%;
     border-collapse: collapse;
+    table-layout: fixed;
     text-align: left;
 }
 .data-table tbody tr:nth-child(even) {
@@ -96,7 +97,10 @@ body {
     padding: 15px 10px;
     font-size: 14px;
     text-align: center;
+    vertical-align: middle;
+    word-wrap: break-word;
 }
+.data-table th:nth-child(1) { width: 6%; }
 /* --- for action badge --- */
 .action-badge {
     padding: 6px 12px;
@@ -155,3 +159,16 @@ body {
     color: #6b7280;
 }
 /* grey for system */
+
+@media screen and (max-width: 1024px) {
+    .data-table {
+        table-layout: auto;
+    }
+    .data-table th, .data-table td {
+        white-space: nowrap;
+    }
+    .data-table td:nth-child(6) {
+        min-width: 250px;
+        white-space: normal; 
+    }
+}
