@@ -34,7 +34,7 @@ body {
     width: 100%;
     padding: 10px 30px;
     box-shadow: 0 2px 5px rgba(0, 0, 0, 0.05);
-    height: 70px;
+    height: auto;
 }
 
 .logo {
@@ -160,6 +160,7 @@ body {
         position: absolute;
         top: 70px;
         right: -100%;
+        display: none;
         left: auto;
         flex-direction: column;
         width: 260px;
@@ -168,11 +169,11 @@ body {
         gap: 25px;
         box-shadow: 0 5px 20px rgba(0, 0, 0, 0.1);
         border-radius: 0 0 0 15px;
-        transition: 0.3s;
         align-items: flex-start;
     }
 
     .right-menu.active {
+        display: flex;
         right: 0;
     }
 

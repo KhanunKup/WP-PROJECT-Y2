@@ -130,7 +130,7 @@ navbar a {
 }
 
 /* for mobile */
-@media screen and (max-width: 768px) {
+@media screen and (max-width: 1024px) {
     navbar {
         width: 100%;
         height: auto;
@@ -141,6 +141,7 @@ navbar a {
         flex-wrap: nowrap;
         overflow-x: auto;
         padding: 10px;
+        justify-content: center;
     }
     .nav-item {
         flex-direction: column;
