@@ -2,7 +2,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     const productId = window.location.pathname.split('/').pop();
 
     try {
-        // ยิง API แค่เส้นเดียวจบ!
+        // ยิง API แค่เส้นเดียว
         const response = await fetch(`/api/v1/product-details/${productId}`);
         const result = await response.json();
 
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 
             // 2. เอาข้อมูลรายการสต็อกไปวนลูป (forEach) สร้างตารางครึ่งล่าง
             const tableBody = document.getElementById('product-table');
-            tableBody.innerHTML = ''; 
+            tableBody.innerHTML = '';
 
             stockList.forEach(item => {
                 // เพิ่มเงื่อนไขเช็คสถานะ เพื่อสลับสีป้ายแคปซูล

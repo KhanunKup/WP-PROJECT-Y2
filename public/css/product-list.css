@@ -33,7 +33,7 @@ h1 {
 /* --- ส่วนของ Filter (ตัวกรองและค้นหา) --- */
 .filter {
     display: flex;
-    align-items: center;
+    align-items: flex-end; /* เปลี่ยนเป็น flex-end เพื่อให้ทุกกล่องชิดพื้นด้านล่าง */
     gap: 15px;
     padding: 0 40px 30px 40px;
 }
@@ -148,4 +148,72 @@ h1 {
 
 .product-card button:hover {
     background-color: #d67118;
+}
+
+@media screen and (max-width: 768px) {
+    /* ลดขนาดฟอนต์หัวข้อและระยะขอบ */
+    h1 {
+        font-size: 32px;
+        margin: 20px 20px 10px 20px;
+    }
+
+    /* อนุญาตให้ตัวกรองตกลงมาบรรทัดใหม่ได้ถ้าพื้นที่เต็ม และลด Padding ซ้าย-ขวา */
+    .filter {
+        flex-wrap: wrap; 
+        padding: 0 20px 20px 20px;
+    }
+
+    /* ยกเลิกการดันชิดขวา และปล่อยให้ช่องค้นหายืดเต็มพื้นที่ที่เหลือในบรรทัดนั้น */
+    #searchInput {
+        margin-left: 0;
+        flex-grow: 1; 
+    }
+
+    /* ลด Padding ซ้าย-ขวาของกรอบสินค้า */
+    #productContainer {
+        padding: 0 20px 30px 20px;
+        gap: 15px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    /* ลดขนาดหัวข้อลงอีกให้พอดีจอ */
+    h1 {
+        font-size: 26px;
+        margin: 15px 15px 10px 15px;
+    }
+
+    /* เปลี่ยนการจัดเรียงจากแนวนอนเป็นแนวตั้ง (บนลงล่าง) */
+    .filter {
+        flex-direction: column;
+        align-items: stretch; /* บังคับให้กล่องขยายเต็มความกว้าง */
+        padding: 0 15px 15px 15px;
+        gap: 10px;
+    }
+
+    /* ปรับให้กล่องเลือก หมวดหมู่ พิมพ์ค้นหา และปุ่มเพิ่มสินค้า กว้าง 100% */
+    .filter select, 
+    .filter input,
+    .filter a {
+        min-width: 100%;
+        width: 100%; /* ป้องกันการหดตัว */
+        box-sizing: border-box; /* ให้คำนวณขอบรวมกับความกว้าง ไม่ดันทะลุจอ */
+        margin: 0;
+    }
+
+    /* จัดข้อความปุ่มเพิ่มสินค้าให้อยู่กึ่งกลาง */
+    .filter a {
+        justify-content: center; 
+    }
+
+    /* ปรับ Grid ให้ลดขนาดขั้นต่ำของการ์ดลง (เหลือ 150px) เพื่อให้มือถือบางรุ่นสามารถโชว์ 2 คอลัมน์ได้ หรือเต็มจอแบบ 1 คอลัมน์ */
+    #productContainer {
+        padding: 0 15px 30px 15px;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    }
+
+    /* ลดความสูงของรูปภาพในการ์ดลงเล็กน้อยไม่ให้กินพื้นที่แนวตั้งมากเกินไป */
+    .product-card img {
+        height: 140px;
+    }
 }
