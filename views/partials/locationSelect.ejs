@@ -1,0 +1,90 @@
+<style>
+    .location-format {
+        width: 100%;
+    }
+
+    .location-inputs-container {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        gap: 10px;
+        min-width: 0;
+    }
+
+    .location-row {
+        display: flex;
+        gap: 10px;
+        width: 100%;
+    }
+
+    .location-row select,
+    .location-row input {
+        flex: 1;
+        min-width: 0;
+    }
+
+    .location-preview-box {
+        background-color: #f1f5f9;
+        border-radius: 6px;
+        border-left: 4px solid #2563eb;
+        padding: 10px 15px;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        overflow: hidden;
+        white-space: nowrap;
+    }
+
+    .preview-label {
+        color: #475569;
+        font-size: 0.9rem;
+    }
+
+    .preview-value {
+        color: #2563eb;
+        font-weight: bold;
+        font-size: 1.1rem;
+    }
+
+    #inputAisle, #inputShelf, #inputLevel {
+        max-width: 32%;
+    }
+    
+</style>
+<div class="location-format">
+    <label style="display: block; margin-bottom: 10px; font-weight: bold;">ระบุที่อยู่จัดเก็บ:</label>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 10px;">
+        <select id="zoneSelect" class="input-light-blue" onchange="checkCustomZone(); updatePreview();"
+            style="width: 150px;" required>
+            <option value="" disabled selected>เลือกโซน</option>
+            <option value="A">โซน A</option>
+            <option value="B">โซน B</option>
+            <option value="C">โซน C</option>
+            <option value="D">โซน D</option>
+            <option value="E">โซน E</option>
+            <option value="custom">โซนอื่นๆ</option>
+        </select>
+
+        <input type="text" id="customZoneInput" class="input-area" placeholder="ระบุ (เช่น F)" maxlength="2"
+            oninput="filterAlpha(this)" style="display: none; width: 100px; text-transform: uppercase;">
+    </div>
+
+    <div style="display: flex; gap: 10px; margin-bottom: 15px;" >
+        <input type="text" id="inputAisle" class="input-area" placeholder="แถว (01)" maxlength="2"
+            oninput="filterNumber(this)" onblur="padZero(this)" required>
+        <input type="text" id="inputShelf" class="input-area" placeholder="ชั้นวาง (05)" maxlength="2"
+            oninput="filterNumber(this)" onblur="padZero(this)" required>
+        <input type="text" id="inputLevel" class="input-area" placeholder="ชั้น (01)" maxlength="2"
+            oninput="filterNumber(this)" onblur="padZero(this)" required>
+    </div>
+
+    <div style="padding: 10px; background: #eef2f7; border-radius: 6px; border-left: 4px solid #007bff;">
+        <strong style="color: #555;">รหัสตำแหน่งที่จะบันทึก:</strong>
+        <span id="locationPreview"
+            style="color: #007bff; font-weight: bold; font-size: 1.2em; margin-left: 10px;">--</span>
+
+        <input type="hidden" id="inputLocation" name="location">
+    </div>
+</div>
+<script src="/js/locationSelect.js"></script>

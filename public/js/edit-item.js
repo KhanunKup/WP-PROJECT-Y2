@@ -5,9 +5,10 @@ document.addEventListener('DOMContentLoaded', async () => {
 
     const goodInput = document.getElementById('inputGoodQty');
     const damagedInput = document.getElementById('inputDamagedQty');
-    const locationInput = document.getElementById('inputLocation'); // ช่องที่พิมพ์แก้ได้
+    const locationInput = document.getElementById('inputLocation'); // ช่องที่พิมพ์แก้ได้ (ตอนนี้เป็น Hidden)
 
     let initialLocationName = ""; //ตัวแปรเก็บชื่อเดิมไว้เช็กการย้ายที่
+    
     try {
         const response = await fetch(`/api/v1/stocks/${productId}/${locationId}`);
         const result = await response.json();
@@ -26,9 +27,39 @@ document.addEventListener('DOMContentLoaded', async () => {
             // เช็คราคาว่ามีมั้ย ถ้ามีให้ทำ toLocaleString() เพื่อความสวยงาม
             document.getElementById('inputPrice').value = data.selling_price ? data.selling_price.toLocaleString() : '0';
 
-            // ส่วนที่จัดเก็บ (ที่แกพิมพ์แก้ได้)
-            locationInput.value = data.location_name || '';
-            initialLocationName = data.location_name || ''; // จำชื่อเดิมไว้เช็คตอนย้ายที่
+            // 🌟 ส่วนที่จัดเก็บ: นำค่าเดิมมาใส่ช่องซ่อน และนำไปแตกใส่ช่องต่างๆ
+            const locName = data.location_name || '';
+            locationInput.value = locName;
+            initialLocationName = locName; // จำชื่อเดิมไว้เช็คตอนย้ายที่
+
+            // 🌟 ระบบแตกไฟล์: แยกข้อความ 'A-01-02-03' ไปใส่ใน 4 ช่อง
+            if (locName) {
+                const parts = locName.split('-');
+                if (parts.length === 4) {
+                    const selectZone = document.getElementById('zoneSelect');
+                    const customZone = document.getElementById('customZoneInput');
+                    
+                    // เช็กว่าเป็นโซน A, B หรือโซนที่พิมพ์เอง
+                    if (parts[0] === 'A' || parts[0] === 'B') {
+                        selectZone.value = parts[0];
+                    } else {
+                        selectZone.value = 'custom';
+                        customZone.style.display = 'block';
+                        customZone.value = parts[0];
+                    }
+                    
+                    document.getElementById('inputAisle').value = parts[1];
+                    document.getElementById('inputShelf').value = parts[2];
+                    document.getElementById('inputLevel').value = parts[3];
+                    
+                    // อัปเดตพรีวิวข้อความด้านล่างสุด
+                    if (typeof updatePreview === 'function') {
+                        updatePreview();
+                    } else {
+                        document.getElementById('locationPreview').innerText = locName;
+                    }
+                }
+            }
 
             // ส่วนจำนวนสินค้า (ดี/เสีย)
             goodInput.value = data.good_qty || 0;
@@ -37,7 +68,7 @@ document.addEventListener('DOMContentLoaded', async () => {
             damagedInput.dataset.old = data.damaged_qty || 0;
 
             // ตั้งค่าลิมิตยอดรวม (ถ้าต้องการใช้ระบบ Balance ยอด)
-            totalInventoryLimit = (parseInt(data.good_qty) || 0) + (parseInt(data.damaged_qty) || 0);
+            let totalInventoryLimit = (parseInt(data.good_qty) || 0) + (parseInt(data.damaged_qty) || 0);
         }
     } catch (error) {
         console.error("Fetch Data Error:", error);
@@ -57,6 +88,13 @@ document.addEventListener('DOMContentLoaded', async () => {
             })
         });
     }
+
+    goodInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
+    damagedInput.addEventListener('input', function() {
+        this.value = this.value.replace(/[^0-9]/g, '');
+    });
 
     // ปุ่มยกเลิก
     document.getElementById('btnCancel').addEventListener('click', () => {
@@ -120,6 +158,18 @@ document.addEventListener('DOMContentLoaded', async () => {
         const newDamaged = parseInt(damagedInput.value) || 0;
         const oldGood = parseInt(goodInput.dataset.old) || 0;
         const oldDamaged = parseInt(damagedInput.dataset.old) || 0;
+
+        // ถ้ากรอกค่า 4 ช่องไม่ครบจะถือว่าค่าว่าง
+        if (!newLocationName) {
+            Swal.fire({
+                title: 'แจ้งเตือน',
+                text: 'กรุณาระบุที่อยู่จัดเก็บ (โซน, แถว, ชั้นวาง, ชั้น) ให้ครบถ้วน',
+                icon: 'warning',
+                confirmButtonText: 'ตกลง',
+                confirmButtonColor: '#E67E22'
+            });
+            return;
+        }
 
         Swal.fire({
             title: 'ยืนยันการบันทึก',
