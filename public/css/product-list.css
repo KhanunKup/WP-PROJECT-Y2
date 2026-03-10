@@ -1,0 +1,219 @@
+/* public/css/product-list.css */
+@font-face {
+    font-family: 'Outfit';
+    src: url('/fonts/Outfit-VariableFont_wght.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+/* ตั้งค่าฟอนต์และพื้นหลังของหน้าเว็บ (ใช้ฟอนต์ที่คุณใช้อยู่ หรือ sans-serif พื้นฐาน) */
+@font-face {
+    font-family: 'Kanit';
+    src: url('/fonts/Kanit-Semibold.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+*{
+    font-family: 'Kanit', sans-serif;
+}
+body {
+    margin: 0;
+    padding: 0;
+    background-color: #ffffff;
+}
+
+/* ส่วนหัวข้อ */
+h1 {
+    font-size: 40px;
+    color: #111;
+    margin: 30px 40px 10px 40px;
+}
+
+/* --- ส่วนของ Filter (ตัวกรองและค้นหา) --- */
+.filter {
+    display: flex;
+    align-items: flex-end; /* เปลี่ยนเป็น flex-end เพื่อให้ทุกกล่องชิดพื้นด้านล่าง */
+    gap: 15px;
+    padding: 0 40px 30px 40px;
+}
+
+/* ตกแต่ง Select และ Input */
+.filter select, 
+.filter input {
+    padding: 10px 15px;
+    border: 2px solid #ccc;
+    border-radius: 8px;
+    font-size: 15px;
+    outline: none;
+    background-color: #fff;
+    min-width: 150px;
+}
+
+.filter input:focus,
+.filter select:focus {
+    border-color: #1750AC;
+}
+
+/* ดันช่องค้นหาและปุ่มเพิ่มสินค้าไปชิดขวา */
+#searchInput {
+    margin-left: auto; 
+    min-width: 250px;
+    background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="%23999" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>');
+    background-repeat: no-repeat;
+    background-position: 95% center;
+}
+
+/* ปุ่มเพิ่มสินค้า */
+.filter a {
+    background-color: #1750AC;
+    color: white;
+    padding: 10px 20px;
+    text-decoration: none;
+    border-radius: 8px;
+    font-weight: bold;
+    font-size: 15px;
+    display: inline-flex;
+    align-items: center;
+    transition: 0.2s;
+}
+
+.filter a::before {
+    content: "+";
+    margin-right: 8px;
+    font-size: 18px;
+}
+
+.filter a:hover {
+    background-color: #123e85;
+}
+
+
+/* --- ส่วนของ Product Grid (การ์ดสินค้า) --- */
+#productContainer {
+    display: grid;
+    /* จัดการ์ดให้พอดีจออัตโนมัติ ขนาดขั้นต่ำ 220px */
+    grid-template-columns: repeat(auto-fill, minmax(220px, 1fr));
+    gap: 20px;
+    padding: 0 40px 50px 40px;
+}
+
+/* หน้าตาของการ์ดแต่ละใบ */
+.product-card {
+    background-color: #E2E2E2; /* สีเทาอ่อนแบบในรูป */
+    border-radius: 12px;
+    padding: 15px;
+    display: flex;
+    flex-direction: column;
+    transition: transform 0.2s;
+    box-shadow: 0 4px 8px rgb(94, 94, 94);
+}
+
+.product-card:hover {
+    transform: translateY(-3px); /* เวลานำเมาส์ชี้ให้การ์ดเด้งขึ้นนิดนึง */
+}
+
+/* รูปภาพในการ์ด */
+.product-card img {
+    width: 100%;
+    height: 160px;
+    object-fit: cover; /* ให้รูปเต็มกรอบแบบสวยๆ */
+    background-color: #fff;
+    border-radius: 8px;
+    margin-bottom: 15px;
+    box-shadow: 0 4px 8px rgb(143, 143, 143);
+}
+
+/* ชื่อสินค้า */
+.product-name {
+    margin: 0 0 15px 0;
+    font-size: 18px;
+    color: #000;
+}
+
+/* ปุ่มรายละเอียดสีส้ม */
+.product-card button {
+    width: 100%;
+    background-color: #E67E22;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 6px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    align-self: center; /* ให้ปุ่มหดขนาดพอดีกับข้อความและชิดซ้าย */
+    transition: 0.2s;
+}
+
+.product-card button:hover {
+    background-color: #d67118;
+}
+
+@media screen and (max-width: 768px) {
+    /* ลดขนาดฟอนต์หัวข้อและระยะขอบ */
+    h1 {
+        font-size: 32px;
+        margin: 20px 20px 10px 20px;
+    }
+
+    /* อนุญาตให้ตัวกรองตกลงมาบรรทัดใหม่ได้ถ้าพื้นที่เต็ม และลด Padding ซ้าย-ขวา */
+    .filter {
+        flex-wrap: wrap; 
+        padding: 0 20px 20px 20px;
+    }
+
+    /* ยกเลิกการดันชิดขวา และปล่อยให้ช่องค้นหายืดเต็มพื้นที่ที่เหลือในบรรทัดนั้น */
+    #searchInput {
+        margin-left: 0;
+        flex-grow: 1; 
+    }
+
+    /* ลด Padding ซ้าย-ขวาของกรอบสินค้า */
+    #productContainer {
+        padding: 0 20px 30px 20px;
+        gap: 15px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    /* ลดขนาดหัวข้อลงอีกให้พอดีจอ */
+    h1 {
+        font-size: 26px;
+        margin: 15px 15px 10px 15px;
+    }
+
+    /* เปลี่ยนการจัดเรียงจากแนวนอนเป็นแนวตั้ง (บนลงล่าง) */
+    .filter {
+        flex-direction: column;
+        align-items: stretch; /* บังคับให้กล่องขยายเต็มความกว้าง */
+        padding: 0 15px 15px 15px;
+        gap: 10px;
+    }
+
+    /* ปรับให้กล่องเลือก หมวดหมู่ พิมพ์ค้นหา และปุ่มเพิ่มสินค้า กว้าง 100% */
+    .filter select, 
+    .filter input,
+    .filter a {
+        min-width: 100%;
+        width: 100%; /* ป้องกันการหดตัว */
+        box-sizing: border-box; /* ให้คำนวณขอบรวมกับความกว้าง ไม่ดันทะลุจอ */
+        margin: 0;
+    }
+
+    /* จัดข้อความปุ่มเพิ่มสินค้าให้อยู่กึ่งกลาง */
+    .filter a {
+        justify-content: center; 
+    }
+
+    /* ปรับ Grid ให้ลดขนาดขั้นต่ำของการ์ดลง (เหลือ 150px) เพื่อให้มือถือบางรุ่นสามารถโชว์ 2 คอลัมน์ได้ หรือเต็มจอแบบ 1 คอลัมน์ */
+    #productContainer {
+        padding: 0 15px 30px 15px;
+        grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); 
+    }
+
+    /* ลดความสูงของรูปภาพในการ์ดลงเล็กน้อยไม่ให้กินพื้นที่แนวตั้งมากเกินไป */
+    .product-card img {
+        height: 140px;
+    }
+}

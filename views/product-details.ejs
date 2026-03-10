@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายละเอียดสินค้า</title>
+    <link rel="stylesheet" href="/css/product-details.css">
+    <%- include("partials/icon.ejs") %>
+</head>
+<body>
+    <%- include("partials/navbar.ejs") %>
+
+    <main class="container">
+        <div class="form-container">
+            <div class="go-back">
+                <a href="/product-list">กลับไปหน้าคลังสินค้า</a>
+            </div>
+            <div class="form-layout">
+                <div class="form-left">
+                    <div class="image-box">
+                        <img id="productImage" src="">
+                    </div>
+                </div>
+                <div class="form-right">
+                    <h1 id="productName"></h1>
+                    <h2 class="form-title">รายละเอียดสินค้า:</h2>
+
+                    <div class="input-group">
+                        <label>ต้นทุน:</label>
+                        <div class="input-wrapper-unit">
+                            <input type="number" id="inputCost" class="input-light-blue" min="0" readonly>
+                            <span class="unit-text">บาท</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>ราคาขาย:</label>
+                        <div class="input-wrapper-unit">
+                            <input type="number" id="inputPrice" class="input-light-blue" min="0" readonly>
+                            <span class="unit-text">บาท</span>
+                        </div>
+                    </div>
+
+                    <div class="input-group">
+                        <label>จำนวน:</label>
+                        <div class="input-wrapper-unit">
+                            <input type="number" id="inputStock" class="input-light-blue" min="0" readonly>
+                            <span class="unit-text">ชิ้น</span>
+                        </div>
+                    </div>
+
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button class="btn-save">✎ แก้ไขรายละเอียดสินค้า</button>
+            </div>
+        </div>
+    </main>
+    <div class="detail-container">
+            <table>
+                <thead>
+                    <tr>
+                        <th>รหัสสินค้า</th>
+                        <th>ที่จัดเก็บ</th>
+                        <th>สภาพสินค้า</th>
+                        <th>จำนวน</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody id="product-table">
+                    </tbody>
+            </table>
+        </div>
+    <script src="/js/product-detail.js"></script>
+</body>
+</html>

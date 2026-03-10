@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>รายการสินค้า</title>
+    <link rel="stylesheet" href="/css/product-list.css">
+    <%- include("partials/icon.ejs") %>
+</head>
+<body>
+    <%- include("partials/navbar.ejs") %>
+
+    <h1>รายการสินค้า</h1>
+    <h1>ตอนนี้คุณอยู่ที่คลังสินค้า : <%= warehouseName %></h1>
+    <div class="filter">
+    <div style="display: flex; flex-direction: column; gap: 5px;">
+        <label style="font-weight: bold; font-size: 14px;">คัดกรองหมวดหมู่</label>
+        <select id="categoryFilter">
+            <option value="all">ทั้งหมด</option>
+            <option value="อุปกรณ์เสริม">อุปกรณ์เสริม</option>
+            <option value="ฮาร์ดแวร์คอมพิวเตอร์">ฮาร์ดแวร์คอมพิวเตอร์</option>
+            <option value="แล็ปท็อป">แล็ปท็อป</option>
+            <option value="จอคอมพิวเตอร์">จอคอมพิวเตอร์</option>
+            <option value="อุปกรณ์เครือข่าย">อุปกรณ์เครือข่าย</option>
+        </select>
+    </div>
+
+    <div style="display: flex; flex-direction: column; gap: 5px;">
+        <label style="font-weight: bold; font-size: 14px;">สถานะ</label>
+        <select id="statusFilter">
+            <option value="all">ทั้งหมด</option>
+            <option value="instock">มีสินค้า</option>
+            <option value="outstock">สินค้าหมด</option>
+        </select>
+    </div>
+
+    <input type="text" id="searchInput" placeholder="ค้นหาชื่อสินค้า...">
+    <a href="/add-product">เพิ่มสินค้า</a>
+</div>
+    
+    <div id="productContainer"></div>
+
+    <script src="/js/product-filter.js"></script>
+</body>
+</html>

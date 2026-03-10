@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Order</title>
+    <link rel="stylesheet" href="css/navbar.css">
+    <link rel="stylesheet" href="css/order.css">
+    <%- include("partials/icon.ejs") %>
+</head>
+<body>
+    <%- include('partials/navbar.ejs') %>
+    <div class="container">
+        <a href="/dashboard" class="back-link">&larr; กลับไปหน้าหลัก</a>
+        <p>ตอนนี้คุณอยู่ที่คลังสินค้า : <%= warehouseName %></p>
+        <div class="tabs-container">
+            <a href="/history" class="tab-link">ประวัติการทำรายการย้อนหลัง</a>
+            <a href="/receive-log" class="tab-link">บันทึกการรับสินค้า</a>
+            <a href="/export-log" class="tab-link active">บันทึกการเบิกจ่าย</a>
+        </div>
+        <div class="table-card">
+            <div class="table">
+                <table class="data-table">
+                    <thead>
+                        <tr>
+                            <th>ลำดับที่</th>
+                            <th>วันที่-เวลา</th>
+                            <th>ผู้ใช้</th>
+                            <th>ชื่อของพนักงาน</th>
+                            <th>การดำเนินการ</th>
+                            <th>คำอธิบาย</th>
+                            <th>อีเมล</th>
+                            <th>บทบาท</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        <!-- generate data by js -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    <script src="/js/order-export-log.js"></script>
+</body>
+</html>

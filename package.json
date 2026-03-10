@@ -21,12 +21,17 @@
   },
   "homepage": "https://github.com/KhanunKup/WP-PROJECT-Y2#readme",
   "dependencies": {
+    "bcrypt": "^6.0.0",
     "bcryptjs": "^3.0.3",
+    "chart.js": "^4.5.1",
+    "cookie-parser": "^1.4.7",
     "dotenv": "^17.3.1",
     "ejs": "^4.0.1",
     "express": "^5.2.1",
     "express-session": "^1.19.0",
-    "sqlite3": "^5.1.7"
+    "multer": "^2.1.1",
+    "sqlite3": "^5.1.7",
+    "sweetalert2": "^11.26.21"
   },
   "devDependencies": {
     "nodemon": "^3.1.14"

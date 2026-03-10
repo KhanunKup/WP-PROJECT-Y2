@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/usermanage.css">
+    <title>User Manage</title>
+    <%- include("partials/icon.ejs") %>
+</head>
+
+<body>
+    <div class="container">
+        <%- include('partials/navbar.ejs') %>
+
+        <div class="manage-con">
+            <h1 class="page-title">จัดการข้อมูลผู้ใช้</h1>
+
+            <div class="user-detail">
+                <div class="total-user card-stat">
+                    <div>
+                        <h2>จำนวนผู้ใช้</h2>
+                        <h1 id="total-user"></h1>
+                    </div>
+                    <img src="/images/manageuser-user-pic.svg" alt="User Icon">
+                </div>
+
+                <div class="total-manager card-stat">
+                    <div>
+                        <h2>จำนวนผู้จัดการ</h2>
+                        <h1 id="total-admin"></h1>
+                    </div>
+                    <img src="/images/manageuser-manager-pic.svg" alt="Manager Icon">
+                </div>
+            </div>
+
+            <div class="function">
+                <input type="text" placeholder="ค้นหาชื่อผู้ใช้" id="searchInput" class="search-box">
+                <a href="/add-users" id="add-users"><button class="add">+ เพิ่มผู้ใช้</button></a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="user-table-main">
+                    <thead>
+                        <tr>
+                            <th>ลำดับ</th>
+                            <th>ผู้ใช้</th>
+                            <th>ชื่อของพนักงาน</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody id="user-table"></tbody>
+                </table>
+            </div>
+        </div>
+
+    </div>
+    <script src="/sweetalert/sweetalert2.all.min.js"></script> 
+    <script src="/js/userManage.js"></script>
+</body>
+
+</html>

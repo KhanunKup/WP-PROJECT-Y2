@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/css/warehouseSelect.css">
+    <title>Select Warehouse</title>
+    <%- include("partials/icon.ejs") %>
+</head>
+
+<body>
+    <nav>
+        <div class="logo">
+            <img src="/images/logo-pic.svg" class="logo-img">
+            <div>
+                <h1 class="easymanage" style="color: #1750AC;">EASYMANAGE</h1>
+                <h3 style="color: #E67E22;">WAREHOUSE MANAGEMENT SYSTEM</h3>
+            </div>
+        </div>
+
+        <div class="text-select">
+            <div class="text-left" style="padding-bottom: 10%;">
+                <h1 style="font-size: 48px;">เลือกคลังสินค้า</h1>
+                <p style="font-size: 28px; margin-top: 5%;">โปรดเลือกคลังสินค้าที่ต้องการจัดการ</p>
+            </div>
+
+            <% if(role_id == 1 || role_id == 2) { %>
+            <div class="add-btn">
+                <a href="/delete-warehouse"><button type="submit">ลบคลังสินค้า</button></a>
+                <a href="/create-warehouse"><button type="submit">เพิ่มคลังสินค้า</button></a>
+            </div>
+            <% } %>
+        </div>
+    </nav>
+
+    <div class="container" id="warehouse-container"></div>
+    <script src="/js/warehouse.js"></script>
+</body>
+
+</html>

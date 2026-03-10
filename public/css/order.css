@@ -1,0 +1,174 @@
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Kanit';
+}
+body {
+    background-color: #f4f6f9;
+    color: #333;
+}
+.container {
+    max-width: 1400px;
+    margin: 20px auto;
+    padding: 0 20px;
+}
+/* back to home button */
+.back-link {
+    display: inline-block;
+    text-decoration: none;
+    color: #888;
+    font-size: 14px;
+    margin-bottom: 20px;
+}
+.back-link:hover {
+    color: #555;
+}
+.tabs-container {
+    display: flex;
+    gap: 10px;
+    margin-bottom: -1px;
+}
+.tab-link {
+    padding: 12px 24px;
+    text-decoration: none;
+    color: #333;
+    background-color: #d1d5db;
+    border-radius: 8px 8px 0 0;
+    font-weight: bold;
+    font-size: 14px;
+    transition: background-color 0.2s;
+}
+.tab-link:hover {
+    background-color: #e5e7eb;
+}
+/* active tab (white) */
+.tab-link.active {
+    background-color: #ffffff;
+    color: #000;
+    box-shadow: 0 -2px 5px rgba(0, 0, 0, 0.05);
+    position: relative;
+    z-index: 2;
+}
+/* main container for table */
+.table-card {
+    background-color: #ffffff;
+    border-radius: 0 8px 8px 8px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+    padding: 20px;
+    position: relative;
+    z-index: 1;
+}
+/* crop max width & height (add scorll bar)*/
+.table {
+    max-height: calc(100vh - 280px);
+    overflow-y: auto;
+    overflow-x: auto;
+    border-radius: 8px;
+}
+/* lock <th> on top of table */
+.data-table th {
+    background-color: #f3f4f6;
+    color: #111;
+    font-weight: bold;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+.email-link {
+    color: #4b5563;
+}
+.data-table {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    text-align: left;
+}
+.data-table tbody tr:nth-child(even) {
+    background-color: #f9fafb;
+}
+/* hover effect when point <tr> */
+.data-table tbody tr:hover {
+    background-color: #f3f4f6;
+    transition: background-color 0.2s;
+}
+.data-table th,
+.data-table td {
+    padding: 15px 10px;
+    font-size: 14px;
+    text-align: center;
+    vertical-align: middle;
+    word-wrap: break-word;
+}
+.data-table th:nth-child(1) { width: 6%; }
+/* --- for action badge --- */
+.action-badge {
+    padding: 6px 12px;
+    border-radius: 6px;
+    font-size: 13px;
+    font-weight: 600;
+    display: inline-block;
+}
+.action-in {
+    background-color: #d1fae5;
+    color: #065f46;
+}
+/* LOGIN */
+.action-out {
+    background-color: #fee2e2;
+    color: #991b1b;
+}
+/* LOGOUT */
+.action-system {
+    background-color: #e0f2fe;
+    color: #075985;
+}
+.action-login-logout {
+    background-color: #fef3c7;
+    color: #92400e;
+}
+/* TRANSACTION */
+/* --- for role badge --- */
+.role-badge {
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 12px;
+    font-weight: bold;
+    display: inline-block;
+}
+.role-admin {
+    background-color: #fee2e2;
+    color: #991b1b;
+    border: 1px solid #f87171;
+}
+/* red for admin */
+.role-manager {
+    background-color: #fef3c7;
+    color: #92400e;
+    border: 1px solid #fbbf24;
+}
+/* yellow/orange for manager */
+.role-staff {
+    background-color: #d1fae5;
+    color: #065f46;
+    border: 1px solid #34d399;
+}
+/* green for staff */
+.role-none {
+    background-color: #f3f4f6;
+    color: #6b7280;
+}
+/* grey for system */
+
+@media screen and (max-width: 1024px) {
+    .data-table {
+        table-layout: auto;
+    }
+    .data-table th, .data-table td {
+        white-space: nowrap;
+    }
+    .data-table td:nth-child(6) {
+        min-width: 250px;
+        white-space: normal; 
+    }
+}

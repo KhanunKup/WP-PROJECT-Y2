@@ -1,0 +1,58 @@
+<link rel="stylesheet" href="/css/navbar.css">
+<nav class="navbar">
+    <a href="/dashboard" style="text-decoration: none;">
+    <div class="logo">
+        <img class="logo-img" src="/images/logo-pic.svg">
+        <div class="logo-text-group">
+            <h1 style="color: #1750AC;">EASYMANAGE</h1>
+            <h5 style="color: #E67E22;">WAREHOUSE MANAGEMENT SYSTEM</h5>
+        </div>
+    </div>
+    </a>
+    <div class="hamburger" id="hamburger-menu">
+        <span></span>
+        <span></span>
+        <span></span>
+    </div>
+    <div class="right-menu" id="right-menu">
+        <div class="nav-text">
+            <a href="/dashboard">
+                <p id="dashboard">หน้าหลัก</p>
+            </a>
+            <a href="/product-list">
+                <p id="inventory">รายการสินค้า</p>
+            </a>
+            <a href="/history">
+                <p id="report">รายงานผล</p>
+            </a>
+            <a href="/warehouses">
+                <p id="warehouse">เลือกคลังสินค้า</p>
+            </a>
+            <% if(role_id==1 || role_id==2) { %>
+                <a href="/users">
+                    <p id="users">จัดการผู้ใช้</p>
+                </a>
+                <% } %>
+        </div>
+        <div class="user-info">
+            <img class="user-img" src="/images/navbar-profile-pic.svg">
+            <div class="user-details">
+                <p class="user-name">
+                    <%= username %>
+                </p>
+                <p class="logout-btn"><a id="logout">ออกจากระบบ</a></p>
+            </div>
+        </div>
+    </div>
+</nav>
+
+<script src="/js/logout.js"></script>
+<script>
+    const hamburger = document.getElementById('hamburger-menu');
+    const rightMenu = document.getElementById('right-menu');
+
+    hamburger.addEventListener('click', () => {
+        rightMenu.classList.toggle('active');
+        hamburger.classList.toggle('active');
+    });
+</script>

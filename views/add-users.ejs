@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="css/add-user.css">
+    <title>Add Users</title>
+    <%- include("partials/icon.ejs") %>
+</head>
+
+<body>
+    <%- include("partials/navbar.ejs") %>
+        <div class="container">
+            <div class="main">
+                <a href="/users"><button id="btn" style="font-size: 20px; margin-bottom: 3%;"><img src="images/add-user-arrow.svg">กลับไปหน้าจัดการผู้ใช้</button></a>
+                <h1 style="font-size: 32px; margin-bottom: 20px;">เพิ่มหรือเเก้ไขผู้ใช้งาน</h1>
+                <form id="add-users-form">
+                    <p>ชื่อจริง:<br>
+                        <input type="text" id="firstname" placeholder="กรุณากรอกชื่อผู้จริง...">
+                    </p>
+                    <p>นามสกุล:<br>
+                        <input type="text" id="lastname" placeholder="กรุณากรอกนามสกุล...">
+                    </p>
+                    <p>ชื่อผู้ใช้:<br>
+                        <input type="text" id="username" placeholder="กรุณากรอกชื่อผู้ใช้:...">
+                    </p>
+                    <p>รหัสผ่านของผู้ใช้:<br>
+                        <input type="password" id="password" placeholder="กรุณากรอกรหัสผ่านของผู้ใช้...">
+                    </p>
+                    <p>อีเมล:<br>
+                        <input type="email" id="email" placeholder="กรุณากรอกอีเมล...">
+                    </p>
+                    <p>เบอร์โทรศัพท์:<br>
+                        <input type="tel" id="phone_number" placeholder="กรุณากรอกเบอร์โทรศัพท์...">
+                    </p>
+                    <div>
+                        <p style="padding: 0 0 20px 0;">สิทธิ์ผู้ใช้:</p>
+                        <div class="role-selector" style="margin-bottom: 0;">
+                            <input type="radio" id="role-admin" name="role" value="1">
+                            <label for="role-admin" class="role-btn">ผู้ดูเเลระบบ</label>
+
+                            <input type="radio" id="role-manager" name="role" value="2">
+                            <label for="role-manager" class="role-btn">ผู้จัดการ</label>
+
+                            <input type="radio" id="role-staff" name="role" value="3">
+                            <label for="role-staff" class="role-btn">พนักงาน</label>
+                        </div>
+                    </div>
+                    <div class="btn-con">
+                        <button type="submit" class="addbtn" onclick="window.location.href='/users'">ยกเลิก</button>
+                        <button type="submit" class="addbtn" id="save" style="background-color: #E67E22; color: white;">บันทึกข้อมูล</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <script src="/sweetalert/sweetalert2.all.min.js"></script>
+        <script src="/js/add-users.js"></script>
+</body>
+
+</html>

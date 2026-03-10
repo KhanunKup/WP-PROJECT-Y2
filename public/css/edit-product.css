@@ -1,0 +1,226 @@
+@font-face {
+    font-family: 'Kanit';
+    src: url('/fonts/Kanit-Semibold.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Kanit';
+}
+
+body {
+    background-color: #f8f9fc;
+    color: #333;
+}
+
+.container {
+    max-width: 1000px;
+    margin: 40px auto;
+    padding: 0 20px;
+}
+
+.form-container {
+    background-color: #e2e8f0; 
+    border-radius: 20px;
+    padding: 40px 50px;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+.form-layout {
+    display: flex;
+    gap: 60px;
+    flex-wrap: wrap; 
+}
+
+/* --- ฝั่งซ้าย --- */
+.form-left {
+    flex: 1;
+    min-width: 300px;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+}
+
+.orange-box {
+    background-color: #f97316;
+    color: white;
+    height: 250px;
+    border-radius: 10px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 10px;
+    overflow: hidden;
+}
+
+.orange-box img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+
+.btn-upload {
+    background-color: #ea580c;
+    color: white;
+    border: none;
+    padding: 12px;
+    border-radius: 8px;
+    font-weight: bold;
+    cursor: pointer;
+    font-size: 1rem;
+    width: 100%;
+}
+
+/* --- ฝั่งขวา (รายละเอียด) --- */
+.form-right {
+    flex: 1.5; 
+    min-width: 300px;
+}
+
+.form-title {
+    margin-bottom: 20px;
+    color: #1e293b;
+    font-size: 1.3rem;
+}
+
+.input-group {
+    display: flex;
+    align-items: center;
+    margin-bottom: 12px;
+    width: 100%;
+}
+
+.input-wrapper-unit {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+    width: 100%;
+}
+
+.input-wrapper-unit input,
+.input-wrapper-unit .input-area,
+.input-wrapper-unit .input-light-blue {
+    width: 100%;
+    padding-right: 50px; /* เว้นที่ให้คำว่า บาท/ชิ้น */
+    flex: 1; /* ขยายให้สุดขอบ */
+}
+
+.input-group label {
+    width: 100px; 
+    font-weight: 500;
+    color: #475569;
+    font-size: 0.95rem;
+}
+
+.input-area {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    font-size: 0.95rem;
+    color: #3b82f6; 
+    background-color: white;
+}
+
+/* Dropdown หมวดหมู่ */
+select.input-light-blue {
+    flex: 1;
+    padding: 10px 15px;
+    border: 1px solid #cbd5e1;
+    border-radius: 8px;
+    outline: none;
+    appearance: none;
+    background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%233b82f6' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e");
+    background-repeat: no-repeat;
+    background-position: right 15px center;
+    background-size: 16px;
+    cursor: pointer;
+    background-color: white;
+    color: #3b82f6;
+}
+
+.input-area[readonly], select:disabled {
+    background-color: #f1f5f9;
+    cursor: not-allowed;
+}
+
+.input-wrapper-unit {
+    flex: 1;
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+.input-wrapper-unit .unit-text {
+    position: absolute;
+    right: 15px;
+    color: #64748b;
+    font-weight: 500;
+    pointer-events: none;
+}
+
+/* สภาพสินค้า */
+.condition-group {
+    display: flex;
+    gap: 10px;
+    flex: 1;
+}
+
+.btn-condition {
+    padding: 8px 15px;
+    border-radius: 20px;
+    border: none;
+    font-size: 0.85rem;
+    cursor: pointer;
+    background-color: #64748b; 
+    color: white;
+}
+
+.btn-perfect.active { background-color: #1d4ed8; }
+.btn-damaged.active { background-color: #ea580c; }
+
+/* --- ปุ่ม Save / Cancel --- */
+.form-actions {
+    display: flex;
+    justify-content: flex-end; 
+    gap: 15px;
+    margin-top: 30px;
+}
+
+.btn-cancel {
+    background-color: #ea580c;
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+.btn-save {
+    background-color: #1d4ed8; 
+    color: white;
+    border: none;
+    padding: 10px 25px;
+    border-radius: 20px;
+    font-weight: bold;
+    cursor: pointer;
+}
+
+/* --- Responsive --- */
+@media (max-width: 768px) {
+    .form-container { padding: 25px 20px; }
+    .form-layout { gap: 30px; }
+    .input-group { flex-direction: column; align-items: flex-start; }
+    .input-group label { margin-bottom: 8px; }
+    .condition-group, .btn-save, .btn-cancel { width: 100%; }
+    .form-actions { flex-direction: column-reverse; }
+}

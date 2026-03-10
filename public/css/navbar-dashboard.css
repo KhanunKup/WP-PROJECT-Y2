@@ -1,0 +1,160 @@
+@font-face {
+    font-family: 'Outfit';
+    src: url('/fonts/Outfit-VariableFont_wght.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+@font-face {
+    font-family: 'Kanit';
+    src: url('/fonts/Kanit-Semibold.ttf') format('truetype-variations');
+    font-weight: 100 900;
+    font-style: normal;
+    font-display: swap;
+}
+
+body {
+    margin: 0;
+    font-family: 'Kanit';
+    background-color: #f4f4f4;
+}
+
+navbar {
+    display: flex;
+    flex-direction: column;
+    width: 250px;
+    height: 100vh;
+    background-color: #273746;
+    color: #ffffff;
+
+    position: sticky;
+    top: 0;
+}
+
+.logo {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 25px 20px;
+    font-weight: 800;
+    font-size: 18px;
+    letter-spacing: 1px;
+}
+
+.logo img {
+    width: 45px;
+}
+
+.nav-links {
+    display: flex;
+    flex-direction: column;
+    flex-grow: 1;
+    padding: 0 15px;
+    gap: 5px;
+}
+
+.nav-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 12px 15px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: 0.2s;
+    color: #d1d5db;
+}
+
+.nav-item img {
+    width: 30px;
+}
+
+.nav-item a {
+    text-decoration: none;
+    color: #d1d5db;
+}
+
+.nav-item p {
+    margin: 0;
+    font-size: 17px;
+    font-weight: 500;
+}
+
+.nav-item:hover {
+    background-color: #2563eb;
+    color: white;
+}
+
+.profile {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 15px;
+    padding: 20px;
+    border-top: 1px solid #4a5568;
+}
+
+.profile img {
+    width: 40px;
+    height: 40px;
+    border-radius: 50%;
+}
+
+.profile p {
+    margin: 0;
+    font-size: 16px;
+    font-weight: bold;
+}
+
+#datetime-display{
+    flex-wrap: none;
+}
+
+.logout-btn{
+    margin: 0;
+    font-size: 14px;
+    font-weight: 600;
+    color: white;
+    cursor: pointer;
+    transition: color 0.3s;
+}
+
+.logout-btn:hover{
+    color: #E67E22;
+}
+
+navbar a {
+    text-decoration: none;
+    color: inherit;
+    display: block;
+}
+
+/* for mobile */
+@media screen and (max-width: 1024px) {
+    navbar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    } 
+    .nav-links {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 10px;
+        justify-content: center;
+    }
+    .nav-item {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        min-width: 90px;
+        padding: 10px;
+        gap: 5px;
+    }
+    .nav-item p {
+        font-size: 14px;
+    }
+    .profile {
+        justify-content: center;
+    }
+}

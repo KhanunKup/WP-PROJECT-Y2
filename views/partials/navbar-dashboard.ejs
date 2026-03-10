@@ -1,0 +1,71 @@
+<link rel="stylesheet" href="/css/navbar-dashboard.css">
+
+<body>
+    <navbar>
+        <a href="/dashboard" style="text-decoration: none;">
+            <div class="logo">
+                <img src="/images/logo-pic.svg" alt="Logo">
+                <p style="font-family: Outfit;">EASYMANAGE</p>
+            </div>
+        </a>
+
+        <div class="nav-links">
+            <a href="/dashboard">
+                <div class="nav-item active">
+                    <img src="/images/dashboard-frame-pic.svg" alt="Home">
+                    <p>หน้าหลัก</p>
+                </div>
+            </a>
+            <a href="/product-list">
+                <div class="nav-item">
+                    <img src="images/dashboard-box-pic.svg" alt="Inventory">
+                    <p>รายการสินค้า</p>
+                </div>
+            </a>
+            <a href="/history">
+                <div class="nav-item">
+                    <img src="/images/dashboard-chart-pic.svg" alt="Report">
+                    <p>รายงานผล</p>
+                </div>
+            </a>
+            <a href="/warehouses">
+                <div class="nav-item">
+                    <img src="/images/select-warehouse-pic.svg" alt="Warehouse">
+                    <p>เลือกคลังสินค้า</p>
+                </div>
+            </a>
+            <% if(role_id==1 || role_id==2) { %>
+                <a href="/users">
+                    <div class="nav-item">
+                        <img src="/images/dashboard-user-pic.svg" alt="User">
+                        <p>จัดการผู้ใช้</p>
+                    </div>
+                </a>
+                <% } %>
+        </div>
+
+        <div class="profile">
+            <img src="/images/navbar-profile-pic.svg" alt="Profile">
+            <p>
+                <%= username %>
+            </p>
+            <p id="datetime-display"></p>
+            <p class="logout-btn"><a id="logout">ออกจากระบบ</a></p>
+        </div>
+    </navbar>
+    <script>
+        function updateTime() {
+            const now = new Date();
+            const options = {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit'
+            };
+            const timeString = now.toLocaleTimeString('th-TH', options);
+            document.getElementById('datetime-display').innerText = timeString;
+        }
+        updateTime();
+        setInterval(updateTime, 1000);
+    </script>
+    <script src="/js/logout.js"></script>
+</body>
