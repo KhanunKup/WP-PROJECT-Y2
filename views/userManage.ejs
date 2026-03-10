@@ -11,36 +11,36 @@
 
 <body>
     <div class="container">
-        <%- include('partials/dashboard.ejs') %>
+        <%- include('partials/navbar.ejs') %>
 
-            <div class="manage-con">
-                <h1 style="text-align: left; margin-left: 10%;">จัดการข้อมูลผู้ใช้</h1>
+        <div class="manage-con">
+            <h1 class="page-title">จัดการข้อมูลผู้ใช้</h1>
 
-                <div class="user-detail">
-                    <div class="total-user">
-                        <div>
-                            <h2 style="margin: 0; font-size: 28px;">จำนวนผู้ใช้</h2>
-                            <h1 style="margin: 0;" id="total-user"></h1>
-                        </div>
-                        <img src="/images/manageuser-user-pic.svg">
+            <div class="user-detail">
+                <div class="total-user card-stat">
+                    <div>
+                        <h2>จำนวนผู้ใช้</h2>
+                        <h1 id="total-user"></h1>
                     </div>
-
-                    <div class="total-manager">
-                        <div>
-                            <h2 style="margin: 0; font-size: 28px;">จำนวนผู้จัดการ</h2>
-                            <h1 style="margin: 0;" id="total-admin"></h1>
-                        </div>
-                        <img src="/images/manageuser-manager-pic.svg">
-                    </div>
-
+                    <img src="/images/manageuser-user-pic.svg" alt="User Icon">
                 </div>
 
-                <div class="function">
-                    <input type="text" placeholder="ค้นหาชื่อผู้ใช้" id="searchInput">
-                    <a href="/add-users" id="add-users"><button class="add">+ เพิ่มผู้ใช้</button></a>
+                <div class="total-manager card-stat">
+                    <div>
+                        <h2>จำนวนผู้จัดการ</h2>
+                        <h1 id="total-admin"></h1>
+                    </div>
+                    <img src="/images/manageuser-manager-pic.svg" alt="Manager Icon">
                 </div>
+            </div>
 
-                <table style="width: 80%; margin-left: 10%;">
+            <div class="function">
+                <input type="text" placeholder="ค้นหาชื่อผู้ใช้" id="searchInput" class="search-box">
+                <a href="/add-users" id="add-users"><button class="add">+ เพิ่มผู้ใช้</button></a>
+            </div>
+
+            <div class="table-responsive">
+                <table class="user-table-main">
                     <thead>
                         <tr>
                             <th>ลำดับ</th>
@@ -51,9 +51,10 @@
                             <th></th>
                         </tr>
                     </thead>
-                    <tbody id ="user-table"></tbody>
+                    <tbody id="user-table"></tbody>
                 </table>
             </div>
+        </div>
 
     </div>
     <script src="/sweetalert/sweetalert2.all.min.js"></script> 

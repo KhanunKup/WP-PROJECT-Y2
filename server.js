@@ -459,7 +459,7 @@ app.get('/api/v1/product-details/:id', (req, res) => {
 app.post('/api/v1/products', upload.single('image'), async (req, res) => {
 
     const { mode, name, category_id, cost, price, condition, location } = req.body;
-    const currentUserId = req.session.userId || 1; //รับค่าจาก session หรือ default เป็น 1 ถ้ายังไม่มีระบบ login
+    const currentUserId = req.session.userId; //รับค่าจาก session
     const currentWarehouseId = req.session.warehouseId;
 
     try {
@@ -545,7 +545,7 @@ app.post('/api/v1/products', upload.single('image'), async (req, res) => {
 app.put('/api/v1/products/:id', upload.single('image'), async (req, res) => {
     const productId = req.params.id;
     const { name, category_id, cost, price } = req.body; 
-    const currentUserId = req.session.userId || 1; //รับค่าจาก session หรือ ใช้ 1 เป็นค่าเริ่มต้น ถ้ายังไม่มีระบบ login
+    const currentUserId = req.session.userId; //รับค่าจาก session
     const currentWarehouseId = req.session.warehouseId;
 
     try {
@@ -623,7 +623,7 @@ app.get('/api/v1/stocks/:productId/:locationId', (req, res) => {
 
 app.post('/api/v1/transactions', async (req, res) => {
     const { product_id, product_status, quantity, transaction_type, location_name } = req.body;
-    const user_id = req.session.userId || 1;
+    const user_id = req.session.userId; //รับค่าจาก session
     const currentWarehouseId = req.session.warehouseId;
 
     try {
@@ -631,7 +631,6 @@ app.post('/api/v1/transactions', async (req, res) => {
         const locationId = await new Promise((resolve, reject) => {
             db.get(`SELECT location_id FROM Locations WHERE area = ? AND warehouse_id = ?`, [location_name, currentWarehouseId], (err, row) => {
                 if (row) return resolve(row.location_id);
-                // ถ้าไม่เจอชื่อ ให้สร้างใหม่ในคลังที่ 1
                 db.run(`INSERT INTO Locations (warehouse_id, area) VALUES (?, ?)`, [currentWarehouseId, location_name], function(err) {
                     if (err) return reject(err);
                     resolve(this.lastID);
@@ -922,7 +921,8 @@ app.get('/api/v1/all-order', (req, res) => {
                 where l.warehouse_id = ?
                 
                 union all
-                select datetime(created_at, '+7 hours') as date, us.username, concat(us.firstname,' ',us.lastname) as fullname,  description as detail, action, us.email as email, ro.role_name as role
+                select datetime(created_at, '+7 hours') as date, us.username, concat(us.firstname,' ',us.lastname) as fullname, 
+                description as detail, action, us.email as email, ro.role_name as role
                 from System_Logs as sl
                 left join Users as us
                 on sl.user_id = us.user_id

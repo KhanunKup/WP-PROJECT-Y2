@@ -128,3 +128,33 @@ navbar a {
     color: inherit;
     display: block;
 }
+
+/* for mobile */
+@media screen and (max-width: 1024px) {
+    navbar {
+        width: 100%;
+        height: auto;
+        position: relative;
+    } 
+    .nav-links {
+        flex-direction: row;
+        flex-wrap: nowrap;
+        overflow-x: auto;
+        padding: 10px;
+        justify-content: center;
+    }
+    .nav-item {
+        flex-direction: column;
+        justify-content: center;
+        text-align: center;
+        min-width: 90px;
+        padding: 10px;
+        gap: 5px;
+    }
+    .nav-item p {
+        font-size: 14px;
+    }
+    .profile {
+        justify-content: center;
+    }
+}

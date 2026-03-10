@@ -8,7 +8,7 @@
     <script src="/chartjs/chart.umd.js"></script>
 </head>
 <body>
-    <%- include("partials/dashboard.ejs") %>
+    <%- include("partials/navbar-dashboard.ejs") %>
         <div class="info-zone">
             <h1>EASYMANAGE <span style="font-family: Kanit;">ระบบจัดการสินค้า</span></h1>
             <span>ตอนนี้คุณอยู่ที่คลังสินค้า : <%= warehouseName %></span>
@@ -53,20 +53,21 @@
             <div class="bottom-grid">
                 <div class="panel">
                     <h2 class="panel-title">รายการสินค้าใกล้หมด</h2>
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>รหัสสินค้า</th>
-                                <th>ชื่อสินค้า</th>
-                                <th>ชนิดสินค้า</th>
-                                <th>ตำแหน่งของสินค้า</th>
-                                <th>จำนวน</th>
-                            </tr>
-                        </thead>
-                        <tbody id="table-body">
-                            <!-- implemented in dashboard.js -->
-                        </tbody>
-                    </table>
+                    <div class="table-wrapper">
+                        <table>
+                            <thead>
+                                <tr>
+                                    <th>รหัสสินค้า</th>
+                                    <th>ชื่อสินค้า</th>
+                                    <th>ชนิดสินค้า</th>
+                                    <th>ตำแหน่งของสินค้า</th>
+                                    <th>จำนวน</th>
+                                </tr>
+                            </thead>
+                            <tbody id="table-body">
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
 
                 <div class="right-column">
